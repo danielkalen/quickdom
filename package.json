@@ -1,7 +1,7 @@
 {
   "name": "quickdom",
   "version": "1.0.0",
-  "description": "Fast & light DOM element management supporting jquery-like methods & state-based styling",
+  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
   "main": "dist/quickdom.pretty.js",
   "directories": {
     "test": "test"
