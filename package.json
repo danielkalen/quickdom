@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
   "main": "dist/quickdom.pretty.js",
+  "browser": {
+    "./src": "src/quickdom.coffee"
+  },
   "directories": {
     "test": "test"
   },
@@ -19,7 +22,8 @@
     "super-minify": "closure-service dist/quickdom.pretty.js > dist/quickdom.js",
     "watch": "npm run watch:js & npm run watch:test",
     "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
-    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'"
+    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
+    "coverage:badge": "badge-gen -d ./.config/badges/coverage"
   },
   "repository": {
     "type": "git",
@@ -32,7 +36,8 @@
   },
   "homepage": "https://github.com/danielkalen/quickdom#readme",
   "dependencies": {
-    "quickcss": "^1.0.1"
+    "quickcss": "^1.0.1",
+    "smart-extend": "^1.0.1"
   },
   "devDependencies": {
     "bluebird": "^3.4.7",
