@@ -36,8 +36,8 @@
   },
   "homepage": "https://github.com/danielkalen/quickdom#readme",
   "dependencies": {
-    "smart-extend": "^1.0.1"
     "quickcss": "^1.0.4",
+    "smart-extend": "^1.0.5"
   },
   "devDependencies": {
     "bluebird": "^3.4.7",
