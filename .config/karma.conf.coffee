@@ -4,7 +4,7 @@ module.exports = (config)-> config.set
 	browserConsoleLogOptions: level:'log', terminal:true
 	frameworks: ['mocha', 'chai']
 	files: [
-		'dist/quickdom.pretty.js'
+		'dist/quickdom.debug.js'
 		'node_modules/bluebird/js/browser/bluebird.js'
 		'node_modules/jquery/dist/jquery.min.js'
 		'test/test.js'
