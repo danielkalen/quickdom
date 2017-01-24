@@ -1,28 +1,27 @@
-checkIf = 
-	isDefined: (subject)-> subject isnt undefined
+IS = 
+	defined: (subject)-> subject isnt undefined
 	
-	isArray: (subject)-> subject instanceof Array
+	array: (subject)-> subject instanceof Array
 	
-	isObject: (subject)-> typeof subject is 'object' and subject # 2nd check is to test against 'null' values
+	object: (subject)-> typeof subject is 'object' and subject # 2nd check is to test against 'null' values
 
-	isString: (subject)-> typeof subject is 'string'
+	string: (subject)-> typeof subject is 'string'
 	
-	isNumber: (subject)-> typeof subject is 'number'
+	number: (subject)-> typeof subject is 'number'
 	
-	isFunction: (subject)-> typeof subject is 'function'
+	function: (subject)-> typeof subject is 'function'
+
+	iterable: (subject)-> IS.object(subject) and IS.number(subject.length)
 	
-	isQuickDom: (subject)-> subject instanceof QuickDom
+	quickDomEl: (subject)-> subject instanceof QuickElement
 
-	isIterable: (subject)-> checkIf.isObject(subject) and checkIf.isNumber(subject.length)
+	domEl: (subject)-> subject and subject.nodeType is 1
 
-	isDomEl: (subject)-> subject.nodeName and subject.nodeType is 1 or subject.nodeType is 3
+	domText: (subject)-> subject and subject.nodeType is 3
 
-	isDomInput: (subject)->
-		nodeName = subject.nodeName
-		return nodeName is 'INPUT' or nodeName is 'TEXTAREA' or nodeName is 'SELECT'
-
-	isDomRadio: (subject)-> subject.type is 'radio'
-
-	isDomCheckbox: (subject)-> subject.type is 'checkbox'
-
+	domNode: (subject)-> IS.domEl(subject) or IS.domText(subject)
+	
+	# domInput: (subject)->
+	# 	nodeName = subject.nodeName
+	# 	return nodeName is 'INPUT' or nodeName is 'TEXTAREA' or nodeName is 'SELECT'
 
