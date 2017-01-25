@@ -1,7 +1,7 @@
 IS = 
 	defined: (subject)-> subject isnt undefined
 	
-	array: (subject)-> subject instanceof Array
+	# array: (subject)-> subject instanceof Array
 	
 	object: (subject)-> typeof subject is 'object' and subject # 2nd check is to test against 'null' values
 

@@ -1,6 +1,4 @@
 do ()->
-	import * as CSS from 'quickcss'
-	import * as extend from 'smart-extend'
 	import parts/helpers
 	import parts/checks
 	import parts/element
@@ -49,6 +47,12 @@ do ()->
 	import parts/batch
 	import parts/shortcuts
 	QuickDom.version = import ../.config/.version
+	
+	### istanbul ignore next ###
+	import * as CSS from 'quickcss'
+	
+	### istanbul ignore next ###
+	import * as extend from 'smart-extend'
 	
 	### istanbul ignore next ###
 	if exports?.module?

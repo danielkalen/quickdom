@@ -8,7 +8,7 @@ QuickElement::updateOptions = (options)->
 
 
 
-QuickElement::getState = (targetState='')->
+QuickElement::getState = (targetState)->
 	helpers.includes(@_state, targetState)
 
 

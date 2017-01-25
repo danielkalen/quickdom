@@ -937,7 +937,7 @@ suite "QuickDom", ()->
 
 		test ".unwrap()", ()->
 			Main = Dom.div()
-			A = Dom.div().appendTo(Main)
+			A = Dom.div().prependTo(Main)
 			B = Dom.div().appendTo(A)
 			C = Dom.div().appendTo(A)
 			D = Dom.div().appendTo(C)
@@ -1031,6 +1031,13 @@ suite "QuickDom", ()->
 			
 			A.replace(D)
 			checkChildStructure(Main)(D, C)
+			checkChildStructure(A)(E)
+			checkChildStructure(B)()
+			checkChildStructure(C)()
+			checkChildStructure(D)()
+			
+			B.replace(D)
+			checkChildStructure(Main)(C)
 			checkChildStructure(A)(E)
 			checkChildStructure(B)()
 			checkChildStructure(C)()
@@ -1325,6 +1332,7 @@ suite "QuickDom", ()->
 			expect(Dom()).to.equal undefined
 			expect(Dom(null)).to.equal undefined
 			expect(Dom({})).to.equal undefined
+			expect(div.updateOptions()).to.equal div
 			expect(text.options.lostOpts).to.equal undefined
 			expect(div.options.lostOpts).to.equal true
 			expect(div.on()).to.equal div
@@ -1376,6 +1384,17 @@ suite "QuickDom", ()->
 			expect(div.parent).to.equal(Dom sandbox)
 			div.replace(123)
 			expect(div.parent).to.equal(Dom sandbox)
+			div.detach()
+			expect(div.parent).to.equal(undefined)
+			div.unwrap()
+			expect(div.parent).to.equal(undefined)
+			expect(Dom(sandbox).children.length).to.equal 0
+
+			div.appendTo(Dom sandbox)
+			expect(Dom(sandbox).children.length).to.equal 1
+			Dom(sandbox)._removeChild(text)
+			Dom(sandbox)._removeChild(Dom.div())
+			expect(Dom(sandbox).children.length).to.equal 1
 
 			expect ()-> Dom.batch()
 				.to.throw()

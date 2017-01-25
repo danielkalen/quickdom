@@ -13,7 +13,7 @@ module.exports = (config)-> config.set
 		'**/*.git'
 	]
 
-	preprocessors: 'dist/quickdom.pretty.js': 'coverage'
+	preprocessors: 'dist/quickdom.debug.js': 'coverage'
 	
 	reporters: ['mocha', 'coverage']
 

@@ -18,8 +18,7 @@ QuickElement::off = (eventName, callback)->
 	
 	else if @_eventCallbacks[eventName]
 		if IS.function(callback)
-			cbIndex = @_eventCallbacks[eventName].indexOf(callback)
-			@_eventCallbacks[eventName].splice(cbIndex, 1) if cbIndex isnt -1
+			helpers.removeItem(@_eventCallbacks[eventName], callback)
 		else
 			@_eventCallbacks[eventName].length = 0
 
