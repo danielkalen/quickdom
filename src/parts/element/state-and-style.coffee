@@ -21,7 +21,7 @@ QuickElement::setState = (targetState, value=true)-> if IS.string(targetState)
 		if @options.style['$'+targetState]
 			stateStyle = @options.style['$'+targetState]
 			targetStateIndex = @providedStates.indexOf(targetState)
-			activeStates = @providedStates.filter (state)=> @_state.includes(state) and state isnt targetState
+			activeStates = @providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt targetState
 			superiorStates = activeStates.filter (state)=> @providedStates.indexOf(state) > targetStateIndex
 			activeStateStyles = activeStates.map (state)=> @options.style['$'+state]
 			superiorStateStyles = superiorStates.map (state)=> @options.style['$'+state]
