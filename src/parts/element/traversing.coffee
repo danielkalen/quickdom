@@ -6,8 +6,8 @@
 	return @_children
 
 'parent': get: ()->
-	if not @_parent or @_parent.el isnt @el.parentElement
-		@_parent = QuickDom(@el.parentElement)
+	if not @_parent or @_parent.el isnt @el.parentNode
+		@_parent = QuickDom(@el.parentNode)
 
 	return @_parent
 

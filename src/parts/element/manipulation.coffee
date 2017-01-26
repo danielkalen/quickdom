@@ -84,7 +84,7 @@ QuickElement::after = (targetEl)->
 		if IS.quickDomEl(targetEl)
 			myIndex = @parent._children.indexOf(@)
 			@parent._children.splice(myIndex+1, 0, targetEl)
-			@el.parentElement.insertBefore(targetEl.el, @el.nextSibling)
+			@el.parentNode.insertBefore(targetEl.el, @el.nextSibling)
 
 	return @
 
@@ -106,7 +106,7 @@ QuickElement::before = (targetEl)->
 		if IS.quickDomEl(targetEl)
 			myIndex = @parent._children.indexOf(@)
 			@parent._children.splice(myIndex, 0, targetEl)
-			@el.parentElement.insertBefore(targetEl.el, @el)
+			@el.parentNode.insertBefore(targetEl.el, @el)
 
 	return @
 
