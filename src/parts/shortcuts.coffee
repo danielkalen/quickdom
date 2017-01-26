@@ -42,7 +42,7 @@ shortcuts = [
 	'tr'
 	'td'
 	'tfoot'
-	'template'
+	# 'template'
 	'video'
 ]
 

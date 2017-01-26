@@ -1,9 +1,13 @@
 do ()->
+	import parts/allowedOptions
 	import parts/helpers
 	import parts/checks
 	import parts/element
 	
 	QuickDom = (args...)-> switch
+		when IS.template(args[0])
+			return args[0].spawn()
+		
 		when IS.quickDomEl(args[0])
 			return if args[1] then args[0].updateOptions(args[1]) else args[0]
 		
@@ -20,7 +24,7 @@ do ()->
 		when IS.string(args[0])			
 			type = args[0].toLowerCase()
 			if type is 'text'
-				options = text: args[1] or ''
+				options = if IS.object(args[1]) then args[1] else {text:args[1] or ''}
 			else
 				options = if IS.object(args[1]) then args[1] else {}
 			
@@ -29,11 +33,14 @@ do ()->
 
 			for child in children
 				child = QuickDom.text(child) if IS.string(child)
+				child = QuickDom(child) if IS.template(child)
 				child.appendTo(element) if IS.quickDomEl(child)
 
 			return element
 
 
+	QuickDom.template = (tree)->
+		new QuickTemplate(tree)
 
 
 
@@ -45,6 +52,7 @@ do ()->
 
 
 	import parts/batch
+	import parts/template
 	import parts/shortcuts
 	QuickDom.version = import ../.config/.version
 	
