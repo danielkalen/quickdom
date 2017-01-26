@@ -61,11 +61,12 @@ suite("QuickDom", function() {
 			    "test:karma": "karma start .config/karma.conf.coffee",
 			    "test:phantom": "karma start --single-run --browsers PhantomJS .config/karma.conf.coffee",
 			    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
-			    "build": "npm run compile && npm run super-minify",
+			    "build": "npm run compile && npm run super-minify && npm run manual-minify",
 			    "compile": "npm run compile:js && npm run compile:test",
 			    "compile:js": "foreach -g 'src/*.coffee' -x 'simplyimport -i {{path}} | coffee -cbs --no-header > dist/{{name}}.debug.js && uglifyjs dist/{{name}}.debug.js -m -c keep_fargs,unused=false -o dist/{{name}}.js'",
 			    "compile:test": "simplyimport -i test/test.coffee | coffee -cbs > test/test.js",
 			    "super-minify": "closure-service dist/quickdom.debug.js > dist/quickdom.js",
+			    "manual-minify": "coffee .config/manual-minify.coffee",
 			    "watch": "npm run watch:js & npm run watch:test",
 			    "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
 			    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
@@ -1630,9 +1631,11 @@ suite("QuickDom", function() {
       expect(Dom(sandbox).children.length).to.equal(0);
       div.appendTo(Dom(sandbox));
       expect(Dom(sandbox).children.length).to.equal(1);
-      Dom(sandbox)._removeChild(text);
-      Dom(sandbox)._removeChild(Dom.div());
-      expect(Dom(sandbox).children.length).to.equal(1);
+      if (Dom(sandbox)._removeChild) {
+        Dom(sandbox)._removeChild(text);
+        Dom(sandbox)._removeChild(Dom.div());
+        expect(Dom(sandbox).children.length).to.equal(1);
+      }
       expect(function() {
         return Dom.batch();
       }).to["throw"]();

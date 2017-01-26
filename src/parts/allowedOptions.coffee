@@ -7,9 +7,6 @@ allowedTemplateOptions = [
 	'id'
 	'checked'
 ]
-disallowedTemplateOptions = [
-	'relatedInstance'
-]
 
 # allowedOptions = [
 # 	'text'

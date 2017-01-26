@@ -1527,9 +1527,10 @@ suite "QuickDom", ()->
 
 			div.appendTo(Dom sandbox)
 			expect(Dom(sandbox).children.length).to.equal 1
-			Dom(sandbox)._removeChild(text)
-			Dom(sandbox)._removeChild(Dom.div())
-			expect(Dom(sandbox).children.length).to.equal 1
+			if Dom(sandbox)._removeChild
+				Dom(sandbox)._removeChild(text)
+				Dom(sandbox)._removeChild(Dom.div())
+				expect(Dom(sandbox).children.length).to.equal 1
 
 			expect ()-> Dom.batch()
 				.to.throw()
