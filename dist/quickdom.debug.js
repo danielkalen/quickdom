@@ -1,7 +1,7 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickTemplateProto, _sim_24772, _sim_2f8ae, allowedTemplateOptions, extend, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickTemplateProto, _sim_2d2e1, _sim_2f1c4, allowedTemplateOptions, extend, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -112,8 +112,8 @@ var slice = [].slice;
     },
     'parent': {
       get: function() {
-        if (!this._parent || this._parent.el !== this.el.parentElement) {
-          this._parent = QuickDom(this.el.parentElement);
+        if (!this._parent || this._parent.el !== this.el.parentNode) {
+          this._parent = QuickDom(this.el.parentNode);
         }
         return this._parent;
       }
@@ -573,7 +573,7 @@ var slice = [].slice;
       if (IS.quickDomEl(targetEl)) {
         myIndex = this.parent._children.indexOf(this);
         this.parent._children.splice(myIndex + 1, 0, targetEl);
-        this.el.parentElement.insertBefore(targetEl.el, this.el.nextSibling);
+        this.el.parentNode.insertBefore(targetEl.el, this.el.nextSibling);
       }
     }
     return this;
@@ -594,7 +594,7 @@ var slice = [].slice;
       if (IS.quickDomEl(targetEl)) {
         myIndex = this.parent._children.indexOf(this);
         this.parent._children.splice(myIndex, 0, targetEl);
-        this.el.parentElement.insertBefore(targetEl.el, this.el);
+        this.el.parentNode.insertBefore(targetEl.el, this.el);
       }
     }
     return this;
@@ -898,10 +898,10 @@ var slice = [].slice;
     shortcut = shortcuts[i];
     fn(shortcut);
   }
-  QuickDom.version = '1.0.0';
+  QuickDom.version = '1.0.1';
 
   /* istanbul ignore next */
-  _sim_24772 = (function(exports){
+  _sim_2f1c4 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;f.push(a);e=["Top","Bottom","Left","Right"];
 		g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,c,d;if(this.isPropSupported(a))return a;d=this.toTitleCase(a);
@@ -910,10 +910,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_24772;
+  CSS = _sim_2f1c4;
 
   /* istanbul ignore next */
-  _sim_2f8ae = (function(exports){
+  _sim_2d2e1 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -1119,7 +1119,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2f8ae;
+  extend = _sim_2d2e1;
 
   /* istanbul ignore next */
   if ((typeof exports !== "undefined" && exports !== null ? exports.module : void 0) != null) {
