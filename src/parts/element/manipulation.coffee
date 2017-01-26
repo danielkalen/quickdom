@@ -1,5 +1,9 @@
+QuickElement::toTemplate = ()->
+	QuickDom.template(@)
+
+
 QuickElement::clone = ()->
-	elClone = @el.cloneNode()
+	elClone = @el.cloneNode(false)
 	options = extend.clone(@options, {existing:elClone})
 	
 	newEl = new QuickElement(@type, options)
