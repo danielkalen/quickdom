@@ -21,6 +21,11 @@ checkChildStructure = (main)-> (children...)->
 
 suite "QuickDom", ()->
 	setup(restartSandbox)
+
+	test "Version Property", ()->
+		packageVersion = require('../package').version
+		expect(Dom.version).to.equal(packageVersion)
+
 	
 	suite "Element Creation", ()->
 		test "Basic Creation", ()->
@@ -30,6 +35,7 @@ suite "QuickDom", ()->
 			expect(div.el.constructor.name).to.equal 'HTMLDivElement'
 			expect(div.parent).to.be.undefined
 			expect(div.children.length).to.equal 0
+
 
 		test "Shortcuts", ()->
 			expect(Dom.a().el.constructor).to.equal(Dom('a').el.constructor)
@@ -129,7 +135,7 @@ suite "QuickDom", ()->
 
 
 		test "Creation w/ styling", ()->
-			window.div = Dom.div style:
+			div = Dom.div style:
 				'width': '10px'
 				'height': 15
 				'lameo': '19px'
@@ -1284,6 +1290,135 @@ suite "QuickDom", ()->
 
 
 
+	suite "Templates", ()->
+		test "A reusable template can be generated via QuickDom.template()", ()->
+			template = Dom.template(['span', id:'theSpan'])
+
+			expect(typeof template).to.equal('object')
+			expect(template.type).to.equal('span')
+			expect(template.options).to.eql(id:'theSpan')
+			expect(template.children).to.eql([])
+
+		
+		test "Templates can be turned into QuickDom instances via template.spawn() or by passing as arg to QuickDom", ()->
+			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
+			spawnA = template.spawn()
+			spawnA.setState 'happy'
+			spawnB = Dom(template)
+
+			expect(spawnA.el).to.be.instanceOf(HTMLDivElement)
+			expect(spawnB.el).to.be.instanceOf(HTMLDivElement)
+			expect(spawnA).not.to.equal(spawnB)
+			expect(spawnA.el).not.to.equal(spawnB.el)
+			expect(spawnA.getState 'happy').to.be.true
+			expect(spawnB.getState 'happy').to.be.false
+			expect(spawnA.el.textContent).to.equal('Some Inner Text')
+			expect(spawnB.el.textContent).to.equal('Some Inner Text')
+			expect(spawnA.el.className).to.equal('some-div')
+
+
+		test "Templates can be created from QuickElement instances", ()->
+			section = Dom.section(className:'singleSection', 'Some Inner Text')
+			section.setState 'happy'
+			sectionTemplate = section.toTemplate()
+			templateSpawn = sectionTemplate.spawn()
+
+			expect(sectionTemplate).not.to.equal(section)
+			expect(templateSpawn.el).not.to.equal(section.el)
+			expect(templateSpawn.el.className).to.equal('singleSection')
+			expect(templateSpawn.text()).to.equal('Some Inner Text')
+			expect(section.getState 'happy').to.be.true
+			expect(templateSpawn.getState 'happy').to.be.false
+
+
+		test "Templates can be created from DOM Elements", ()->
+			sectionEl = document.createElement('singleSection')
+			sectionEl.className = 'singleSection'
+			sectionEl.appendChild(document.createTextNode 'Some Inner Text')
+			sectionTemplate = Dom.template(sectionEl)
+			templateSpawn = sectionTemplate.spawn()
+
+			expect(templateSpawn.el).not.to.equal(sectionEl)
+			expect(templateSpawn.el.className).to.equal('singleSection')
+			expect(templateSpawn.text()).to.equal('Some Inner Text')
+
+
+		test "Templates are immutable", ()->
+			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
+
+			expect(template.type).to.equal 'div'
+			expect(template.options).to.eql {className:'some-div'}
+			expect(template.children.length).to.equal 1
+			
+			template.type = 'span'
+			template.options = {className:'some-div', id:'tag'}
+			template.children = ['another', 'one']
+			expect(template.type).to.equal 'div'
+			expect(template.options).to.eql {className:'some-div'}
+			expect(template.children.length).to.equal 1
+
+
+		test "Templates can be extended via template.extend", ()->
+			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
+			templateCopyA = template.extend {type:'span', options:{className:'some-span'}}
+			templateCopyB = template.extend {options:{id:'theMainDiv'}}
+
+			expect(templateCopyA).not.to.equal(template)
+			expect(templateCopyB).not.to.equal(template)
+			spawn = template.spawn()
+			spawnA = templateCopyA.spawn()
+			spawnB = templateCopyB.spawn()
+
+			expect(spawn.el.nodeName.toLowerCase()).to.equal('div')
+			expect(spawn.el.className).to.equal('some-div')
+			expect(spawn.el.id).to.equal('')
+			expect(spawn.text()).to.equal('Some Inner Text')
+
+			expect(spawnA.el.nodeName.toLowerCase()).to.equal('span')
+			expect(spawnA.el.className).to.equal('some-span')
+			expect(spawnA.el.id).to.equal('')
+			expect(spawnA.text()).to.equal('Some Inner Text')
+
+			expect(spawnB.el.nodeName.toLowerCase()).to.equal('div')
+			expect(spawnB.el.className).to.equal('some-div')
+			expect(spawnB.el.id).to.equal('theMainDiv')
+			expect(spawnB.text()).to.equal('Some Inner Text')
+
+
+		test "Templates can have placeholders which can be replaced by passing a {placeholder:value} dict to template.extend() and passing a truthy value as the 2nd argument", ()->
+			template = Dom.template(
+				['div', {className:'some-{{childType}}'},
+					'Some {{initalText}} Text',
+					['{{childType}}', {className:'child-{{childType}}', id:'{{childType}}-1', style:{width:'{{desiredWidth}}px'}}, 'I am a {{childType}}, and this {{initalText}} text will be filled']
+					'More {{initalText}} Text',
+					['{{childType}}', {className:'child-{{childType}}', id:'{{childType}}-2', style:{width:'{{desiredWidth}}px'}}, 'I am a {{childType}}, and this {{placeholder}} and {{falsey}} text will never be filled']
+				]
+			)
+			templateNotFilled = template.extend({childType:'div', initalText:'fabulous', desiredWidth:74, falsey:0})
+			templateFilled = template.extend({childType:'div', initalText:'fabulous', desiredWidth:74, falsey:0}, true)
+			spawn = templateFilled.spawn()
+			expect ()-> templateNotFilled.spawn()
+				.to.throw()
+
+			expect(spawn.el.nodeName.toLowerCase()).to.equal('div')
+			expect(spawn.el.className).to.equal('some-div')
+			expect(spawn.el.childNodes.length).to.equal(4)
+			expect(spawn.el.childNodes[0].textContent).to.equal('Some fabulous Text')
+			expect(spawn.el.childNodes[1].textContent).to.equal('I am a div, and this fabulous text will be filled')
+			expect(spawn.el.childNodes[2].textContent).to.equal('More fabulous Text')
+			expect(spawn.el.childNodes[3].textContent).to.equal('I am a div, and this {{placeholder}} and {{falsey}} text will never be filled')
+			expect(spawn.el.childNodes[1].nodeName.toLowerCase()).to.equal('div')
+			expect(spawn.el.childNodes[3].nodeName.toLowerCase()).to.equal('div')
+			expect(spawn.el.childNodes[1].className).to.equal('child-div')
+			expect(spawn.el.childNodes[3].className).to.equal('child-div')
+			expect(spawn.el.childNodes[1].id).to.equal('div-1')
+			expect(spawn.el.childNodes[3].id).to.equal('div-2')
+			expect(spawn.el.childNodes[1].style.width).to.equal('74px')
+			expect(spawn.el.childNodes[3].style.width).to.equal('74px')
+
+
+
+
 
 	suite "Misc", ()->
 		test "Chaining", ()->
@@ -1417,6 +1552,24 @@ suite "QuickDom", ()->
 			expect ()-> Dom.batch($('div'))
 				.not.to.throw()
 
+			expect ()-> Dom.template()
+				.to.throw()
+
+			expect ()-> Dom.template(null)
+				.to.throw()
+
+			expect ()-> Dom.template({})
+				.to.throw()
+
+			expect ()-> Dom.template([8482, {className:'t'}])
+				.to.throw()
+
+			expect ()-> Dom.template(['div', 'someString'])
+				.to.throw()
+
+			expect ()-> Dom.template(['div', null, 'Some Inner Text'])
+				.not.to.throw()
+
 
 
 
@@ -1482,7 +1635,6 @@ if HTMLElement.name isnt 'HTMLElement'
 
 	for creator in elementSuffix
 		window["HTML#{creator}Element"]?.name = "HTML#{creator}Element"
-		# console.log("HTML#{creator}Element") if not window["HTML#{creator}Element"]
 
 
 
