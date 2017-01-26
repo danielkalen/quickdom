@@ -1,7 +1,7 @@
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
-mocha.bail()
+mocha.bail() unless window.location.hostname
 expect = chai.expect
 should = chai.should()
 sandbox$ = sandbox = null
@@ -14,7 +14,7 @@ checkChildStructure = (main)-> (children...)->
 	expect(main.children.length).to.equal(children.length)
 	for child,index in children
 		expect(main.children[index]).to.equal(child)
-		expect(child.el.parentElement).to.equal(main.el)
+		expect(child.el.parentNode).to.equal(main.el)
 		expect(child.parent).to.equal(main)
 	return
 
@@ -50,8 +50,8 @@ suite "QuickDom", ()->
 			expect(Dom.section().el.constructor).to.equal(Dom('section').el.constructor)
 			expect(Dom.button().el.constructor).to.equal(Dom('button').el.constructor)
 			expect(Dom.input().el.constructor).to.equal(Dom('input').el.constructor)
-			expect(Dom.main().el.constructor).to.equal(Dom('main').el.constructor)
-			types = ['a','div','text','span','h4','header','footer','section','button','input','main']
+			# expect(Dom.main().el.constructor).to.equal(Dom('main').el.constructor)
+			types = ['a','div','text','span','h4','header','footer','section','button','input']
 			for type in types
 				expect(Dom[type]().el.constructor.name).not.to.contain('Unknown')
 			return
@@ -74,7 +74,7 @@ suite "QuickDom", ()->
 			expect(B.el.id).to.equal('B')
 			expect(B.el.getAttribute('data-abc')).to.equal('123')
 			expect(B.el.getAttribute('data-def')).to.equal('456')
-			expect(B.el.dataset.abc).to.equal('123')
+			expect(B.el.dataset.abc).to.equal('123') if B.el.dataset
 			expect(C.el.type).to.equal('text')
 			expect(C.el.name).to.equal('abc')
 			expect(C.el.value).to.equal('hello')
@@ -167,22 +167,22 @@ suite "QuickDom", ()->
 		test "Events can be listened to via the .on method", ()->
 			emitCountA = emitCountB = 0
 			div = Dom.div()
-			div.on 'click', (event)->
+			div.on 'myClick', (event)->
 				expect(typeof event).to.equal 'object'
-				expect(event.type).to.equal 'click'
+				expect(event.type).to.equal 'myClick'
 				emitCountA++
 			
 
-			div.el.emitEvent('click')
+			div.el.emitEvent('myClick')
 			expect(emitCountA).to.equal(1)
-			div.el.emitEvent('click')
+			div.el.emitEvent('myClick')
 			expect(emitCountA).to.equal(2)
 			
-			div.on 'click', (event)-> emitCountB++
-			div.el.emitEvent('click')
+			div.on 'myClick', (event)-> emitCountB++
+			div.el.emitEvent('myClick')
 			expect(emitCountB).to.equal(1)
 			expect(emitCountA).to.equal(3)
-			div.el.emitEvent('click')
+			div.el.emitEvent('myClick')
 			expect(emitCountB).to.equal(2)
 			expect(emitCountA).to.equal(4)
 
@@ -667,19 +667,19 @@ suite "QuickDom", ()->
 
 			expect(A.parent).to.equal undefined
 			expect(A.children[0].parent).to.equal A
-			expect(A.children[0].el.parentElement).to.equal A.el
+			expect(A.children[0].el.parentNode).to.equal A.el
 
 			B.append(A)
 			expect(A.parent).to.equal B
 			expect(A.children[0].parent).to.equal A
-			expect(A.children[0].el.parentElement).to.equal A.el
+			expect(A.children[0].el.parentNode).to.equal A.el
 			expect(B.children.length).to.equal(1)
 			expect(B.children[0]).to.equal(A)
 
 			C.append(A)
 			expect(A.parent).to.equal C
 			expect(A.children[0].parent).to.equal A
-			expect(A.children[0].el.parentElement).to.equal A.el
+			expect(A.children[0].el.parentNode).to.equal A.el
 			expect(B.children.length).to.equal(0)
 			expect(C.children[0]).to.equal(A)
 
@@ -1332,7 +1332,7 @@ suite "QuickDom", ()->
 
 
 		test "Templates can be created from DOM Elements", ()->
-			sectionEl = document.createElement('singleSection')
+			sectionEl = document.createElement('section')
 			sectionEl.className = 'singleSection'
 			sectionEl.appendChild(document.createTextNode 'Some Inner Text')
 			sectionTemplate = Dom.template(sectionEl)

@@ -8,7 +8,9 @@ mocha.slow(400);
 
 mocha.timeout(12000);
 
-mocha.bail();
+if (!window.location.hostname) {
+  mocha.bail();
+}
 
 expect = chai.expect;
 
@@ -32,7 +34,7 @@ checkChildStructure = function(main) {
     for (index = i = 0, len = children.length; i < len; index = ++i) {
       child = children[index];
       expect(main.children[index]).to.equal(child);
-      expect(child.el.parentElement).to.equal(main.el);
+      expect(child.el.parentNode).to.equal(main.el);
       expect(child.parent).to.equal(main);
     }
   };
@@ -61,6 +63,9 @@ suite("QuickDom", function() {
 			    "test:karma": "karma start .config/karma.conf.coffee",
 			    "test:phantom": "karma start --single-run --browsers PhantomJS .config/karma.conf.coffee",
 			    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
+			    "test:sauce": "coffee .config/sauce-launch.coffee",
+			    "test-serve": "http-server -p 9201 --cors ./",
+			    "sauce-connect": "sc -u quickdom -k 0c7a6cc2-ed14-4f08-b48d-e46c74905b6a",
 			    "build": "npm run compile && npm run super-minify && npm run manual-minify",
 			    "compile": "npm run compile:js && npm run compile:test",
 			    "compile:js": "foreach -g 'src/*.coffee' -x 'simplyimport -i {{path}} | coffee -cbs --no-header > dist/{{name}}.debug.js && uglifyjs dist/{{name}}.debug.js -m -c keep_fargs,unused=false -o dist/{{name}}.js'",
@@ -92,6 +97,7 @@ suite("QuickDom", function() {
 			    "closure-compiler-service": "^0.6.1",
 			    "coffee-script": "^1.12.2",
 			    "foreach-cli": "^1.7.0",
+			    "http-server": "^0.9.0",
 			    "jquery": "^3.1.1",
 			    "json": "^9.0.4",
 			    "karma": "^1.4.0",
@@ -138,8 +144,7 @@ suite("QuickDom", function() {
       expect(Dom.section().el.constructor).to.equal(Dom('section').el.constructor);
       expect(Dom.button().el.constructor).to.equal(Dom('button').el.constructor);
       expect(Dom.input().el.constructor).to.equal(Dom('input').el.constructor);
-      expect(Dom.main().el.constructor).to.equal(Dom('main').el.constructor);
-      types = ['a', 'div', 'text', 'span', 'h4', 'header', 'footer', 'section', 'button', 'input', 'main'];
+      types = ['a', 'div', 'text', 'span', 'h4', 'header', 'footer', 'section', 'button', 'input'];
       for (i = 0, len = types.length; i < len; i++) {
         type = types[i];
         expect(Dom[type]().el.constructor.name).not.to.contain('Unknown');
@@ -190,7 +195,9 @@ suite("QuickDom", function() {
       expect(B.el.id).to.equal('B');
       expect(B.el.getAttribute('data-abc')).to.equal('123');
       expect(B.el.getAttribute('data-def')).to.equal('456');
-      expect(B.el.dataset.abc).to.equal('123');
+      if (B.el.dataset) {
+        expect(B.el.dataset.abc).to.equal('123');
+      }
       expect(C.el.type).to.equal('text');
       expect(C.el.name).to.equal('abc');
       expect(C.el.value).to.equal('hello');
@@ -285,22 +292,22 @@ suite("QuickDom", function() {
       var div, emitCountA, emitCountB;
       emitCountA = emitCountB = 0;
       div = Dom.div();
-      div.on('click', function(event) {
+      div.on('myClick', function(event) {
         expect(typeof event).to.equal('object');
-        expect(event.type).to.equal('click');
+        expect(event.type).to.equal('myClick');
         return emitCountA++;
       });
-      div.el.emitEvent('click');
+      div.el.emitEvent('myClick');
       expect(emitCountA).to.equal(1);
-      div.el.emitEvent('click');
+      div.el.emitEvent('myClick');
       expect(emitCountA).to.equal(2);
-      div.on('click', function(event) {
+      div.on('myClick', function(event) {
         return emitCountB++;
       });
-      div.el.emitEvent('click');
+      div.el.emitEvent('myClick');
       expect(emitCountB).to.equal(1);
       expect(emitCountA).to.equal(3);
-      div.el.emitEvent('click');
+      div.el.emitEvent('myClick');
       expect(emitCountB).to.equal(2);
       return expect(emitCountA).to.equal(4);
     });
@@ -823,17 +830,17 @@ suite("QuickDom", function() {
       C = Dom.div();
       expect(A.parent).to.equal(void 0);
       expect(A.children[0].parent).to.equal(A);
-      expect(A.children[0].el.parentElement).to.equal(A.el);
+      expect(A.children[0].el.parentNode).to.equal(A.el);
       B.append(A);
       expect(A.parent).to.equal(B);
       expect(A.children[0].parent).to.equal(A);
-      expect(A.children[0].el.parentElement).to.equal(A.el);
+      expect(A.children[0].el.parentNode).to.equal(A.el);
       expect(B.children.length).to.equal(1);
       expect(B.children[0]).to.equal(A);
       C.append(A);
       expect(A.parent).to.equal(C);
       expect(A.children[0].parent).to.equal(A);
-      expect(A.children[0].el.parentElement).to.equal(A.el);
+      expect(A.children[0].el.parentNode).to.equal(A.el);
       expect(B.children.length).to.equal(0);
       return expect(C.children[0]).to.equal(A);
     });
@@ -1428,7 +1435,7 @@ suite("QuickDom", function() {
     });
     test("Templates can be created from DOM Elements", function() {
       var sectionEl, sectionTemplate, templateSpawn;
-      sectionEl = document.createElement('singleSection');
+      sectionEl = document.createElement('section');
       sectionEl.className = 'singleSection';
       sectionEl.appendChild(document.createTextNode('Some Inner Text'));
       sectionTemplate = Dom.template(sectionEl);

@@ -4,7 +4,7 @@ request
 	.post
 		url: "https://saucelabs.com/rest/v1/quickdom/js-tests",
 		json:
-			name: "SimplyThread Test Suite"
+			name: "QuickDom Test Suite"
 			build: require('../package.json').version
 			framework: "mocha"
 			url: "http://quickdom.dev:9201/test/testrunner.html?purgeCache=#{Math.random()*100000000}"
@@ -27,7 +27,7 @@ request
 				["iOS", "iphone", "9.0"]
 				["iOS", "iphone", "8.1"]
 				["Linux", "android", "5.1"]
-				["Linux", "android", "4.2"]
+				# ["Linux", "android", "4.3"]
 			]
 	
 	.auth "quickdom", "0c7a6cc2-ed14-4f08-b48d-e46c74905b6a"
