@@ -1,40 +1,46 @@
 pholderRegex = /\{\{.+?\}\}/g
-QuickTemplate = (tree)->
-	@_parsed = parseTree(tree)
+configSchema = 
+	type: 'div'
+	options: {}
+	children: []
+
+QuickTemplate = (config, isTree)->
+	@_config = if isTree then parseTree(config) else config
 	return @
 
 
-QuickTemplateProto = QuickTemplate::
-Object.defineProperties QuickTemplateProto,
-	type: get: ()-> @_parsed.type
-	options: get: ()-> @_parsed.options
-	children: get: ()-> @_parsed.children
+Object.keys(configSchema).forEach (key)->
+	Object.defineProperty QuickTemplate::, key, get:()-> @_config[key]
 
 
 QuickTemplate::spawn = (newValues)->
-	opts = extendOptions(@_parsed, newValues)
+	opts = extendOptions(@_config, newValues)
 	args = [opts.type, opts.options]
 	args = args.concat(opts.children)
 	return QuickDom.apply(null, args)
 
 
-QuickTemplate::extend = (newValues)->	
-	clone = Object.create(QuickTemplateProto)
-	clone._parsed = extendOptions(@_parsed, newValues)
-	return clone
+QuickTemplate::extend = (newValues)->
+	new QuickTemplate extendOptions(@_config, newValues)
 
 
 extendOptions = (currentOpts, newOpts)->
-	extend.deep.notDeep('children').clone.transform((value, key, source)->
-		if key is 'children'
-			if source is currentOpts
-				return value.map (child, index)-> child.extend(newOpts?.children?[index])
-			else
-				return currentOpts.children
+	output = extend.deep.notKeys('children').clone(currentOpts, newOpts)
+	currentChildren = currentOpts.children or []
+	newChildren = newOpts?.children or []
+	output.children = []
+	
+	for index in [0...Math.max(currentChildren.length, newChildren.length)]
+		currentChild = currentChildren[index]
+		newChild = newChildren[index]
+		newChild = {type:'text', options:{text:newChild}} if IS.string(newChild)
+		if currentChild
+			output.children.push currentChild.extend(newChild)
 		else
-			return value
+			output.children.push new QuickTemplate(extend.deep.clone(configSchema, newChild))
 
-	)(currentOpts, newOpts)
+	return output
+
 
 
 

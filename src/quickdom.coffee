@@ -45,7 +45,7 @@ do ()->
 
 
 	QuickDom.template = (tree)->
-		new QuickTemplate(tree)
+		new QuickTemplate(tree, true)
 
 
 
