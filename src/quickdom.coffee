@@ -1,9 +1,14 @@
 do ()->
+	QuickDom = null;
+	### istanbul ignore next ###
+	import * as CSS from 'quickcss'
+	### istanbul ignore next ###
+	import * as extend from 'smart-extend'
 	import parts/allowedOptions
 	import parts/helpers
 	import parts/checks
 	import parts/element
-	
+
 	QuickDom = (args...)-> switch
 		when IS.template(args[0])
 			return args[0].spawn()
@@ -50,20 +55,13 @@ do ()->
 
 
 
-
 	import parts/batch
 	import parts/template
 	import parts/shortcuts
 	QuickDom.version = import ../.config/.version
-	
+		
 	### istanbul ignore next ###
-	import * as CSS from 'quickcss'
-	
-	### istanbul ignore next ###
-	import * as extend from 'smart-extend'
-	
-	### istanbul ignore next ###
-	if exports?.module?
+	if module?.exports?
 		module.exports = QuickDom
 	else if typeof define is 'function' and define.amd
 		define ['quickdom'], ()-> QuickDom

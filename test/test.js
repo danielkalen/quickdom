@@ -88,8 +88,9 @@ suite("QuickDom", function() {
 			  },
 			  "homepage": "https://github.com/danielkalen/quickdom#readme",
 			  "dependencies": {
+			    "@danielkalen/is": "^1.0.0",
 			    "quickcss": "^1.0.4",
-			    "smart-extend": "^1.1.1"
+			    "smart-extend": "^1.3.0"
 			  },
 			  "devDependencies": {
 			    "bluebird": "^3.4.7",
@@ -1479,7 +1480,8 @@ suite("QuickDom", function() {
         type: 'span',
         options: {
           className: 'some-span'
-        }
+        },
+        children: []
       });
       templateCopyB = template.extend({
         options: {
@@ -1504,60 +1506,100 @@ suite("QuickDom", function() {
       expect(spawnB.el.id).to.equal('theMainDiv');
       return expect(spawnB.text()).to.equal('Some Inner Text');
     });
-    return test("Templates can have placeholders which can be replaced by passing a {placeholder:value} dict to template.extend() and passing a truthy value as the 2nd argument", function() {
-      var spawn, template, templateFilled, templateNotFilled;
+    return test.skip("Templates can be spawned via extended config by passing a new config object to template.spawn()", function() {
+      var spawnA, spawnB, spawnRaw, template;
       template = Dom.template([
         'div', {
-          className: 'some-{{childType}}'
-        }, 'Some {{initalText}} Text', [
-          '{{childType}}', {
-            className: 'child-{{childType}}',
-            id: '{{childType}}-1',
+          className: 'some-div'
+        }, 'Some Inner Text', [
+          'strong', {
+            className: 'highlighted',
             style: {
-              width: '{{desiredWidth}}px'
+              color: 'pink'
             }
-          }, 'I am a {{childType}}, and this {{initalText}} text will be filled'
-        ], 'More {{initalText}} Text', [
-          '{{childType}}', {
-            className: 'child-{{childType}}',
-            id: '{{childType}}-2',
-            style: {
-              width: '{{desiredWidth}}px'
-            }
-          }, 'I am a {{childType}}, and this {{placeholder}} and {{falsey}} text will never be filled'
+          }, ' - Bolded Text'
         ]
       ]);
-      templateNotFilled = template.extend({
-        childType: 'div',
-        initalText: 'fabulous',
-        desiredWidth: 74,
-        falsey: 0
+      spawnRaw = template.spawn();
+      spawnA = template.spawn({
+        type: 'section',
+        options: {
+          className: 'some-section',
+          style: {
+            color: 'yellow'
+          }
+        }
       });
-      templateFilled = template.extend({
-        childType: 'div',
-        initalText: 'fabulous',
-        desiredWidth: 74,
-        falsey: 0
-      }, true);
-      spawn = templateFilled.spawn();
-      expect(function() {
-        return templateNotFilled.spawn();
-      }).to["throw"]();
-      expect(spawn.el.nodeName.toLowerCase()).to.equal('div');
-      expect(spawn.el.className).to.equal('some-div');
-      expect(spawn.el.childNodes.length).to.equal(4);
-      expect(spawn.el.childNodes[0].textContent).to.equal('Some fabulous Text');
-      expect(spawn.el.childNodes[1].textContent).to.equal('I am a div, and this fabulous text will be filled');
-      expect(spawn.el.childNodes[2].textContent).to.equal('More fabulous Text');
-      expect(spawn.el.childNodes[3].textContent).to.equal('I am a div, and this {{placeholder}} and {{falsey}} text will never be filled');
-      expect(spawn.el.childNodes[1].nodeName.toLowerCase()).to.equal('div');
-      expect(spawn.el.childNodes[3].nodeName.toLowerCase()).to.equal('div');
-      expect(spawn.el.childNodes[1].className).to.equal('child-div');
-      expect(spawn.el.childNodes[3].className).to.equal('child-div');
-      expect(spawn.el.childNodes[1].id).to.equal('div-1');
-      expect(spawn.el.childNodes[3].id).to.equal('div-2');
-      expect(spawn.el.childNodes[1].style.width).to.equal('74px');
-      return expect(spawn.el.childNodes[3].style.width).to.equal('74px');
+      spawnB = template.spawn({
+        options: {
+          className: 'main-div',
+          id: 'theMainDiv',
+          style: {
+            color: 'blue'
+          }
+        },
+        children: [
+          {
+            type: 'span',
+            children: [
+              {
+                type: 'text',
+                options: {
+                  text: 'Main Inner Text'
+                }
+              }
+            ]
+          }, {
+            type: 'b',
+            options: {
+              className: 'super-highlighted',
+              style: {
+                color: 'red'
+              }
+            },
+            children: [
+              {
+                text: ' - Very Bolded Text'
+              }
+            ]
+          }, {
+            type: 'text',
+            options: {
+              text: 'Other Text'
+            }
+          }
+        ]
+      });
+      expect(spawnRaw.el.nodeName.toLowerCase()).to.equal('div');
+      expect(spawnRaw.el.className).to.equal('some-div');
+      expect(spawnRaw.el.id).to.equal('');
+      expect(spawnRaw.text()).to.equal('Some Inner Text - Bolded Text');
+      expect(spawnRaw.el.style.color).to.equal('');
+      expect(spawnRaw.el.childNodes.length).to.equal(2);
+      expect(spawnRaw.el.childNodes[0].nodeName).to.equal('#text');
+      expect(spawnRaw.el.childNodes[1].nodeName.toLowerCase()).to.equal('strong');
+      expect(spawnRaw.el.childNodes[1].className).to.equal('highlighted');
+      expect(spawnRaw.el.childNodes[1].style.color).to.equal('pink');
+      expect(spawnA.el.nodeName.toLowerCase()).to.equal('section');
+      expect(spawnA.el.className).to.equal('some-section');
+      expect(spawnA.el.id).to.equal('');
+      expect(spawnA.text()).to.equal('Some Inner Text - Bolded Text');
+      expect(spawnA.el.style.color).to.equal('yellow');
+      expect(spawnA.el.childNodes.length).to.equal(2);
+      expect(spawnA.el.childNodes[0].nodeName).to.equal('#text');
+      expect(spawnA.el.childNodes[1].nodeName.toLowerCase()).to.equal('strong');
+      expect(spawnA.el.childNodes[1].className).to.equal('highlighted');
+      expect(spawnA.el.childNodes[1].style.color).to.equal('pink');
+      expect(spawnB.el.nodeName.toLowerCase()).to.equal('div');
+      expect(spawnB.el.className).to.equal('main-div');
+      expect(spawnB.el.id).to.equal('theMainDiv');
+      expect(spawnB.text()).to.equal('Main Inner Text - Very Bolded Text');
+      expect(spawnB.el.style.color).to.equal('blue');
+      expect(spawnB.el.childNodes.length).to.equal(2);
+      expect(spawnB.el.childNodes[0].nodeName).to.equal('#text');
+      expect(spawnB.el.childNodes[1].nodeName.toLowerCase()).to.equal('b');
+      expect(spawnB.el.childNodes[1].className).to.equal('super-highlighted');
+      return expect(spawnB.el.childNodes[1].style.color).to.equal('red');
     });
   });
   return suite("Misc", function() {

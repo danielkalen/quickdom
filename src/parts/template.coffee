@@ -11,24 +11,30 @@ Object.defineProperties QuickTemplateProto,
 	children: get: ()-> @_parsed.children
 
 
-QuickTemplate::spawn = ()->
-	args = [@type, extend.clone.deep(@options)]
-	args = args.concat(@children)
+QuickTemplate::spawn = (newValues)->
+	opts = extendOptions(@_parsed, newValues)
+	args = [opts.type, opts.options]
+	args = args.concat(opts.children)
 	return QuickDom.apply(null, args)
 
 
-QuickTemplate::extend = (newValues, isReplaceValues)->
-	if isReplaceValues and newValues
-		transformFn = (value)->
-			if typeof value isnt 'string'
-				return value
-			else value.replace pholderRegex, (pholder)-> newValues[pholder.slice(2,-2)] or pholder
-	
+QuickTemplate::extend = (newValues)->	
 	clone = Object.create(QuickTemplateProto)
-	clone._parsed = extend.deep.clone.notKeys(['children']).transform(transformFn)(@_parsed, newValues)
-	clone._parsed.children = @children?.map (child)-> child.extend(newValues if isReplaceValues, isReplaceValues)
+	clone._parsed = extendOptions(@_parsed, newValues)
 	return clone
 
+
+extendOptions = (currentOpts, newOpts)->
+	extend.deep.notDeep('children').clone.transform((value, key, source)->
+		if key is 'children'
+			if source is currentOpts
+				return value.map (child, index)-> child.extend(newOpts?.children?[index])
+			else
+				return currentOpts.children
+		else
+			return value
+
+	)(currentOpts, newOpts)
 
 
 
@@ -60,7 +66,7 @@ parseTree = (tree)-> switch
 
 	when IS.quickDomEl(tree)
 		type: tree.type
-		options: extend.clone.deep.notKeys(['relatedInstance'])(tree.options)
+		options: extend.clone.deep.notKeys('relatedInstance')(tree.options)
 		children: tree.children.map(QuickDom.template)
 
 	else
