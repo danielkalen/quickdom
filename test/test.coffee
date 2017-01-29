@@ -1361,7 +1361,7 @@ suite "QuickDom", ()->
 		test "Templates can be extended via template.extend", ()->
 			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
 			templateCopyA = template.extend {type:'span', options:{className:'some-span'}, children:[]}
-			templateCopyB = template.extend {options:{id:'theMainDiv'}}
+			templateCopyB = template.extend {options:{id:'theMainDiv'}, children:['The Other Inner Text']}
 
 			expect(templateCopyA).not.to.equal(template)
 			expect(templateCopyB).not.to.equal(template)
@@ -1382,23 +1382,23 @@ suite "QuickDom", ()->
 			expect(spawnB.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawnB.el.className).to.equal('some-div')
 			expect(spawnB.el.id).to.equal('theMainDiv')
-			expect(spawnB.text()).to.equal('Some Inner Text')
+			expect(spawnB.text()).to.equal('The Other Inner Text')
 
 
-		test.skip "Templates can be spawned via extended config by passing a new config object to template.spawn()", ()->
+		test "Templates can be spawned via extended config by passing a new config object to template.spawn()", ()->
 			template = Dom.template(
 				['div', className:'some-div',
 					'Some Inner Text',
-					['strong', {className:'highlighted', style:{color:'pink'}}, ' - Bolded Text']
+					['strong', {className:'highlighted', style:{opacity:0.9}}, ' - Bolded Text']
 				]
 			)
 			spawnRaw = template.spawn()
-			spawnA = template.spawn(type:'section', options:{className:'some-section', style:{color:'yellow'}})
+			spawnA = template.spawn(type:'section', options:{className:'some-section', style:{opacity:0.7}})
 			spawnB = template.spawn(
 				options:
 					className: 'main-div'
 					id: 'theMainDiv'
-					style: color: 'blue'
+					style: opacity: 0.5
 				children: [
 					{
 						type: 'span'
@@ -1411,14 +1411,14 @@ suite "QuickDom", ()->
 						type: 'b'
 						options:
 							className: 'super-highlighted'
-							style: color: 'red'
+							style: opacity: '0.2'
 						children: [
-							{text: ' - Very Bolded Text'}
+							options: {text: ' - Very Bolded Text'}
 						]
 					}
 					{
 						type: 'text'
-						options: {text: 'Other Text'}
+						options: {text: ' + Other Text'}
 					}
 				]
 			)
@@ -1427,34 +1427,35 @@ suite "QuickDom", ()->
 			expect(spawnRaw.el.className).to.equal('some-div')
 			expect(spawnRaw.el.id).to.equal('')
 			expect(spawnRaw.text()).to.equal('Some Inner Text - Bolded Text')
-			expect(spawnRaw.el.style.color).to.equal('')
+			expect(spawnRaw.el.style.opacity).to.equal('')
 			expect(spawnRaw.el.childNodes.length).to.equal(2)
 			expect(spawnRaw.el.childNodes[0].nodeName).to.equal('#text')
 			expect(spawnRaw.el.childNodes[1].nodeName.toLowerCase()).to.equal('strong')
 			expect(spawnRaw.el.childNodes[1].className).to.equal('highlighted')
-			expect(spawnRaw.el.childNodes[1].style.color).to.equal('pink')
+			expect(spawnRaw.el.childNodes[1].style.opacity).to.equal('0.9')
 
 			expect(spawnA.el.nodeName.toLowerCase()).to.equal('section')
 			expect(spawnA.el.className).to.equal('some-section')
 			expect(spawnA.el.id).to.equal('')
 			expect(spawnA.text()).to.equal('Some Inner Text - Bolded Text')
-			expect(spawnA.el.style.color).to.equal('yellow')
+			expect(spawnA.el.style.opacity).to.equal('0.7')
 			expect(spawnA.el.childNodes.length).to.equal(2)
 			expect(spawnA.el.childNodes[0].nodeName).to.equal('#text')
 			expect(spawnA.el.childNodes[1].nodeName.toLowerCase()).to.equal('strong')
 			expect(spawnA.el.childNodes[1].className).to.equal('highlighted')
-			expect(spawnA.el.childNodes[1].style.color).to.equal('pink')
+			expect(spawnA.el.childNodes[1].style.opacity).to.equal('0.9')
 
 			expect(spawnB.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawnB.el.className).to.equal('main-div')
 			expect(spawnB.el.id).to.equal('theMainDiv')
-			expect(spawnB.text()).to.equal('Main Inner Text - Very Bolded Text')
-			expect(spawnB.el.style.color).to.equal('blue')
-			expect(spawnB.el.childNodes.length).to.equal(2)
-			expect(spawnB.el.childNodes[0].nodeName).to.equal('#text')
+			expect(spawnB.text()).to.equal('Main Inner Text - Very Bolded Text + Other Text')
+			expect(spawnB.el.style.opacity).to.equal('0.5')
+			expect(spawnB.el.childNodes.length).to.equal(3)
+			expect(spawnB.el.childNodes[0].nodeName.toLowerCase()).to.equal('span')
+			expect(spawnB.el.childNodes[0].childNodes.length).to.equal(1)
 			expect(spawnB.el.childNodes[1].nodeName.toLowerCase()).to.equal('b')
 			expect(spawnB.el.childNodes[1].className).to.equal('super-highlighted')
-			expect(spawnB.el.childNodes[1].style.color).to.equal('red')
+			expect(spawnB.el.childNodes[1].style.opacity).to.equal('0.2')
 
 
 

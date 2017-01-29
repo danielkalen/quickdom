@@ -29,7 +29,7 @@ extendOptions = (currentOpts, newOpts)->
 	currentChildren = currentOpts.children or []
 	newChildren = newOpts?.children or []
 	output.children = []
-	
+	### istanbul ignore next ###
 	for index in [0...Math.max(currentChildren.length, newChildren.length)]
 		currentChild = currentChildren[index]
 		newChild = newChildren[index]

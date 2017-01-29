@@ -1,3 +1,4 @@
+### istanbul ignore next ###
 IS = require('@danielkalen/is')
 IS = extend.clone IS, 
 	domEl: (subject)-> subject and subject.nodeType is 1
