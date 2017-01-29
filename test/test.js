@@ -47,7 +47,7 @@ suite("QuickDom", function() {
     packageVersion = (function(){
 			return {
 			  "name": "quickdom",
-			  "version": "1.0.1",
+			  "version": "1.0.2",
 			  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
 			  "main": "dist/quickdom.js",
 			  "browser": {
@@ -97,7 +97,7 @@ suite("QuickDom", function() {
 			    "chai": "^3.5.0",
 			    "closure-compiler-service": "^0.6.1",
 			    "coffee-script": "^1.12.2",
-			    "foreach-cli": "^1.7.0",
+			    "foreach-cli": "^1.7.1",
 			    "http-server": "^0.9.0",
 			    "jquery": "^3.1.1",
 			    "json": "^9.0.4",

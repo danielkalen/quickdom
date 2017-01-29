@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickTemplateProto, _sim_25223, _sim_2f3e4, allowedTemplateOptions, extend, extendOptions, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1cf0a, _sim_1e59e, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
   QuickDom = null;
 
   /* istanbul ignore next */
-  _sim_2f3e4 = (function(exports){
+  _sim_1e59e = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;f.push(a);e=["Top","Bottom","Left","Right"];
 		g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,c,d;if(this.isPropSupported(a))return a;d=this.toTitleCase(a);
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_2f3e4;
+  CSS = _sim_1e59e;
 
   /* istanbul ignore next */
-  _sim_25223 = (function(exports){
+  _sim_1cf0a = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_25223;
+  extend = _sim_1cf0a;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -259,6 +259,8 @@ var slice = [].slice;
         return targetEl;
     }
   };
+
+  /* istanbul ignore next */
   IS = (function(_this) {
     return function(exports) {
       var module = {exports:exports};
@@ -985,7 +987,7 @@ var slice = [].slice;
     }
   };
   QuickDom.template = function(tree) {
-    return new QuickTemplate(tree);
+    return new QuickTemplate(tree, true);
   };
   QuickBatch = function(elements1, returnResults1) {
     this.elements = elements1;
@@ -1036,56 +1038,58 @@ var slice = [].slice;
     return new QuickBatch(elements, returnResults);
   };
   pholderRegex = /\{\{.+?\}\}/g;
-  QuickTemplate = function(tree) {
-    this._parsed = parseTree(tree);
+  configSchema = {
+    type: 'div',
+    options: {},
+    children: []
+  };
+  QuickTemplate = function(config, isTree) {
+    this._config = isTree ? parseTree(config) : config;
     return this;
   };
-  QuickTemplateProto = QuickTemplate.prototype;
-  Object.defineProperties(QuickTemplateProto, {
-    type: {
+  Object.keys(configSchema).forEach(function(key) {
+    return Object.defineProperty(QuickTemplate.prototype, key, {
       get: function() {
-        return this._parsed.type;
+        return this._config[key];
       }
-    },
-    options: {
-      get: function() {
-        return this._parsed.options;
-      }
-    },
-    children: {
-      get: function() {
-        return this._parsed.children;
-      }
-    }
+    });
   });
   QuickTemplate.prototype.spawn = function(newValues) {
     var args, opts;
-    opts = extendOptions(this._parsed, newValues);
+    opts = extendOptions(this._config, newValues);
     args = [opts.type, opts.options];
     args = args.concat(opts.children);
     return QuickDom.apply(null, args);
   };
   QuickTemplate.prototype.extend = function(newValues) {
-    var clone;
-    clone = Object.create(QuickTemplateProto);
-    clone._parsed = extendOptions(this._parsed, newValues);
-    return clone;
+    return new QuickTemplate(extendOptions(this._config, newValues));
   };
   extendOptions = function(currentOpts, newOpts) {
-    return extend.deep.notDeep('children').clone.transform(function(value, key, source) {
-      if (key === 'children') {
-        if (source === currentOpts) {
-          return value.map(function(child, index) {
-            var ref;
-            return child.extend(newOpts != null ? (ref = newOpts.children) != null ? ref[index] : void 0 : void 0);
-          });
-        } else {
-          return currentOpts.children;
-        }
-      } else {
-        return value;
+    var currentChild, currentChildren, i, index, newChild, newChildren, output, ref;
+    output = extend.deep.notKeys('children').clone(currentOpts, newOpts);
+    currentChildren = currentOpts.children || [];
+    newChildren = (newOpts != null ? newOpts.children : void 0) || [];
+    output.children = [];
+
+    /* istanbul ignore next */
+    for (index = i = 0, ref = Math.max(currentChildren.length, newChildren.length); 0 <= ref ? i < ref : i > ref; index = 0 <= ref ? ++i : --i) {
+      currentChild = currentChildren[index];
+      newChild = newChildren[index];
+      if (IS.string(newChild)) {
+        newChild = {
+          type: 'text',
+          options: {
+            text: newChild
+          }
+        };
       }
-    })(currentOpts, newOpts);
+      if (currentChild) {
+        output.children.push(currentChild.extend(newChild));
+      } else {
+        output.children.push(new QuickTemplate(extend.deep.clone(configSchema, newChild)));
+      }
+    }
+    return output;
   };
   parseTree = function(tree) {
     var output;
@@ -1147,7 +1151,7 @@ var slice = [].slice;
     shortcut = shortcuts[i];
     fn(shortcut);
   }
-  QuickDom.version = '1.0.1';
+  QuickDom.version = '1.0.2';
 
   /* istanbul ignore next */
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
