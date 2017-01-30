@@ -61,7 +61,7 @@ QuickElement::style = ()->
 
 	else if IS.object(args[0])
 		CSS @el, extend.allowNull.transform((value)=>
-			if typeof value is 'function' then value(@options.relatedInstance) else value
+			if typeof value is 'function' then value.call(@, @options.relatedInstance) else value
 		).clone(args[0])
 
 	return @
