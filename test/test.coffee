@@ -643,6 +643,71 @@ suite "QuickDom", ()->
 			expect(C.getState 'happy').to.be.true
 
 
+		test "State styles can be nested to trigger when all states are toggled on", ()->
+			div = Dom.div style:
+				$base:
+					width: '12px'
+					height: '12px'
+					fontSize: '10px'
+				$funny:
+					fontSize: '15px'
+					height: '15px'
+					# width: '10px'
+				$happy:
+					width: '14px'
+					fontSize: '14px'
+					$relaxed:
+						height: '11px'
+						fontSize: '17px'
+						$funny:
+							width: '10px'
+							height: '14px'
+				$relaxed:
+					width: '17px'
+
+			div.appendTo(sandbox)
+			expect(div.style 'width').to.equal('12px')
+			expect(div.style 'height').to.equal('12px')
+			expect(div.style 'fontSize').to.equal('10px')
+
+			div.setState 'funny', on
+			expect(div.style 'width').to.equal('12px')
+			expect(div.style 'height').to.equal('15px')
+			expect(div.style 'fontSize').to.equal('15px')
+
+			div.setState 'funny', off
+			expect(div.style 'width').to.equal('12px')
+			expect(div.style 'height').to.equal('12px')
+			expect(div.style 'fontSize').to.equal('10px')
+
+			div.setState 'happy', on
+			expect(div.style 'width').to.equal('14px')
+			expect(div.style 'height').to.equal('12px')
+			expect(div.style 'fontSize').to.equal('14px')
+
+			div.setState 'relaxed', on
+			expect(div.style 'width').to.equal('17px')
+			expect(div.style 'height').to.equal('11px')
+			expect(div.style 'fontSize').to.equal('17px')
+
+			div.setState 'happy', off
+			expect(div.style 'width').to.equal('17px')
+			expect(div.style 'height').to.equal('12px')
+			expect(div.style 'fontSize').to.equal('10px')
+
+			div.setState 'happy', on
+			window.shouldLog = true
+			div.setState 'funny', on
+			expect(div.style 'width').to.equal('10px')
+			expect(div.style 'height').to.equal('14px')
+			expect(div.style 'fontSize').to.equal('17px')
+
+			div.setState 'happy', off
+			expect(div.style 'width').to.equal('17px')
+			expect(div.style 'height').to.equal('15px')
+			expect(div.style 'fontSize').to.equal('15px')
+
+
 
 	suite "Traversal", ()->
 		test "Children", ()->

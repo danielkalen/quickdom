@@ -778,7 +778,7 @@ suite("QuickDom", function() {
       expect(computedStyle.width).to.equal('25px');
       return expect(computedStyle.height).to.equal('30px');
     });
-    return test("State toggles will be passed to children elements unless options.passStateToChildren is off", function() {
+    test("State toggles will be passed to children elements unless options.passStateToChildren is off", function() {
       var A, B, C, Main;
       Main = Dom.div();
       A = Dom.div().appendTo(Main);
@@ -809,6 +809,71 @@ suite("QuickDom", function() {
       expect(A.getState('happy')).to.be["false"];
       expect(B.getState('happy')).to.be["true"];
       return expect(C.getState('happy')).to.be["true"];
+    });
+    return test("State styles can be nested to trigger when all states are toggled on", function() {
+      var div;
+      div = Dom.div({
+        style: {
+          $base: {
+            width: '12px',
+            height: '12px',
+            fontSize: '10px'
+          },
+          $funny: {
+            fontSize: '15px',
+            height: '15px'
+          },
+          $happy: {
+            width: '14px',
+            fontSize: '14px',
+            $relaxed: {
+              height: '11px',
+              fontSize: '17px',
+              $funny: {
+                width: '10px',
+                height: '14px'
+              }
+            }
+          },
+          $relaxed: {
+            width: '17px'
+          }
+        }
+      });
+      div.appendTo(sandbox);
+      expect(div.style('width')).to.equal('12px');
+      expect(div.style('height')).to.equal('12px');
+      expect(div.style('fontSize')).to.equal('10px');
+      div.setState('funny', true);
+      expect(div.style('width')).to.equal('12px');
+      expect(div.style('height')).to.equal('15px');
+      expect(div.style('fontSize')).to.equal('15px');
+      div.setState('funny', false);
+      expect(div.style('width')).to.equal('12px');
+      expect(div.style('height')).to.equal('12px');
+      expect(div.style('fontSize')).to.equal('10px');
+      div.setState('happy', true);
+      expect(div.style('width')).to.equal('14px');
+      expect(div.style('height')).to.equal('12px');
+      expect(div.style('fontSize')).to.equal('14px');
+      div.setState('relaxed', true);
+      expect(div.style('width')).to.equal('17px');
+      expect(div.style('height')).to.equal('11px');
+      expect(div.style('fontSize')).to.equal('17px');
+      div.setState('happy', false);
+      expect(div.style('width')).to.equal('17px');
+      expect(div.style('height')).to.equal('12px');
+      expect(div.style('fontSize')).to.equal('10px');
+      div.setState('happy', true);
+      window.shouldLog = true;
+      div.setState('funny', true);
+      expect(div.style('width')).to.equal('10px');
+      expect(div.style('height')).to.equal('14px');
+      expect(div.style('fontSize')).to.equal('17px');
+      div.setState('happy', false);
+      expect(div.style('width')).to.equal('17px');
+      expect(div.style('height')).to.equal('15px');
+      return expect(div.style('fontSize')).to.equal('15px');
     });
   });
   suite("Traversal", function() {
