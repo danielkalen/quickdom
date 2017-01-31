@@ -1,5 +1,6 @@
 QuickElement::_normalizeOptions = ()->
 	@options.style ?= {}
+	@options.styleShared = {}
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
 	@options.relatedInstance ?= @
@@ -18,6 +19,7 @@ QuickElement::_normalizeOptions = ()->
 QuickElement::_normalizeStyle = ()->
 	keys = Object.keys(@options.style)
 	states = keys.filter (key)-> key[0] is '$'
+	specialStates = helpers.removeItem(states.slice(), '$base')
 	@providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
 
 	if not helpers.includes(states, '$base') and keys.length
@@ -26,6 +28,22 @@ QuickElement::_normalizeStyle = ()->
 			@options.style.$base = extend.clone.keys(nonStateProps)(@options.style)
 		else
 			@options.style = $base: @options.style
+
+	checkInnerStates = (styleObject, parentStates)=>
+		innerStates = Object.keys(styleObject).filter((key)-> key[0] is '$')
+		if innerStates.length
+			@hasSharedStateStyle = true
+			
+			for innerState in innerStates
+				stateChain = parentStates.concat(innerState.slice(1))
+				@options.styleShared[stateChain.join('+')] = styleObject[innerState]
+			
+				checkInnerStates(styleObject[innerState], stateChain)
+				delete styleObject[innerState]
+
+
+	for state in specialStates
+		checkInnerStates(@options.style[state], [state.slice(1)])
 
 	return @
 

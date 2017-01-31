@@ -19,25 +19,43 @@ QuickElement::setState = (targetState, value=true)-> if IS.string(targetState)
 	
 	if @getState(targetState) isnt desiredValue
 		if @options.style['$'+targetState]
-			stateStyle = @options.style['$'+targetState]
+			targetStyle = @options.style['$'+targetState]
 			targetStateIndex = @providedStates.indexOf(targetState)
 			activeStates = @providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt targetState
 			superiorStates = activeStates.filter (state)=> @providedStates.indexOf(state) > targetStateIndex
 			activeStateStyles = activeStates.map (state)=> @options.style['$'+state]
 			superiorStateStyles = superiorStates.map (state)=> @options.style['$'+state]
-		
+
 
 		if desiredValue #is on
 			@_state.push(targetState)
-			if stateStyle
-				@style extend.clone.keys(stateStyle).apply(null, [stateStyle].concat(superiorStateStyles))
+			if targetStyle
+				@style extend.clone.keys(targetStyle).apply(null, [targetStyle].concat(superiorStateStyles))
 		
 		else
 			helpers.removeItem(@_state, targetState)
-			if stateStyle
-				stylesToKeep = extend.clone.keys(stateStyle).apply(null, [@options.style.$base].concat(activeStateStyles))
-				stylesToRemove = extend.transform(-> null).clone(stateStyle)
+			if targetStyle
+				stylesToKeep = extend.clone.keys(targetStyle).apply(null, [@options.style.$base].concat(activeStateStyles))
+				stylesToRemove = extend.transform(-> null).clone(targetStyle)
 				@style extend(stylesToRemove, stylesToKeep)
+
+
+	if @hasSharedStateStyle
+		sharedStyles = Object.keys(@options.styleShared)
+		sharedStyles = sharedStyles.filter (stateChain)-> helpers.includes(stateChain, targetState)
+		for stateChain in sharedStyles
+			split = stateChain.split('+')
+			isApplicable = split.length is split.filter((state)=> state is targetState or @getState(state)).length
+			
+			if isApplicable
+				targetStyle = @options.styleShared[stateChain]
+				if desiredValue
+					inferiorStateChains = @options.styleShared[helpers.removeItem(split, targetState).join('+')]
+					@style extend.clone(inferiorStateChains, targetStyle)
+				else
+					stylesToKeep = extend.clone.keys(targetStyle).apply(null, [@options.style.$base].concat(activeStateStyles))
+					stylesToRemove = extend.transform(-> null).clone(targetStyle)
+					@style extend(stylesToRemove, stylesToKeep)
 
 
 	if @options.passStateToChildren

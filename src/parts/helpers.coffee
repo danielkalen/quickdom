@@ -6,6 +6,7 @@ helpers.includes = (target, item)->
 helpers.removeItem = (target, item)->
 	itemIndex = target.indexOf(item)
 	target.splice(itemIndex, 1)  if itemIndex isnt -1
+	return target
 
 helpers.normalizeGivenEl = (targetEl)-> switch
 	when IS.domNode(targetEl) then QuickDom(targetEl)
