@@ -708,6 +708,25 @@ suite "QuickDom", ()->
 			expect(div.style 'fontSize').to.equal('15px')
 
 
+		test "QuickElement.rect should contain an updated version of the element's ClientRect", ()->
+			div = Dom.div().appendTo(sandbox)
+			rectA = div.rect
+			rectB = div.rect
+
+			expect(rectA).to.be.instanceOf(ClientRect)
+			expect(rectB).to.be.instanceOf(ClientRect)
+			expect(rectA).to.eql(rectB)
+
+
+			div.style 'width', '7px'
+			rectC = div.rect
+			expect(rectC).to.be.instanceOf(ClientRect)
+			expect(rectA).to.eql(rectB)
+			expect(rectA).not.to.eql(rectC)
+			expect(rectA.width).not.to.equal(7)
+			expect(rectB.width).not.to.equal(7)
+			expect(rectC.width).to.equal(7)
+
 
 	suite "Traversal", ()->
 		test "Children", ()->

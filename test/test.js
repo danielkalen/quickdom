@@ -810,7 +810,7 @@ suite("QuickDom", function() {
       expect(B.getState('happy')).to.be["true"];
       return expect(C.getState('happy')).to.be["true"];
     });
-    return test("State styles can be nested to trigger when all states are toggled on", function() {
+    test("State styles can be nested to trigger when all states are toggled on", function() {
       var div;
       div = Dom.div({
         style: {
@@ -874,6 +874,23 @@ suite("QuickDom", function() {
       expect(div.style('width')).to.equal('17px');
       expect(div.style('height')).to.equal('15px');
       return expect(div.style('fontSize')).to.equal('15px');
+    });
+    return test("QuickElement.rect should contain an updated version of the element's ClientRect", function() {
+      var div, rectA, rectB, rectC;
+      div = Dom.div().appendTo(sandbox);
+      rectA = div.rect;
+      rectB = div.rect;
+      expect(rectA).to.be.instanceOf(ClientRect);
+      expect(rectB).to.be.instanceOf(ClientRect);
+      expect(rectA).to.eql(rectB);
+      div.style('width', '7px');
+      rectC = div.rect;
+      expect(rectC).to.be.instanceOf(ClientRect);
+      expect(rectA).to.eql(rectB);
+      expect(rectA).not.to.eql(rectC);
+      expect(rectA.width).not.to.equal(7);
+      expect(rectB.width).not.to.equal(7);
+      return expect(rectC.width).to.equal(7);
     });
   });
   suite("Traversal", function() {
