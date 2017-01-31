@@ -1,3 +1,6 @@
+QuickElement::parentsUntil = (filterFn)->
+	getParents(@, filterFn)
+
 Object.defineProperties QuickElement::,
 	'children': get: ()->
 		if @el.childNodes.length isnt @_children.length # Re-collect children	
@@ -14,14 +17,7 @@ Object.defineProperties QuickElement::,
 
 
 	'parents': get: ()->
-		parents = []
-		nextParent = @parent
-		while nextParent
-			parents.push(nextParent)
-			nextParent = nextParent.parent
-
-		return parents
-
+		getParents(@)
 
 	'next': get: ()->
 		QuickDom(@el.nextSibling)
@@ -49,6 +45,20 @@ Object.defineProperties QuickElement::,
 
 	'siblings': get: ()->
 		@prevAll.reverse().concat(@nextAll)
+
+
+getParents = (targetEl, filterFn)->
+	filterFn = undefined if not IS.function(filterFn)
+	parents = []
+	nextParent = targetEl.parent
+	while nextParent
+		parents.push(nextParent)
+		nextParent = nextParent.parent
+		nextParent = null if filterFn and filterFn(nextParent)
+
+	return parents
+
+
 
 
 
