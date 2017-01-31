@@ -85,5 +85,10 @@ QuickElement::style = ()->
 	return @
 
 
+Object.defineProperty QuickElement::, 'rect',
+	get: ()-> @el.getBoundingClientRect()
+
+
+
 
 	

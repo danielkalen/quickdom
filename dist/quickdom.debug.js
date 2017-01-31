@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1ad78, _sim_1f9d8, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1ead6, _sim_2233e, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
   QuickDom = null;
 
   /* istanbul ignore next */
-  _sim_1ad78 = (function(exports){
+  _sim_1ead6 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;f.push(a);e=["Top","Bottom","Left","Right"];
 		g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,c,d;if(this.isPropSupported(a))return a;d=this.toTitleCase(a);
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_1ad78;
+  CSS = _sim_1ead6;
 
   /* istanbul ignore next */
-  _sim_1f9d8 = (function(exports){
+  _sim_2233e = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1f9d8;
+  extend = _sim_2233e;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -344,7 +344,9 @@ var slice = [].slice;
       get: function() {
         return this.replace;
       }
-    },
+    }
+  });
+  Object.defineProperties(QuickElement.prototype, {
     'children': {
       get: function() {
         var child, i, len, ref;
@@ -757,6 +759,11 @@ var slice = [].slice;
     }
     return this;
   };
+  Object.defineProperty(QuickElement.prototype, 'rect', {
+    get: function() {
+      return this.el.getBoundingClientRect();
+    }
+  });
   QuickElement.prototype.attr = function(attrName, newValue) {
     switch (newValue) {
       case void 0:

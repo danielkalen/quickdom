@@ -11,10 +11,8 @@ QuickElement = (@type, @options)->
 	return @el._quickElement = @
 
 
-Object.defineProperties QuickElement::,
-	import ./aliases
-	import ./traversing
-
+import ./aliases
+import ./traversing
 import ./private
 import ./events
 import ./state-and-style
