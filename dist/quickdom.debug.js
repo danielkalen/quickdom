@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1d2db, _sim_2157a, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1ad78, _sim_1f9d8, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, throwParseError;
   QuickDom = null;
 
   /* istanbul ignore next */
-  _sim_1d2db = (function(exports){
+  _sim_1ad78 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;f.push(a);e=["Top","Bottom","Left","Right"];
 		g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,c,d;if(this.isPropSupported(a))return a;d=this.toTitleCase(a);
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_1d2db;
+  CSS = _sim_1ad78;
 
   /* istanbul ignore next */
-  _sim_2157a = (function(exports){
+  _sim_1f9d8 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2157a;
+  extend = _sim_1f9d8;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -246,8 +246,9 @@ var slice = [].slice;
     var itemIndex;
     itemIndex = target.indexOf(item);
     if (itemIndex !== -1) {
-      return target.splice(itemIndex, 1);
+      target.splice(itemIndex, 1);
     }
+    return target;
   };
   helpers.normalizeGivenEl = function(targetEl) {
     switch (false) {
@@ -423,6 +424,7 @@ var slice = [].slice;
     if ((base = this.options).style == null) {
       base.style = {};
     }
+    this.options.styleShared = {};
     if (this.options["class"]) {
       this.options.className = this.options["class"];
     }
@@ -449,11 +451,12 @@ var slice = [].slice;
     return this;
   };
   QuickElement.prototype._normalizeStyle = function() {
-    var keys, nonStateProps, states;
+    var checkInnerStates, i, keys, len, nonStateProps, specialStates, state, states;
     keys = Object.keys(this.options.style);
     states = keys.filter(function(key) {
       return key[0] === '$';
     });
+    specialStates = helpers.removeItem(states.slice(), '$base');
     this.providedStates = states.map(function(state) {
       return state.slice(1);
     });
@@ -468,6 +471,30 @@ var slice = [].slice;
           $base: this.options.style
         };
       }
+    }
+    checkInnerStates = (function(_this) {
+      return function(styleObject, parentStates) {
+        var i, innerState, innerStates, len, results1, stateChain;
+        innerStates = Object.keys(styleObject).filter(function(key) {
+          return key[0] === '$';
+        });
+        if (innerStates.length) {
+          _this.hasSharedStateStyle = true;
+          results1 = [];
+          for (i = 0, len = innerStates.length; i < len; i++) {
+            innerState = innerStates[i];
+            stateChain = parentStates.concat(innerState.slice(1));
+            _this.options.styleShared[stateChain.join('+')] = styleObject[innerState];
+            checkInnerStates(styleObject[innerState], stateChain);
+            results1.push(delete styleObject[innerState]);
+          }
+          return results1;
+        }
+      };
+    })(this);
+    for (i = 0, len = specialStates.length; i < len; i++) {
+      state = specialStates[i];
+      checkInnerStates(this.options.style[state], [state.slice(1)]);
     }
     return this;
   };
@@ -609,7 +636,7 @@ var slice = [].slice;
     return helpers.includes(this._state, targetState);
   };
   QuickElement.prototype.setState = function(targetState, value) {
-    var activeStateStyles, activeStates, child, desiredValue, i, len, ref, stateStyle, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex;
+    var activeStateStyles, activeStates, child, desiredValue, i, inferiorStateChains, isApplicable, j, len, len1, ref, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
     if (value == null) {
       value = true;
     }
@@ -623,7 +650,7 @@ var slice = [].slice;
       }
       if (this.getState(targetState) !== desiredValue) {
         if (this.options.style['$' + targetState]) {
-          stateStyle = this.options.style['$' + targetState];
+          targetStyle = this.options.style['$' + targetState];
           targetStateIndex = this.providedStates.indexOf(targetState);
           activeStates = this.providedStates.filter((function(_this) {
             return function(state) {
@@ -648,24 +675,52 @@ var slice = [].slice;
         }
         if (desiredValue) {
           this._state.push(targetState);
-          if (stateStyle) {
-            this.style(extend.clone.keys(stateStyle).apply(null, [stateStyle].concat(superiorStateStyles)));
+          if (targetStyle) {
+            this.style(extend.clone.keys(targetStyle).apply(null, [targetStyle].concat(superiorStateStyles)));
           }
         } else {
           helpers.removeItem(this._state, targetState);
-          if (stateStyle) {
-            stylesToKeep = extend.clone.keys(stateStyle).apply(null, [this.options.style.$base].concat(activeStateStyles));
+          if (targetStyle) {
+            stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(activeStateStyles));
             stylesToRemove = extend.transform(function() {
               return null;
-            }).clone(stateStyle);
+            }).clone(targetStyle);
             this.style(extend(stylesToRemove, stylesToKeep));
+          }
+        }
+      }
+      if (this.hasSharedStateStyle) {
+        sharedStyles = Object.keys(this.options.styleShared);
+        sharedStyles = sharedStyles.filter(function(stateChain) {
+          return helpers.includes(stateChain, targetState);
+        });
+        for (i = 0, len = sharedStyles.length; i < len; i++) {
+          stateChain = sharedStyles[i];
+          split = stateChain.split('+');
+          isApplicable = split.length === split.filter((function(_this) {
+            return function(state) {
+              return state === targetState || _this.getState(state);
+            };
+          })(this)).length;
+          if (isApplicable) {
+            targetStyle = this.options.styleShared[stateChain];
+            if (desiredValue) {
+              inferiorStateChains = this.options.styleShared[helpers.removeItem(split, targetState).join('+')];
+              this.style(extend.clone(inferiorStateChains, targetStyle));
+            } else {
+              stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(activeStateStyles));
+              stylesToRemove = extend.transform(function() {
+                return null;
+              }).clone(targetStyle);
+              this.style(extend(stylesToRemove, stylesToKeep));
+            }
           }
         }
       }
       if (this.options.passStateToChildren) {
         ref = this._children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
+        for (j = 0, len1 = ref.length; j < len1; j++) {
+          child = ref[j];
           child.setState(targetState, value);
         }
       }
@@ -1151,7 +1206,7 @@ var slice = [].slice;
     shortcut = shortcuts[i];
     fn(shortcut);
   }
-  QuickDom.version = '1.0.2';
+  QuickDom.version = '1.0.3';
 
   /* istanbul ignore next */
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
