@@ -1,6 +1,15 @@
 QuickElement::parentsUntil = (filterFn)->
 	getParents(@, filterFn)
 
+QuickElement::parentMatching = (filterFn)-> if IS.function(filterFn)
+	nextParent = @parent
+	while nextParent
+		return nextParent if filterFn(nextParent)
+		nextParent = nextParent.parent
+	
+	return
+
+
 Object.defineProperties QuickElement::,
 	'children': get: ()->
 		if @el.childNodes.length isnt @_children.length # Re-collect children	
