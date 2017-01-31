@@ -942,6 +942,53 @@ suite("QuickDom", function() {
       expect(C.parents.length).to.equal(5);
       return expect(C.parents.slice(-1)[0].el).to.equal(document.documentElement);
     });
+    test("Parents Until", function() {
+      var A, B, C, D;
+      A = Dom.section();
+      B = Dom.div().appendTo(A);
+      C = Dom.div().appendTo(B);
+      D = Dom.span().appendTo(C);
+      expect(D.parents).to.eql([C, B, A]);
+      expect(D.parentsUntil(null)).to.eql([C, B, A]);
+      expect(D.parentsUntil()).to.eql([C, B, A]);
+      expect(D.parentsUntil('someString')).to.eql([C, B, A]);
+      expect(D.parentsUntil(function(el) {
+        return el === A;
+      })).to.eql([C, B]);
+      expect(D.parentsUntil(function(el) {
+        return el === B;
+      })).to.eql([C]);
+      return expect(D.parentsUntil(function(el) {
+        return false;
+      })).to.eql([C, B, A]);
+    });
+    test("Parent Matching", function() {
+      var A, B, C, D;
+      A = Dom.section();
+      B = Dom.div().appendTo(A);
+      C = Dom.div().appendTo(B);
+      D = Dom.span().appendTo(C);
+      expect(D.parents).to.eql([C, B, A]);
+      expect(D.parentMatching(null)).to.equal(void 0);
+      expect(D.parentMatching(B)).to.equal(void 0);
+      expect(D.parentMatching('string')).to.equal(void 0);
+      expect(D.parentMatching(function() {
+        return false;
+      })).to.equal(void 0);
+      expect(D.parentMatching(function(el) {
+        return el === B;
+      })).to.equal(B);
+      expect(D.parentMatching(function(el) {
+        return el === A;
+      })).to.equal(A);
+      expect(D.parentMatching(function(el) {
+        return el === C;
+      })).to.equal(C);
+      A.appendTo(sandbox);
+      return expect(D.parentMatching(function(el) {
+        return el.raw === document.documentElement;
+      })).to.equal(Dom(document.documentElement));
+    });
     test("Next", function() {
       var A, B, C, D, E, div;
       div = Dom.div(null, A = Dom.div(), B = Dom.div(), C = Dom.div(), D = Dom.div(), E = Dom.div());

@@ -785,6 +785,40 @@ suite "QuickDom", ()->
 			expect(C.parents.slice(-1)[0].el).to.equal(document.documentElement)
 
 
+		test "Parents Until", ()->
+			A = Dom.section()
+			B = Dom.div().appendTo(A)
+			C = Dom.div().appendTo(B)
+			D = Dom.span().appendTo(C)
+
+			expect(D.parents).to.eql [C,B,A]
+			expect(D.parentsUntil(null)).to.eql [C,B,A]
+			expect(D.parentsUntil()).to.eql [C,B,A]
+			expect(D.parentsUntil('someString')).to.eql [C,B,A]
+			expect(D.parentsUntil (el)-> el is A).to.eql [C,B]
+			expect(D.parentsUntil (el)-> el is B).to.eql [C]
+			expect(D.parentsUntil (el)-> false).to.eql [C,B,A]
+
+
+		test "Parent Matching", ()->
+			A = Dom.section()
+			B = Dom.div().appendTo(A)
+			C = Dom.div().appendTo(B)
+			D = Dom.span().appendTo(C)
+
+			expect(D.parents).to.eql [C,B,A]
+			expect(D.parentMatching(null)).to.equal(undefined)
+			expect(D.parentMatching(B)).to.equal(undefined)
+			expect(D.parentMatching('string')).to.equal(undefined)
+			expect(D.parentMatching ()-> false).to.equal(undefined)
+			expect(D.parentMatching (el)-> el is B).to.equal(B)
+			expect(D.parentMatching (el)-> el is A).to.equal(A)
+			expect(D.parentMatching (el)-> el is C).to.equal(C)
+
+			A.appendTo(sandbox)
+			expect(D.parentMatching (el)-> el.raw is document.documentElement).to.equal(Dom(document.documentElement))
+
+
 		test "Next", ()->
 			div = Dom.div(null, A=Dom.div(), B=Dom.div(), C=Dom.div(), D=Dom.div(), E=Dom.div())
 
