@@ -31,6 +31,8 @@ replacements = [
 	[/_attachStateEvents/g, '_ae']
 	[/_listenTo/g, '_l']
 	[/_removeChild/g, '_r']
+	[/styleShared/g, 'sS']
+	[/hasSharedStateStyle/g, 'hSS']
 ]
 
 
