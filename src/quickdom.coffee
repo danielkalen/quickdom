@@ -1,5 +1,5 @@
 do ()->
-	QuickDom = null;
+	svgNamespace = 'http://www.w3.org/2000/svg'
 	### istanbul ignore next ###
 	import * as CSS from 'quickcss'
 	### istanbul ignore next ###

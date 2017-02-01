@@ -1,5 +1,9 @@
 QuickElement = (@type, @options)->
-	@el = @options.existing or if @type is 'text' then document.createTextNode(@options.text) else document.createElement(@type)
+	@el = @options.existing or
+		if @type is 'text' then document.createTextNode(@options.text)
+		else if @type[0] is '*' then document.createElementNS(svgNamespace, @type.slice(1))
+		else document.createElement(@type)
+
 	@_parent = null
 	@_state = []
 	@_children = []
