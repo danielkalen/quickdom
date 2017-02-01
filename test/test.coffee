@@ -780,6 +780,28 @@ suite "QuickDom", ()->
 			divC.appendTo(sandbox)
 
 
+		test "Any styles applied by states before the element has been inserted into the DOM and when options.styleAfterInsert is on will be re-applied after insert", ()->
+			divReg = Dom.div(style:{$base:{height:'19px'}, $funny:{height:'29px'}, $happy:{height:'39px'}})
+			divA = Dom.div(style:{$base:{height:'19px'}, $funny:{height:'29px'}, $happy:{height:'39px'}}, styleAfterInsert:true)
+
+			expect(divReg.el.style.height).to.equal('19px')
+			expect(divA.el.style.height).to.equal('')
+
+			divReg.state 'funny', on
+			divA.state 'funny', on
+			expect(divReg.el.style.height).to.equal('29px')
+			expect(divA.el.style.height).to.equal('29px')
+			
+			divReg.state 'happy', on
+			divA.state 'happy', on
+			expect(divReg.el.style.height).to.equal('39px')
+			expect(divA.el.style.height).to.equal('39px')
+			
+			divReg.appendTo(sandbox)
+			divA.appendTo(sandbox)
+			expect(divReg.el.style.height).to.equal('39px')
+			expect(divA.el.style.height).to.equal('39px')
+
 
 
 	suite "Traversal", ()->

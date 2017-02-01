@@ -896,7 +896,7 @@ suite("QuickDom", function() {
       expect(rectB.width).not.to.equal(7);
       return expect(rectC.width).to.equal(7);
     });
-    return test("If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", function() {
+    test("If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", function() {
       var divA, divB, divC, divReg, parentOpacityGetter;
       parentOpacityGetter = function() {
         if (this.parent) {
@@ -969,6 +969,50 @@ suite("QuickDom", function() {
       expect(divB.el.style.opacity).to.equal('1');
       expect(divC.el.style.opacity).to.equal('1');
       return divC.appendTo(sandbox);
+    });
+    return test("Any styles applied by states before the element has been inserted into the DOM and when options.styleAfterInsert is on will be re-applied after insert", function() {
+      var divA, divReg;
+      divReg = Dom.div({
+        style: {
+          $base: {
+            height: '19px'
+          },
+          $funny: {
+            height: '29px'
+          },
+          $happy: {
+            height: '39px'
+          }
+        }
+      });
+      divA = Dom.div({
+        style: {
+          $base: {
+            height: '19px'
+          },
+          $funny: {
+            height: '29px'
+          },
+          $happy: {
+            height: '39px'
+          }
+        },
+        styleAfterInsert: true
+      });
+      expect(divReg.el.style.height).to.equal('19px');
+      expect(divA.el.style.height).to.equal('');
+      divReg.state('funny', true);
+      divA.state('funny', true);
+      expect(divReg.el.style.height).to.equal('29px');
+      expect(divA.el.style.height).to.equal('29px');
+      divReg.state('happy', true);
+      divA.state('happy', true);
+      expect(divReg.el.style.height).to.equal('39px');
+      expect(divA.el.style.height).to.equal('39px');
+      divReg.appendTo(sandbox);
+      divA.appendTo(sandbox);
+      expect(divReg.el.style.height).to.equal('39px');
+      return expect(divA.el.style.height).to.equal('39px');
     });
   });
   suite("Traversal", function() {
