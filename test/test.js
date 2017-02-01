@@ -879,7 +879,7 @@ suite("QuickDom", function() {
       expect(div.style('height')).to.equal('15px');
       return expect(div.style('fontSize')).to.equal('15px');
     });
-    return test("QuickElement.rect should contain an updated version of the element's ClientRect", function() {
+    test("QuickElement.rect should contain an updated version of the element's ClientRect", function() {
       var div, rectA, rectB, rectC;
       div = Dom.div().appendTo(sandbox);
       rectA = div.rect;
@@ -895,6 +895,80 @@ suite("QuickDom", function() {
       expect(rectA.width).not.to.equal(7);
       expect(rectB.width).not.to.equal(7);
       return expect(rectC.width).to.equal(7);
+    });
+    return test("If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", function() {
+      var divA, divB, divC, divReg, parentOpacityGetter;
+      parentOpacityGetter = function() {
+        if (this.parent) {
+          return this.parent.style('opacity');
+        } else {
+          return '0.5';
+        }
+      };
+      divReg = Dom.div({
+        style: {
+          height: '19px',
+          opacity: parentOpacityGetter
+        }
+      });
+      divA = Dom.div({
+        style: {
+          height: '19px',
+          opacity: parentOpacityGetter
+        },
+        styleAfterInsert: true
+      });
+      divB = Dom.div({
+        style: {
+          height: '19px',
+          opacity: parentOpacityGetter
+        },
+        styleAfterInsert: true
+      });
+      divC = Dom.div({
+        style: {
+          height: '19px',
+          opacity: parentOpacityGetter
+        },
+        styleAfterInsert: true
+      });
+      expect(divReg.el.style.height).to.equal('19px');
+      expect(divReg.el.style.opacity).to.equal('0.5');
+      expect(divA.el.style.height).to.equal('');
+      expect(divB.el.style.height).to.equal('');
+      expect(divC.el.style.height).to.equal('');
+      expect(divA.el.style.opacity).to.equal('');
+      expect(divB.el.style.opacity).to.equal('');
+      expect(divC.el.style.opacity).to.equal('');
+      divA.appendTo(sandbox);
+      expect(divA.el.style.height).to.equal('19px');
+      expect(divB.el.style.height).to.equal('');
+      expect(divC.el.style.height).to.equal('');
+      expect(divA.el.style.opacity).to.equal('1');
+      expect(divB.el.style.opacity).to.equal('');
+      expect(divC.el.style.opacity).to.equal('');
+      divB.insertBefore(sandbox);
+      expect(divA.el.style.height).to.equal('19px');
+      expect(divB.el.style.height).to.equal('19px');
+      expect(divC.el.style.height).to.equal('');
+      expect(divA.el.style.opacity).to.equal('1');
+      expect(divB.el.style.opacity).to.equal('1');
+      expect(divC.el.style.opacity).to.equal('');
+      sandbox.appendChild(divC.el);
+      expect(divA.el.style.height).to.equal('19px');
+      expect(divB.el.style.height).to.equal('19px');
+      expect(divC.el.style.height).to.equal('');
+      expect(divA.el.style.opacity).to.equal('1');
+      expect(divB.el.style.opacity).to.equal('1');
+      expect(divC.el.style.opacity).to.equal('');
+      divC.parent;
+      expect(divA.el.style.height).to.equal('19px');
+      expect(divB.el.style.height).to.equal('19px');
+      expect(divC.el.style.height).to.equal('19px');
+      expect(divA.el.style.opacity).to.equal('1');
+      expect(divB.el.style.opacity).to.equal('1');
+      expect(divC.el.style.opacity).to.equal('1');
+      return divC.appendTo(sandbox);
     });
   });
   suite("Traversal", function() {
@@ -1640,7 +1714,7 @@ suite("QuickDom", function() {
       expect(spawnB.el.id).to.equal('theMainDiv');
       return expect(spawnB.text()).to.equal('The Other Inner Text');
     });
-    return test("Templates can be spawned via extended config by passing a new config object to template.spawn()", function() {
+    test("Templates can be spawned via extended config by passing a new config object to template.spawn()", function() {
       var spawnA, spawnB, spawnRaw, template;
       template = Dom.template([
         'div', {
@@ -1737,6 +1811,34 @@ suite("QuickDom", function() {
       expect(spawnB.el.childNodes[1].nodeName.toLowerCase()).to.equal('b');
       expect(spawnB.el.childNodes[1].className).to.equal('super-highlighted');
       return expect(spawnB.el.childNodes[1].style.opacity).to.equal('0.2');
+    });
+    return test("Templates can have other templates as their children", function() {
+      var headerTemplate, headerTemplateClone, section, sectionTemplate;
+      headerTemplate = Dom.template([
+        'header', {
+          style: {
+            'height': '200px'
+          }
+        }, [
+          'span', {
+            style: {
+              'textAlign': 'center'
+            }
+          }, 'This is bolded text'
+        ], ' while this is not'
+      ]);
+      headerTemplateClone = Dom.template(headerTemplate);
+      sectionTemplate = Dom.template(['section', null, headerTemplate]);
+      section = sectionTemplate.spawn().appendTo(sandbox);
+      expect(headerTemplateClone).not.to.equal(headerTemplate);
+      expect(sectionTemplate.children.length).to.equal(1);
+      expect(sectionTemplate.children[0]).not.to.equal(headerTemplate);
+      expect(sectionTemplate.children[0].children.length).to.equal(2);
+      expect(section.children.length).to.equal(1);
+      expect(section.children[0].type).to.equal('header');
+      expect(section.children[0].children.length).to.equal(2);
+      expect(section.text()).to.equal('This is bolded text while this is not');
+      return expect(section.children[0].children[0].style('textAlign')).to.equal('center');
     });
   });
   return suite("Misc", function() {

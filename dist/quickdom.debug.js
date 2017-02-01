@@ -1,23 +1,23 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1d591, _sim_2485e, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace, throwParseError;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1ceaa, _sim_2e126, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_2485e = (function(exports){
+  _sim_2e126 = (function(exports){
 		var module = {exports:exports};
-		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;f.push(a);e=["Top",
-		"Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,c,d;if(this.isPropSupported(a))return a;
-		d=this.toTitleCase(a);a=0;for(b=k.length;a<b;a++)if(c=k[a],c=""+c+d,this.isPropSupported(c))return c},normalizeValue:function(a,b){this.includes(f,a)&&null!==b&&(b=""+b,!m.test(b)||l.test(b)||n.test(b)||(b+="px"));return b}};e=function(a,b,c){var d,f,g;if(h.isIterable(a))for(d=0,f=a.length;d<f;d++)g=a[d],e(g,b,c);else if("object"===typeof b)for(d in b)c=b[d],e(a,d,c);else{b=h.normalizeProperty(b);if("undefined"===typeof c)return getComputedStyle(a)[b];b&&(a.style[b]=h.normalizeValue(b,c))}};e.version=
-		"1.0.5";return null!=("undefined"!==typeof module&&null!==module?module.exports:void 0)?module.exports=e:"function"===typeof define&&define.amd?define(["quickdom"],function(){return e}):this.Css=e})();
+		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
+		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
+		c,d;if(this.isPropSupported(a))return a;d=this.toTitleCase(a);a=0;for(b=k.length;a<b;a++)if(c=k[a],c=""+c+d,this.isPropSupported(c))return c},normalizeValue:function(a,b){this.includes(f,a)&&null!==b&&(b=""+b,!m.test(b)||l.test(b)||n.test(b)||(b+="px"));return b}};e=function(a,b,c){var d,f,g;if(h.isIterable(a))for(d=0,f=a.length;d<f;d++)g=a[d],e(g,b,c);else if("object"===typeof b)for(d in b)c=b[d],e(a,d,c);else{b=h.normalizeProperty(b);if("undefined"===typeof c)return getComputedStyle(a)[b];b&&(a.style[b]=
+		h.normalizeValue(b,c))}};e.version="1.0.5";return null!=("undefined"!==typeof module&&null!==module?module.exports:void 0)?module.exports=e:"function"===typeof define&&define.amd?define(["quickdom"],function(){return e}):this.Css=e})();
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_2485e;
+  CSS = _sim_2e126;
 
   /* istanbul ignore next */
-  _sim_1d591 = (function(exports){
+  _sim_1ceaa = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1d591;
+  extend = _sim_1ceaa;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -564,7 +564,19 @@ var slice = [].slice;
         this.attr(key, value);
       }
     }
-    this.style(this.options.style.$base);
+    if (!this.options.styleAfterInsert) {
+      this.style(this.options.style.$base);
+    } else {
+      Object.defineProperty(this, '_parent', {
+        set: function(newParent) {
+          if (newParent) {
+            delete this._parent;
+            this._parent = newParent;
+            this.style(this.options.style.$base);
+          }
+        }
+      });
+    }
     return this;
   };
   QuickElement.prototype._attachStateEvents = function() {
@@ -845,6 +857,7 @@ var slice = [].slice;
         }
         this._children.push(targetEl);
         this.el.appendChild(targetEl.el);
+        targetEl.parent;
       }
     }
     return this;
@@ -869,6 +882,7 @@ var slice = [].slice;
         }
         this._children.unshift(targetEl);
         this.el.insertBefore(targetEl.el, this.el.firstChild);
+        targetEl.parent;
       }
     }
     return this;
@@ -904,6 +918,7 @@ var slice = [].slice;
         myIndex = this.parent._children.indexOf(this);
         this.parent._children.splice(myIndex + 1, 0, targetEl);
         this.el.parentNode.insertBefore(targetEl.el, this.el.nextSibling);
+        targetEl.parent;
       }
     }
     return this;
@@ -925,6 +940,7 @@ var slice = [].slice;
         myIndex = this.parent._children.indexOf(this);
         this.parent._children.splice(myIndex, 0, targetEl);
         this.el.parentNode.insertBefore(targetEl.el, this.el);
+        targetEl.parent;
       }
     }
     return this;
@@ -1148,7 +1164,7 @@ var slice = [].slice;
   };
   extendOptions = function(currentOpts, newOpts) {
     var currentChild, currentChildren, i, index, newChild, newChildren, output, ref;
-    output = extend.deep.notKeys('children').clone(currentOpts, newOpts);
+    output = extend.deep.notKeys('children').notDeep('relatedInstance').clone(currentOpts, newOpts);
     currentChildren = currentOpts.children || [];
     newChildren = (newOpts != null ? newOpts.children : void 0) || [];
     output.children = [];
@@ -1179,12 +1195,12 @@ var slice = [].slice;
       case !IS.array(tree):
         output = {};
         if (!IS.string(tree[0])) {
-          throwParseError('type', 'string', tree[0]);
+          throw new Error(parseErrorPrefix + " string for 'type', got '" + (String(tree[0])) + "'");
         } else {
           output.type = tree[0];
         }
         if (tree.length > 1 && !IS.object(tree[1]) && tree[1] !== null) {
-          throwParseError('options', 'object', tree[1]);
+          throw new Error(parseErrorPrefix + " object for 'options', got '" + (String(tree[1])) + "'");
         } else {
           output.options = tree[1] ? extend.deep.clone(tree[1]) : null;
         }
@@ -1209,13 +1225,13 @@ var slice = [].slice;
           options: extend.clone.deep.notKeys('relatedInstance')(tree.options),
           children: tree.children.map(QuickDom.template)
         };
+      case !IS.template(tree):
+        return extendOptions(tree._config);
       default:
-        return throwParseError('template', '(array || string || domEl || quickDomEl)', tree);
+        throw new Error(parseErrorPrefix + " (array || string || domEl || quickDomEl || template), got " + (String(tree)));
     }
   };
-  throwParseError = function(label, expected, received) {
-    throw new Error("Template Parse Error: expected " + expected + " for " + label + ", got " + (String(received)));
-  };
+  parseErrorPrefix = 'Template Parse Error: expected';
   shortcuts = ['link:a', 'anchor:a', 'a', 'text', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'section', 'button', 'br', 'ul', 'ol', 'li', 'fieldset', 'input', 'textarea', 'select', 'option', 'form', 'frame', 'hr', 'iframe', 'img', 'picture', 'main', 'nav', 'meta', 'object', 'pre', 'style', 'table', 'tbody', 'th', 'tr', 'td', 'tfoot', 'video'];
   fn = function(shortcut) {
     var prop, split, type;

@@ -354,7 +354,6 @@ suite "QuickDom", ()->
 
 
 	suite "State", ()->
-		# test "States can be toggled on/off via .state and polled via .state", ()->
 		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->
 			div = Dom.div()
 
@@ -729,6 +728,58 @@ suite "QuickDom", ()->
 			expect(rectA.width).not.to.equal(7)
 			expect(rectB.width).not.to.equal(7)
 			expect(rectC.width).to.equal(7)
+
+
+		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
+			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
+			divReg = Dom.div(style:{height:'19px', opacity:parentOpacityGetter})
+			divA = Dom.div(style:{height:'19px', opacity:parentOpacityGetter}, styleAfterInsert:true)
+			divB = Dom.div(style:{height:'19px', opacity:parentOpacityGetter}, styleAfterInsert:true)
+			divC = Dom.div(style:{height:'19px', opacity:parentOpacityGetter}, styleAfterInsert:true)
+
+			expect(divReg.el.style.height).to.equal('19px')
+			expect(divReg.el.style.opacity).to.equal('0.5')
+			expect(divA.el.style.height).to.equal('')
+			expect(divB.el.style.height).to.equal('')
+			expect(divC.el.style.height).to.equal('')
+			expect(divA.el.style.opacity).to.equal('')
+			expect(divB.el.style.opacity).to.equal('')
+			expect(divC.el.style.opacity).to.equal('')
+			
+			divA.appendTo(sandbox)
+			expect(divA.el.style.height).to.equal('19px')
+			expect(divB.el.style.height).to.equal('')
+			expect(divC.el.style.height).to.equal('')
+			expect(divA.el.style.opacity).to.equal('1')
+			expect(divB.el.style.opacity).to.equal('')
+			expect(divC.el.style.opacity).to.equal('')
+			
+			divB.insertBefore(sandbox)
+			expect(divA.el.style.height).to.equal('19px')
+			expect(divB.el.style.height).to.equal('19px')
+			expect(divC.el.style.height).to.equal('')
+			expect(divA.el.style.opacity).to.equal('1')
+			expect(divB.el.style.opacity).to.equal('1')
+			expect(divC.el.style.opacity).to.equal('')
+			
+			sandbox.appendChild(divC.el)
+			expect(divA.el.style.height).to.equal('19px')
+			expect(divB.el.style.height).to.equal('19px')
+			expect(divC.el.style.height).to.equal('')
+			expect(divA.el.style.opacity).to.equal('1')
+			expect(divB.el.style.opacity).to.equal('1')
+			expect(divC.el.style.opacity).to.equal('')
+			
+			divC.parent
+			expect(divA.el.style.height).to.equal('19px')
+			expect(divB.el.style.height).to.equal('19px')
+			expect(divC.el.style.height).to.equal('19px')
+			expect(divA.el.style.opacity).to.equal('1')
+			expect(divB.el.style.opacity).to.equal('1')
+			expect(divC.el.style.opacity).to.equal('1')
+			divC.appendTo(sandbox)
+
+
 
 
 	suite "Traversal", ()->
