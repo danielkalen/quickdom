@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1b705, _sim_1e76d, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace, throwParseError;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1cfb7, _sim_22e79, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace, throwParseError;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_1b705 = (function(exports){
+  _sim_1cfb7 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;f.push(a);e=["Top",
 		"Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,c,d;if(this.isPropSupported(a))return a;
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_1b705;
+  CSS = _sim_1cfb7;
 
   /* istanbul ignore next */
-  _sim_1e76d = (function(exports){
+  _sim_22e79 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1e76d;
+  extend = _sim_22e79;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -578,11 +578,11 @@ var slice = [].slice;
           disabler = trigger.off;
         }
         _this._listenTo(enabler, function() {
-          return _this.setState(state, true);
+          return _this.state(state, true);
         });
         if (disabler) {
           return _this._listenTo(disabler, function() {
-            return _this.setState(state, false);
+            return _this.state(state, false);
           });
         }
       };
@@ -658,15 +658,11 @@ var slice = [].slice;
     }
     return this;
   };
-  QuickElement.prototype.getState = function(targetState) {
-    return helpers.includes(this._state, targetState);
-  };
-  QuickElement.prototype.setState = function(targetState, value) {
+  QuickElement.prototype.state = function(targetState, value) {
     var activeStateStyles, activeStates, child, desiredValue, i, inferiorStateChains, isApplicable, j, len, len1, ref, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
-    if (value == null) {
-      value = true;
-    }
-    if (IS.string(targetState)) {
+    if (arguments.length === 1) {
+      return helpers.includes(this._state, targetState);
+    } else if (IS.string(targetState)) {
       if (targetState[0] === '$') {
         targetState = targetState.slice(1);
       }
@@ -674,7 +670,7 @@ var slice = [].slice;
       if (targetState === 'base') {
         return this;
       }
-      if (this.getState(targetState) !== desiredValue) {
+      if (this.state(targetState) !== desiredValue) {
         if (this.options.style['$' + targetState]) {
           targetStyle = this.options.style['$' + targetState];
           targetStateIndex = this.providedStates.indexOf(targetState);
@@ -725,7 +721,7 @@ var slice = [].slice;
           split = stateChain.split('+');
           isApplicable = split.length === split.filter((function(_this) {
             return function(state) {
-              return state === targetState || _this.getState(state);
+              return state === targetState || _this.state(state);
             };
           })(this)).length;
           if (isApplicable) {
@@ -747,7 +743,7 @@ var slice = [].slice;
         ref = this._children;
         for (j = 0, len1 = ref.length; j < len1; j++) {
           child = ref[j];
-          child.setState(targetState, value);
+          child.state(targetState, value);
         }
       }
       return this;
@@ -758,7 +754,7 @@ var slice = [].slice;
     ref = this._state.slice();
     for (i = 0, len = ref.length; i < len; i++) {
       activeState = ref[i];
-      this.setState(activeState, false);
+      this.state(activeState, false);
     }
     return this;
   };
@@ -821,7 +817,7 @@ var slice = [].slice;
     ref = this._state;
     for (i = 0, len = ref.length; i < len; i++) {
       activeState = ref[i];
-      newEl.setState(activeState);
+      newEl.state(activeState, true);
     }
     ref1 = this.children;
     for (j = 0, len1 = ref1.length; j < len1; j++) {

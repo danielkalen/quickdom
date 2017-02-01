@@ -354,57 +354,47 @@ suite "QuickDom", ()->
 
 
 	suite "State", ()->
-		test "States can be toggled on/off via .setState and polled via .getState", ()->
+		# test "States can be toggled on/off via .state and polled via .state", ()->
+		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->
 			div = Dom.div()
 
-			expect(div.getState 'funny').to.be.false
+			expect(div.state 'funny').to.be.false
 
-			div.setState 'funny', true
-			expect(div.getState 'funny').to.be.true
+			div.state 'funny', true
+			expect(div.state 'funny').to.be.true
 			
-			div.setState 'happy', true
-			div.setState 'relaxed', true
-			expect(div.getState 'funny').to.be.true
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			div.state 'happy', true
+			div.state 'relaxed', true
+			expect(div.state 'funny').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 			
-			div.setState 'funny', false
-			expect(div.getState 'funny').to.be.false
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			div.state 'funny', false
+			expect(div.state 'funny').to.be.false
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 			
-			div.setState '$funny'
-			div.setState '$base'
-			expect(div.getState 'funny').to.be.true
-			expect(div.getState 'base').to.be.false
+			div.state '$funny', true
+			div.state '$base', true
+			expect(div.state 'funny').to.be.true
+			expect(div.state 'base').to.be.false
 
-
-		test "If the value (2nd argument) is omitted from .setState, it'll default to 'true'", ()->
-			div = Dom.div()
-
-			expect(div.getState 'funny').to.be.false
-
-			div.setState 'funny'
-			expect(div.getState 'funny').to.be.true
-			
-			div.setState 'funny'
-			expect(div.getState 'funny').to.be.true
 		
 
 		test "All states can be cleared/toggled off via .resetState", ()->
 			div = Dom.div()
 
-			div.setState 'funny'
-			div.setState 'happy'
-			div.setState 'relaxed'
-			expect(div.getState 'funny').to.be.true
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			div.state 'funny', on
+			div.state 'happy', on
+			div.state 'relaxed', on
+			expect(div.state 'funny').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 
 			div.resetState()
-			expect(div.getState 'funny').to.be.false
-			expect(div.getState 'happy').to.be.false
-			expect(div.getState 'relaxed').to.be.false
+			expect(div.state 'funny').to.be.false
+			expect(div.state 'happy').to.be.false
+			expect(div.state 'relaxed').to.be.false
 			
 
 		test "Styles can be passed under specific states using a '$' prefix before the state name", ()->
@@ -426,26 +416,26 @@ suite "QuickDom", ()->
 			expect(computedStyle.marginTop).to.equal('0px')
 			expect(computedStyle.marginLeft).to.equal('0px')
 			
-			div.setState 'happy'
+			div.state 'happy', on
 			expect(computedStyle.width).to.equal('25px')
 			expect(computedStyle.height).to.equal('15px')
 			expect(computedStyle.marginTop).to.equal('20px')
 			expect(computedStyle.marginLeft).to.equal('0px')
 			
-			div.setState 'happy', off
+			div.state 'happy', off
 			expect(computedStyle.width).to.equal('15px')
 			expect(computedStyle.height).to.equal('15px')
 			expect(computedStyle.marginTop).to.equal('0px')
 			expect(computedStyle.marginLeft).to.equal('0px')
 			
-			div.setState 'happy'
-			div.setState 'relaxed'
+			div.state 'happy', on
+			div.state 'relaxed', on
 			expect(computedStyle.width).to.equal('35px')
 			expect(computedStyle.height).to.equal('15px')
 			expect(computedStyle.marginTop).to.equal('20px')
 			expect(computedStyle.marginLeft).to.equal('12px')
 			
-			div.setState 'happy', off
+			div.state 'happy', off
 			expect(computedStyle.width).to.equal('35px')
 			expect(computedStyle.height).to.equal('15px')
 			expect(computedStyle.marginTop).to.equal('0px')
@@ -464,26 +454,26 @@ suite "QuickDom", ()->
 			).appendTo(sandbox)
 			computedStyle = getComputedStyle(div.el)
 
-			expect(div.getState 'happy').to.be.false
-			expect(div.getState 'relaxed').to.be.false
+			expect(div.state 'happy').to.be.false
+			expect(div.state 'relaxed').to.be.false
 			expect(computedStyle.width).to.equal('15px')
 
 			div.emit('becameHappy')
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.false
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.false
 			expect(computedStyle.width).to.equal('25px')
 
 			div.emit('isRelaxed')
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 			expect(computedStyle.width).to.equal('35px')
 
 			div.emit('becameSad')
-			expect(div.getState 'happy').to.be.false
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.false
+			expect(div.state 'relaxed').to.be.true
 			expect(computedStyle.width).to.equal('35px')
 
-			div.setState('relaxed', off)
+			div.state('relaxed', off)
 			expect(computedStyle.width).to.equal('15px')
 
 
@@ -628,32 +618,32 @@ suite "QuickDom", ()->
 			B = Dom.div().appendTo(A)
 			C = Dom.div(passStateToChildren:false).appendTo(A)
 
-			expect(Main.getState 'happy').to.be.false
-			expect(A.getState 'happy').to.be.false
-			expect(B.getState 'happy').to.be.false
-			expect(C.getState 'happy').to.be.false
+			expect(Main.state 'happy').to.be.false
+			expect(A.state 'happy').to.be.false
+			expect(B.state 'happy').to.be.false
+			expect(C.state 'happy').to.be.false
 
-			Main.setState 'happy'
-			expect(Main.getState 'happy').to.be.true
-			expect(A.getState 'happy').to.be.true
-			expect(B.getState 'happy').to.be.true
-			expect(C.getState 'happy').to.be.true
+			Main.state 'happy', on
+			expect(Main.state 'happy').to.be.true
+			expect(A.state 'happy').to.be.true
+			expect(B.state 'happy').to.be.true
+			expect(C.state 'happy').to.be.true
 
 			Main.options.passStateToChildren = false
-			Main.setState 'happy', false
-			expect(Main.getState 'happy').to.be.false
-			expect(A.getState 'happy').to.be.true
-			expect(B.getState 'happy').to.be.true
-			expect(C.getState 'happy').to.be.true
+			Main.state 'happy', false
+			expect(Main.state 'happy').to.be.false
+			expect(A.state 'happy').to.be.true
+			expect(B.state 'happy').to.be.true
+			expect(C.state 'happy').to.be.true
 
-			Main.setState 'happy'
+			Main.state 'happy', on
 			Main.options.passStateToChildren = true
 			A.options.passStateToChildren = false
-			Main.setState 'happy', false
-			expect(Main.getState 'happy').to.be.false
-			expect(A.getState 'happy').to.be.false
-			expect(B.getState 'happy').to.be.true
-			expect(C.getState 'happy').to.be.true
+			Main.state 'happy', false
+			expect(Main.state 'happy').to.be.false
+			expect(A.state 'happy').to.be.false
+			expect(B.state 'happy').to.be.true
+			expect(C.state 'happy').to.be.true
 
 
 		test "State styles can be nested to trigger when all states are toggled on", ()->
@@ -683,39 +673,39 @@ suite "QuickDom", ()->
 			expect(div.style 'height').to.equal('12px')
 			expect(div.style 'fontSize').to.equal('10px')
 
-			div.setState 'funny', on
+			div.state 'funny', on
 			expect(div.style 'width').to.equal('12px')
 			expect(div.style 'height').to.equal('15px')
 			expect(div.style 'fontSize').to.equal('15px')
 
-			div.setState 'funny', off
+			div.state 'funny', off
 			expect(div.style 'width').to.equal('12px')
 			expect(div.style 'height').to.equal('12px')
 			expect(div.style 'fontSize').to.equal('10px')
 
-			div.setState 'happy', on
+			div.state 'happy', on
 			expect(div.style 'width').to.equal('14px')
 			expect(div.style 'height').to.equal('12px')
 			expect(div.style 'fontSize').to.equal('14px')
 
-			div.setState 'relaxed', on
+			div.state 'relaxed', on
 			expect(div.style 'width').to.equal('17px')
 			expect(div.style 'height').to.equal('11px')
 			expect(div.style 'fontSize').to.equal('17px')
 
-			div.setState 'happy', off
+			div.state 'happy', off
 			expect(div.style 'width').to.equal('17px')
 			expect(div.style 'height').to.equal('12px')
 			expect(div.style 'fontSize').to.equal('10px')
 
-			div.setState 'happy', on
+			div.state 'happy', on
 			window.shouldLog = true
-			div.setState 'funny', on
+			div.state 'funny', on
 			expect(div.style 'width').to.equal('10px')
 			expect(div.style 'height').to.equal('14px')
 			expect(div.style 'fontSize').to.equal('17px')
 
-			div.setState 'happy', off
+			div.state 'happy', off
 			expect(div.style 'width').to.equal('17px')
 			expect(div.style 'height').to.equal('15px')
 			expect(div.style 'fontSize').to.equal('15px')
@@ -947,77 +937,77 @@ suite "QuickDom", ()->
 			emitCount = 0
 			div = Dom.div(null, 'Inner Text Here')
 			div.on 'beep', ()-> emitCount++
-			div.setState 'happy'
-			div.setState 'relaxed'
+			div.state 'happy', on
+			div.state 'relaxed', on
 
 			expect(div.parent).not.to.exist
 			expect(emitCount).to.equal(0)
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 			
 			div.appendTo(sandbox)
 			div.emit('beep')
 			expect(sandbox.children.length).to.equal(1)
 			expect(div.parent.el).to.equal(sandbox)
 			expect(emitCount).to.equal(1)
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 
 			div.detach()
 			div.emit('beep')
 			expect(sandbox.children.length).to.equal(0)
 			expect(div.parent).not.to.exist
 			expect(emitCount).to.equal(2)
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 
 
 		test ".remove()", ()->
 			emitCount = 0
 			div = Dom.div(null, 'Inner Text Here')
 			div.on 'beep', ()-> emitCount++
-			div.setState 'happy'
-			div.setState 'relaxed'
+			div.state 'happy', on
+			div.state 'relaxed', on
 
 			expect(div.parent).not.to.exist
 			expect(emitCount).to.equal(0)
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 			
 			div.appendTo(sandbox)
 			div.emit('beep')
 			expect(sandbox.children.length).to.equal(1)
 			expect(div.parent.el).to.equal(sandbox)
 			expect(emitCount).to.equal(1)
-			expect(div.getState 'happy').to.be.true
-			expect(div.getState 'relaxed').to.be.true
+			expect(div.state 'happy').to.be.true
+			expect(div.state 'relaxed').to.be.true
 
 			div.remove()
 			div.emit('beep')
 			expect(sandbox.children.length).to.equal(0)
 			expect(div.parent).not.to.exist
 			expect(emitCount).to.equal(1)
-			expect(div.getState 'happy').to.be.false
-			expect(div.getState 'relaxed').to.be.false
+			expect(div.state 'happy').to.be.false
+			expect(div.state 'relaxed').to.be.false
 
 
 		test ".empty()", ()->
 			Main = Dom.div()
 			A = Dom.div().appendTo(Main)
 			B = Dom.div().appendTo(Main)
-			A.setState 'happy'
-			B.setState 'happy'
+			A.state 'happy', on
+			B.state 'happy', on
 
 			checkChildStructure(Main)(A, B)
-			expect(A.getState 'happy').to.be.true
-			expect(B.getState 'happy').to.be.true
+			expect(A.state 'happy').to.be.true
+			expect(B.state 'happy').to.be.true
 
 			Main.empty()
 			checkChildStructure(Main)()
 			expect(A.parent).to.equal(undefined)
 			expect(B.parent).to.equal(undefined)
-			expect(A.getState 'happy').to.be.true
-			expect(B.getState 'happy').to.be.true
+			expect(A.state 'happy').to.be.true
+			expect(B.state 'happy').to.be.true
 
 
 		test ".wrap()", ()->
@@ -1028,12 +1018,12 @@ suite "QuickDom", ()->
 			wrapA = Dom.section()
 			wrapB = Dom.section()
 			wrapC = Dom.section()
-			A.setState 'happy'
-			B.setState 'happy'
-			C.setState 'happy'
-			wrapA.setState 'relaxed'
-			wrapB.setState 'relaxed'
-			wrapC.setState 'relaxed'
+			A.state 'happy', on
+			B.state 'happy', on
+			C.state 'happy', on
+			wrapA.state 'relaxed', on
+			wrapB.state 'relaxed', on
+			wrapC.state 'relaxed', on
 			checkChildStructure(Main)(A, B)
 			
 			A.wrap(wrapA)
@@ -1064,12 +1054,12 @@ suite "QuickDom", ()->
 			checkChildStructure(wrapB)(wrapC)
 			checkChildStructure(wrapC)(C)
 
-			expect(A.getState 'happy').to.be.true
-			expect(B.getState 'happy').to.be.true
-			expect(C.getState 'happy').to.be.true
-			expect(wrapA.getState 'relaxed').to.be.true
-			expect(wrapB.getState 'relaxed').to.be.true
-			expect(wrapC.getState 'relaxed').to.be.true
+			expect(A.state 'happy').to.be.true
+			expect(B.state 'happy').to.be.true
+			expect(C.state 'happy').to.be.true
+			expect(wrapA.state 'relaxed').to.be.true
+			expect(wrapB.state 'relaxed').to.be.true
+			expect(wrapC.state 'relaxed').to.be.true
 
 
 		test ".unwrap()", ()->
@@ -1079,11 +1069,11 @@ suite "QuickDom", ()->
 			C = Dom.div().appendTo(A)
 			D = Dom.div().appendTo(C)
 			E = Dom.div().appendTo(D)
-			A.setState 'happy'
-			B.setState 'happy'
-			C.setState 'happy'
-			D.setState 'happy'
-			E.setState 'happy'
+			A.state 'happy', on
+			B.state 'happy', on
+			C.state 'happy', on
+			D.state 'happy', on
+			E.state 'happy', on
 
 			checkChildStructure(Main)(A)
 			checkChildStructure(A)(B, C)
@@ -1186,13 +1176,13 @@ suite "QuickDom", ()->
 			sandBox = Dom(sandbox)
 			opts = {style: $base:{width:'34px'}, $happy:{height:'99px'}, $relaxed:{opacity:'0.5'}}
 			A = Dom.div(opts, 'Some Inner Text').appendTo(sandbox)
-			A.setState 'happy'
+			A.state 'happy', on
 			A.on 'privateEvent', ()-> emitCount++
 			childA = Dom.div().appendTo(A)
 			childB = Dom.span().appendTo(A)
 			B = A.clone()
 
-			A.setState 'relaxed'
+			A.state 'relaxed', on
 			A.emit('privateEvent')
 			expect(emitCount).to.equal(1)
 			expect(A.parent).to.equal(sandBox)
@@ -1218,8 +1208,8 @@ suite "QuickDom", ()->
 			expect(B.children[0]).not.to.equal(A.children[0])
 			expect(B.children[1]).not.to.equal(childA)
 			expect(B.children[2]).not.to.equal(childB)
-			expect(B.getState 'happy').to.be.true
-			expect(B.getState 'relaxed').to.be.false
+			expect(B.state 'happy').to.be.true
+			expect(B.state 'relaxed').to.be.false
 
 			expect(emitCount).to.equal(1)
 			B.emit('privateEvent')
@@ -1434,15 +1424,15 @@ suite "QuickDom", ()->
 		test "Templates can be turned into QuickDom instances via template.spawn() or by passing as arg to QuickDom", ()->
 			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
 			spawnA = template.spawn()
-			spawnA.setState 'happy'
+			spawnA.state 'happy', on
 			spawnB = Dom(template)
 
 			expect(spawnA.el).to.be.instanceOf(HTMLDivElement)
 			expect(spawnB.el).to.be.instanceOf(HTMLDivElement)
 			expect(spawnA).not.to.equal(spawnB)
 			expect(spawnA.el).not.to.equal(spawnB.el)
-			expect(spawnA.getState 'happy').to.be.true
-			expect(spawnB.getState 'happy').to.be.false
+			expect(spawnA.state 'happy').to.be.true
+			expect(spawnB.state 'happy').to.be.false
 			expect(spawnA.el.textContent).to.equal('Some Inner Text')
 			expect(spawnB.el.textContent).to.equal('Some Inner Text')
 			expect(spawnA.el.className).to.equal('some-div')
@@ -1450,7 +1440,7 @@ suite "QuickDom", ()->
 
 		test "Templates can be created from QuickElement instances", ()->
 			section = Dom.section(className:'singleSection', 'Some Inner Text')
-			section.setState 'happy'
+			section.state 'happy', on
 			sectionTemplate = section.toTemplate()
 			templateSpawn = sectionTemplate.spawn()
 
@@ -1458,8 +1448,8 @@ suite "QuickDom", ()->
 			expect(templateSpawn.el).not.to.equal(section.el)
 			expect(templateSpawn.el.className).to.equal('singleSection')
 			expect(templateSpawn.text()).to.equal('Some Inner Text')
-			expect(section.getState 'happy').to.be.true
-			expect(templateSpawn.getState 'happy').to.be.false
+			expect(section.state 'happy').to.be.true
+			expect(templateSpawn.state 'happy').to.be.false
 
 
 		test "Templates can be created from DOM Elements", ()->
@@ -1600,7 +1590,7 @@ suite "QuickDom", ()->
 				.emit('abc')
 				.off('abc')
 				.off()
-				.setState('abc')
+				.state('abc', on)
 				.resetState()
 				.style()
 				.css('width', 12)
@@ -1660,13 +1650,18 @@ suite "QuickDom", ()->
 			div.css(null, '129')
 			expect(div.el.style.null).to.equal(undefined)
 
-			expect(div.setState()).to.equal undefined
-			expect(div.setState(null)).to.equal undefined
-			expect(div.setState(123)).to.equal undefined
-			expect(div.setState 'base').to.equal div
-			expect(div.getState 'base').to.be.false
-			expect(div.setState '$whatevs').to.equal div
-			expect(div.getState 'whatevs').to.be.true
+			expect(div.state()).to.equal undefined
+			expect(div.state(null, on)).to.equal undefined
+			expect(div.state(123, on)).to.equal undefined
+			expect(div.state 'base', on).to.equal div
+			expect(div.state 'base').to.be.false
+			expect(div.state '$whatevs', on).to.equal div
+			expect(div.state 'whatevs').to.be.true
+			expect(div.state 'another').to.be.false
+			expect(div.state 'another', on).to.equal div
+			expect(div.state 'another').to.be.true
+			expect(div.state 'another', undefined).to.equal div
+			expect(div.state 'another').to.be.false
 
 			div.appendTo(Dom sandbox)
 			expect(div.parent).to.equal(Dom sandbox)

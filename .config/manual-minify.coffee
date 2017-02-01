@@ -1,5 +1,4 @@
 fs = require 'fs'
-files = ['dist/simplybind.js', 'dist/simplybind.node.ugly.js']
 replacements = [
 	[/iterable/g, 'iT']
 	[/domEl/g, 'dE']

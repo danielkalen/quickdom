@@ -7,7 +7,7 @@ QuickElement::clone = ()->
 	options = extend.clone(@options, {existing:elClone})
 	
 	newEl = new QuickElement(@type, options)
-	newEl.setState(activeState) for activeState in @_state
+	newEl.state(activeState, on) for activeState in @_state
 	newEl.append(child.clone()) for child in @children
 	for eventName, callbacks of @_eventCallbacks
 		newEl.on(eventName, callback) for callback in callbacks
