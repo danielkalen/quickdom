@@ -42,7 +42,7 @@
   "homepage": "https://github.com/danielkalen/quickdom#readme",
   "dependencies": {
     "@danielkalen/is": "^1.0.0",
-    "quickcss": "^1.0.4",
+    "quickcss": "^1.0.5",
     "smart-extend": "^1.3.0"
   },
   "devDependencies": {
