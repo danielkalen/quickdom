@@ -30,6 +30,8 @@ replacements = [
 	[/_attachStateEvents/g, '_ae']
 	[/_listenTo/g, '_l']
 	[/_removeChild/g, '_r']
+	[/_getActiveStates/g, '_as']
+	[/_getStateStyles/g, '_ss']
 	[/styleShared/g, 'sS']
 	[/hasSharedStateStyle/g, 'hSS']
 ]

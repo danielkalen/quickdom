@@ -54,4 +54,4 @@ for shortcut in shortcuts then do (shortcut)->
 		prop = split[0]
 		type = split[1]
 
-	QuickDom[prop] = ()-> QuickDom.apply null, [type].concat([].slice.call(arguments))
+	QuickDom[prop] = ()-> QuickDom(type, arguments...)

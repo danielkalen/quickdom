@@ -67,7 +67,7 @@ QuickElement::_applyOptions = ()->
 		Object.defineProperty @, '_parent', set: (newParent)-> if newParent
 			delete @_parent
 			@_parent = newParent
-			@style(@options.style.$base)
+			@style(extend.clone @options.style.$base, @_getStateStyles(@_getActiveStates())...)
 			return
 
 	return @
@@ -95,6 +95,11 @@ QuickElement::_listenTo = (eventName, callback)->
 
 
 
+QuickElement::_getActiveStates = (stateToExclude)->
+	@providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
+
+QuickElement::_getStateStyles = (states)->
+	states.map (state)=> @options.style['$'+state]
 
 
 

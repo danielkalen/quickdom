@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_2270f, _sim_28277, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_186bc, _sim_205bf, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_28277 = (function(exports){
+  _sim_205bf = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_28277;
+  CSS = _sim_205bf;
 
   /* istanbul ignore next */
-  _sim_2270f = (function(exports){
+  _sim_186bc = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2270f;
+  extend = _sim_186bc;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -572,7 +572,7 @@ var slice = [].slice;
           if (newParent) {
             delete this._parent;
             this._parent = newParent;
-            this.style(this.options.style.$base);
+            this.style(extend.clone.apply(extend, [this.options.style.$base].concat(slice.call(this._getStateStyles(this._getActiveStates())))));
           }
         }
       });
@@ -613,6 +613,20 @@ var slice = [].slice;
     eventNameToListenFor = this.el.addEventListener ? eventName : "on" + eventName;
     this.el[listenMethod](eventNameToListenFor, callback);
     return this;
+  };
+  QuickElement.prototype._getActiveStates = function(stateToExclude) {
+    return this.providedStates.filter((function(_this) {
+      return function(state) {
+        return helpers.includes(_this._state, state) && state !== stateToExclude;
+      };
+    })(this));
+  };
+  QuickElement.prototype._getStateStyles = function(states) {
+    return states.map((function(_this) {
+      return function(state) {
+        return _this.options.style['$' + state];
+      };
+    })(this));
   };
   QuickElement.prototype.on = function(eventName, callback) {
     if (IS.string(eventName) && IS["function"](callback)) {
@@ -686,36 +700,24 @@ var slice = [].slice;
         if (this.options.style['$' + targetState]) {
           targetStyle = this.options.style['$' + targetState];
           targetStateIndex = this.providedStates.indexOf(targetState);
-          activeStates = this.providedStates.filter((function(_this) {
-            return function(state) {
-              return helpers.includes(_this._state, state) && state !== targetState;
-            };
-          })(this));
+          activeStates = this._getActiveStates(targetState);
           superiorStates = activeStates.filter((function(_this) {
             return function(state) {
               return _this.providedStates.indexOf(state) > targetStateIndex;
             };
           })(this));
-          activeStateStyles = activeStates.map((function(_this) {
-            return function(state) {
-              return _this.options.style['$' + state];
-            };
-          })(this));
-          superiorStateStyles = superiorStates.map((function(_this) {
-            return function(state) {
-              return _this.options.style['$' + state];
-            };
-          })(this));
+          activeStateStyles = this._getStateStyles(activeStates);
+          superiorStateStyles = this._getStateStyles(superiorStates);
         }
         if (desiredValue) {
           this._state.push(targetState);
           if (targetStyle) {
-            this.style(extend.clone.keys(targetStyle).apply(null, [targetStyle].concat(superiorStateStyles)));
+            this.style(extend.clone.keys(targetStyle).apply(null, [targetStyle].concat(slice.call(superiorStateStyles))));
           }
         } else {
           helpers.removeItem(this._state, targetState);
           if (targetStyle) {
-            stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(activeStateStyles));
+            stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
             stylesToRemove = extend.transform(function() {
               return null;
             }).clone(targetStyle);
@@ -742,7 +744,7 @@ var slice = [].slice;
               inferiorStateChains = this.options.styleShared[helpers.removeItem(split, targetState).join('+')];
               this.style(extend.clone(inferiorStateChains, targetStyle));
             } else {
-              stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(activeStateStyles));
+              stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
               stylesToRemove = extend.transform(function() {
                 return null;
               }).clone(targetStyle);
@@ -1153,11 +1155,9 @@ var slice = [].slice;
     });
   });
   QuickTemplate.prototype.spawn = function(newValues) {
-    var args, opts;
+    var opts;
     opts = extendOptions(this._config, newValues);
-    args = [opts.type, opts.options];
-    args = args.concat(opts.children);
-    return QuickDom.apply(null, args);
+    return QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
   };
   QuickTemplate.prototype.extend = function(newValues) {
     return new QuickTemplate(extendOptions(this._config, newValues));
@@ -1242,7 +1242,7 @@ var slice = [].slice;
       type = split[1];
     }
     return QuickDom[prop] = function() {
-      return QuickDom.apply(null, [type].concat([].slice.call(arguments)));
+      return QuickDom.apply(null, [type].concat(slice.call(arguments)));
     };
   };
   for (i = 0, len = shortcuts.length; i < len; i++) {

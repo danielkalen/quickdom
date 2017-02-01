@@ -15,9 +15,7 @@ Object.keys(configSchema).forEach (key)->
 
 QuickTemplate::spawn = (newValues)->
 	opts = extendOptions(@_config, newValues)
-	args = [opts.type, opts.options]
-	args = args.concat(opts.children)
-	return QuickDom.apply(null, args)
+	return QuickDom(opts.type, opts.options, opts.children...)
 
 
 QuickTemplate::extend = (newValues)->
