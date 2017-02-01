@@ -61,7 +61,14 @@ QuickElement::_applyOptions = ()->
 	if @options.checked then @el.checked = @options.checked
 	if @options.props then @prop(key,value) for key,value of @options.props
 	if @options.attrs then @attr(key,value) for key,value of @options.attrs
-	@style(@options.style.$base)
+	if not @options.styleAfterInsert
+		@style(@options.style.$base)
+	else
+		Object.defineProperty @, '_parent', set: (newParent)-> if newParent
+			delete @_parent
+			@_parent = newParent
+			@style(@options.style.$base)
+			return
 
 	return @
 
