@@ -25,7 +25,7 @@ QuickTemplate::extend = (newValues)->
 
 
 extendOptions = (currentOpts, newOpts)->
-	output = extend.deep.notKeys('children').clone(currentOpts, newOpts)
+	output = extend.deep.notKeys('children').notDeep('relatedInstance').clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children or []
 	newChildren = newOpts?.children or []
 	output.children = []
