@@ -1579,6 +1579,25 @@ suite "QuickDom", ()->
 			expect(spawnB.el.childNodes[1].style.opacity).to.equal('0.2')
 
 
+		test "Templates can have other templates as their children", ()->
+			headerTemplate = Dom.template ['header', {style:'height':'200px'},
+				['span', {style:'textAlign':'center'}, 'This is bolded text']
+				' while this is not'
+			]
+			headerTemplateClone = Dom.template(headerTemplate)
+			sectionTemplate = Dom.template ['section', null, headerTemplate]
+			section = sectionTemplate.spawn().appendTo(sandbox)
+
+			expect(headerTemplateClone).not.to.equal(headerTemplate)
+			expect(sectionTemplate.children.length).to.equal(1)
+			expect(sectionTemplate.children[0]).not.to.equal(headerTemplate)
+			expect(sectionTemplate.children[0].children.length).to.equal(2)
+			expect(section.children.length).to.equal(1)
+			expect(section.children[0].type).to.equal('header')
+			expect(section.children[0].children.length).to.equal(2)
+			expect(section.text()).to.equal('This is bolded text while this is not')
+			expect(section.children[0].children[0].style('textAlign')).to.equal('center')
+
 
 
 
