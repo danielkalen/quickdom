@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1ceaa, _sim_2e126, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_2270f, _sim_28277, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_2e126 = (function(exports){
+  _sim_28277 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_2e126;
+  CSS = _sim_28277;
 
   /* istanbul ignore next */
-  _sim_1ceaa = (function(exports){
+  _sim_2270f = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1ceaa;
+  extend = _sim_2270f;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -1249,7 +1249,7 @@ var slice = [].slice;
     shortcut = shortcuts[i];
     fn(shortcut);
   }
-  QuickDom.version = '1.0.5';
+  QuickDom.version = '1.0.6';
 
   /* istanbul ignore next */
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
