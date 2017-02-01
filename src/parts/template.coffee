@@ -49,12 +49,12 @@ parseTree = (tree)-> switch
 		output = {}
 
 		if not IS.string(tree[0])
-			throwParseError('type', 'string', tree[0])
+			throw new Error "#{parseErrorPrefix} string for 'type', got '#{String(tree[0])}'"
 		else
 			output.type = tree[0]
 		
 		if tree.length > 1 and not IS.object(tree[1]) and tree[1] isnt null
-			throwParseError('options', 'object', tree[1])
+			throw new Error "#{parseErrorPrefix} object for 'options', got '#{String(tree[1])}'"
 		else
 			output.options = if tree[1] then extend.deep.clone(tree[1]) else null
 
@@ -75,16 +75,17 @@ parseTree = (tree)-> switch
 		options: extend.clone.deep.notKeys('relatedInstance')(tree.options)
 		children: tree.children.map(QuickDom.template)
 
+	when IS.template(tree)
+		extendOptions(tree._config)
+
 	else
-		throwParseError('template', '(array || string || domEl || quickDomEl)', tree)
+		throw new Error "#{parseErrorPrefix} (array || string || domEl || quickDomEl || template), got #{String(tree)}"
 
 
 
 
+parseErrorPrefix = 'Template Parse Error: expected'
 
-
-throwParseError = (label, expected, received)->
-	throw new Error "Template Parse Error: expected #{expected} for #{label}, got #{String(received)}"
 
 
 
