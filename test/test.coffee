@@ -152,6 +152,19 @@ suite "QuickDom", ()->
 			expect(computedStyle.backgroundSize).to.equal 'cover'
 
 
+		test "SVG elements can be created via a '*' in the element's type string", ()->
+			svgBad = Dom('svg').el
+			svgGood = Dom('*svg').el
+			svgPolyBad = Dom('polyline').el
+			svgPolyGood = Dom('*polyline').el
+			svgDiv = Dom('*div').el
+
+			expect(svgBad.constructor.name).to.equal('HTMLUnknownElement')
+			expect(svgPolyBad.constructor.name).to.equal('HTMLUnknownElement')
+			expect(svgGood.constructor.name).to.equal('SVGSVGElement')
+			expect(svgPolyGood.constructor.name).to.equal('SVGPolylineElement')
+			expect(svgDiv.constructor.name).to.equal('SVGElement')
+
 
 
 		test "Method/Property aliases", ()->
@@ -1796,5 +1809,8 @@ if HTMLElement.name isnt 'HTMLElement'
 	for creator in elementSuffix
 		window["HTML#{creator}Element"]?.name = "HTML#{creator}Element"
 
+	window.SVGElement?.name = 'SVGElement'
+	window.SVGSVGElement?.name = 'SVGSVGElement'
+	window.SVGPolylineElement?.name = 'SVGPolylineElement'
 
 
