@@ -13,27 +13,30 @@ Object.keys(configSchema).forEach (key)->
 	Object.defineProperty QuickTemplate::, key, get:()-> @_config[key]
 
 
-QuickTemplate::spawn = (newValues)->
-	opts = extendOptions(@_config, newValues)
+QuickTemplate::spawn = (newValues, globalOpts)->
+	opts = extendOptions(@_config, newValues, globalOpts)
 	return QuickDom(opts.type, opts.options, opts.children...)
 
 
-QuickTemplate::extend = (newValues)->
-	new QuickTemplate extendOptions(@_config, newValues)
+QuickTemplate::extend = (newValues, globalOpts)->
+	new QuickTemplate extendOptions(@_config, newValues, globalOpts)
 
 
-extendOptions = (currentOpts, newOpts)->
-	output = extend.deep.notKeys('children').notDeep('relatedInstance').clone(currentOpts, newOpts)
+extendOptions = (currentOpts, newOpts, globalOpts)->
+	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
+	
+	output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children or []
 	newChildren = newOpts?.children or []
 	output.children = []
+	
 	### istanbul ignore next ###
 	for index in [0...Math.max(currentChildren.length, newChildren.length)]
 		currentChild = currentChildren[index]
 		newChild = newChildren[index]
 		newChild = {type:'text', options:{text:newChild}} if IS.string(newChild)
 		if currentChild
-			output.children.push currentChild.extend(newChild)
+			output.children.push currentChild.extend(newChild, globalOpts)
 		else
 			output.children.push new QuickTemplate(extend.deep.clone(configSchema, newChild))
 
