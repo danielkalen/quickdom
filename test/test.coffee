@@ -803,6 +803,64 @@ suite "QuickDom", ()->
 			expect(divA.el.style.height).to.equal('39px')
 
 
+		test "If an element with options.styleAfterInsert is appended into a detached element, styles will be applied only after the parent is appended to the DOM", ()->
+			detachedParent = Dom.div()
+			divReg = Dom.div(style:{height:'19px'})
+			divA = Dom.div(style:{height:'19px'}, styleAfterInsert:true)
+
+			expect(divReg.el.style.height).to.equal('19px')
+			expect(divA.el.style.height).to.equal('')
+
+			divA.appendTo(detachedParent)
+			expect(divA.el.style.height).to.equal('')
+
+			detachedParent.appendTo(sandbox)
+			expect(divA.el.style.height).to.equal('19px')
+
+
+		test "QuickElement.onInserted can accept callbacks which will be invoked when inserted into a parent element", ()->
+			invokeCount = 0
+			parentA = Dom.section()
+			parentB = Dom.section()
+			parentC = Dom.section().appendTo(sandbox)
+			div = Dom.div()
+
+			div.onInserted (el)->
+				expect(el).to.equal(div)
+				expect(invokeCount++).to.equal(0)
+
+			expect(invokeCount).to.equal(0)
+			div.appendTo(parentA)
+			expect(invokeCount).to.equal(1)
+			
+			div.appendTo(parentB)
+			expect(invokeCount).to.equal(1)
+
+			div.detach()
+			div.appendTo(parentB)
+			expect(invokeCount).to.equal(1)
+			expect(div.parent).to.equal parentB
+
+			div.onInserted ()-> expect(invokeCount++).to.equal(1)
+			expect(invokeCount).to.equal(2)
+			expect(div.parent).to.equal parentB
+			
+			div.appendTo(parentC)
+			expect(invokeCount).to.equal(2)
+			expect(div.parent).to.equal parentC
+			
+			div.detach()
+			div.appendTo(parentA)
+			div.onInserted (()-> invokeCount++; expect(false).to.be.true), false
+			expect(invokeCount).to.equal(2)
+			
+			div.detach()
+			div.appendTo(parentB)
+			expect(invokeCount).to.equal(2)
+
+
+
+
 
 	suite "Traversal", ()->
 		test "Children", ()->
@@ -1738,6 +1796,9 @@ suite "QuickDom", ()->
 			expect(div.off('something', ()->)).to.equal(div)
 			expect(div.emit('something')).to.equal(div)
 			expect(emitCount).to.equal(2)
+			expect(div.onInserted ()->).to.equal(div)
+			expect(div.onInserted(true)).to.equal(undefined)
+			expect(div.onInserted(null)).to.equal(undefined)
 
 			div.css(null, '129')
 			expect(div.el.style.null).to.equal(undefined)
