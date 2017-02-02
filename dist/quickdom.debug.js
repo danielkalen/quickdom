@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_26a5e, _sim_30034, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_2ec76, _sim_30069, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_26a5e = (function(exports){
+  _sim_30069 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_26a5e;
+  CSS = _sim_30069;
 
   /* istanbul ignore next */
-  _sim_30034 = (function(exports){
+  _sim_2ec76 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_30034;
+  extend = _sim_2ec76;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -318,6 +318,7 @@ var slice = [].slice;
     this._parent = null;
     this._state = [];
     this._children = [];
+    this._insertedCallbacks = [];
     this._eventCallbacks = {};
     this._normalizeOptions();
     this._applyOptions();
@@ -525,7 +526,7 @@ var slice = [].slice;
     return this;
   };
   QuickElement.prototype._applyOptions = function() {
-    var key, ref, ref1, value;
+    var applyBaseStylesOnInsert, key, ref, ref1, value;
     if (this.options.id) {
       this.el.id = this.options.id;
     }
@@ -567,16 +568,32 @@ var slice = [].slice;
     if (!this.options.styleAfterInsert) {
       this.style(this.options.style.$base);
     } else {
-      Object.defineProperty(this, '_parent', {
-        set: function(newParent) {
-          if (newParent) {
-            delete this._parent;
-            this._parent = newParent;
-            this.style(extend.clone.apply(extend, [this.options.style.$base].concat(slice.call(this._getStateStyles(this._getActiveStates())))));
+      this.onInserted(applyBaseStylesOnInsert = (function(_this) {
+        return function() {
+          var lastParent;
+          lastParent = _this.parents.slice(-1)[0];
+          if (lastParent.raw === document.documentElement) {
+            return _this.style(extend.clone.apply(extend, [_this.options.style.$base].concat(slice.call(_this._getStateStyles(_this._getActiveStates())))));
+          } else {
+            return lastParent.onInserted(applyBaseStylesOnInsert);
+          }
+        };
+      })(this));
+    }
+    Object.defineProperty(this, '_parent', {
+      set: function(newParent) {
+        var callback, i, len, ref2;
+        if (newParent) {
+          delete this._parent;
+          this._parent = newParent;
+          ref2 = this._insertedCallbacks;
+          for (i = 0, len = ref2.length; i < len; i++) {
+            callback = ref2[i];
+            callback(this);
           }
         }
-      });
-    }
+      }
+    });
     return this;
   };
   QuickElement.prototype._attachStateEvents = function() {
@@ -676,6 +693,19 @@ var slice = [].slice;
     }
     return this;
   };
+  QuickElement.prototype.onInserted = function(callback, invokeIfInserted) {
+    if (invokeIfInserted == null) {
+      invokeIfInserted = true;
+    }
+    if (IS["function"](callback)) {
+      if (!this._parent) {
+        this._insertedCallbacks.push(callback);
+      } else if (invokeIfInserted) {
+        callback(this);
+      }
+      return this;
+    }
+  };
   QuickElement.prototype.updateOptions = function(options) {
     if (IS.object(options)) {
       this.options = options;
@@ -774,6 +804,9 @@ var slice = [].slice;
   };
   QuickElement.prototype.style = function() {
     var args, returnValue;
+    if (this.type === 'text') {
+      return;
+    }
     args = arguments;
     if (IS.string(args[0])) {
       returnValue = CSS(this.el, args[0], args[1]);
@@ -1154,17 +1187,24 @@ var slice = [].slice;
       }
     });
   });
-  QuickTemplate.prototype.spawn = function(newValues) {
+  QuickTemplate.prototype.spawn = function(newValues, globalOpts) {
     var opts;
-    opts = extendOptions(this._config, newValues);
+    opts = extendOptions(this._config, newValues, globalOpts);
     return QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
   };
-  QuickTemplate.prototype.extend = function(newValues) {
-    return new QuickTemplate(extendOptions(this._config, newValues));
+  QuickTemplate.prototype.extend = function(newValues, globalOpts) {
+    return new QuickTemplate(extendOptions(this._config, newValues, globalOpts));
   };
-  extendOptions = function(currentOpts, newOpts) {
-    var currentChild, currentChildren, i, index, newChild, newChildren, output, ref;
-    output = extend.deep.notKeys('children').notDeep('relatedInstance').clone(currentOpts, newOpts);
+  extendOptions = function(currentOpts, newOpts, globalOpts) {
+    var currentChild, currentChildren, globalOptsTransform, i, index, newChild, newChildren, output, ref;
+    if (globalOpts) {
+      globalOptsTransform = {
+        options: function(opts) {
+          return extend(opts, globalOpts);
+        }
+      };
+    }
+    output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts);
     currentChildren = currentOpts.children || [];
     newChildren = (newOpts != null ? newOpts.children : void 0) || [];
     output.children = [];
@@ -1182,7 +1222,7 @@ var slice = [].slice;
         };
       }
       if (currentChild) {
-        output.children.push(currentChild.extend(newChild));
+        output.children.push(currentChild.extend(newChild, globalOpts));
       } else {
         output.children.push(new QuickTemplate(extend.deep.clone(configSchema, newChild)));
       }
@@ -1249,7 +1289,7 @@ var slice = [].slice;
     shortcut = shortcuts[i];
     fn(shortcut);
   }
-  QuickDom.version = '1.0.7';
+  QuickDom.version = '1.0.8';
 
   /* istanbul ignore next */
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
