@@ -71,6 +71,7 @@ QuickElement::resetState = ()->
 
 
 QuickElement::style = ()->
+	return if @type is 'text'
 	args = arguments
 	if IS.string(args[0])
 		returnValue = CSS(@el, args[0], args[1])
