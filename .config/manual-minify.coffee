@@ -24,6 +24,7 @@ replacements = [
 	[/_state/g, '_s']
 	[/_children/g, '_c']
 	[/_eventCallbacks/g, '_e']
+	[/_insertedCallbacks/g, '_i']
 	[/_normalizeOptions/g, '_n']
 	[/_normalizeStyle/g, '_ns']
 	[/_applyOptions/g, '_a']

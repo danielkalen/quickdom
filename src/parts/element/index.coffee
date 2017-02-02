@@ -7,6 +7,7 @@ QuickElement = (@type, @options)->
 	@_parent = null
 	@_state = []
 	@_children = []
+	@_insertedCallbacks = []
 	@_eventCallbacks = {}
 	
 	@_normalizeOptions()

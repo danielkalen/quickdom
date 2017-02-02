@@ -64,11 +64,20 @@ QuickElement::_applyOptions = ()->
 	if not @options.styleAfterInsert
 		@style(@options.style.$base)
 	else
-		Object.defineProperty @, '_parent', set: (newParent)-> if newParent
-			delete @_parent
-			@_parent = newParent
-			@style(extend.clone @options.style.$base, @_getStateStyles(@_getActiveStates())...)
-			return
+		@onInserted applyBaseStylesOnInsert = ()=>
+			lastParent = @parents.slice(-1)[0]
+			
+			if lastParent.raw is document.documentElement
+				@style(extend.clone @options.style.$base, @_getStateStyles(@_getActiveStates())...)
+			else
+				lastParent.onInserted(applyBaseStylesOnInsert)
+
+
+	Object.defineProperty @, '_parent', set: (newParent)-> if newParent
+		delete @_parent
+		@_parent = newParent
+		callback(@) for callback in @_insertedCallbacks
+		return
 
 	return @
 
