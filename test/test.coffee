@@ -1730,6 +1730,28 @@ suite "QuickDom", ()->
 			expect(section.children[0].children[0].style('textAlign')).to.equal('center')
 
 
+		test "A global options object can be passed as the 2nd arg to template.extend/spawn() which will be applied to all templates, spawns, & their children", ()->
+			obj = myHeight:'150px'
+			dynamicHeightStyle = 'height': (related)-> expect(related).to.equal(obj); related.myHeight
+			
+			headerTemplate = Dom.template ['header', {style:'width':'23px'},
+				['div', {style:'width':'23px'}, 'This is bolded text']
+				' while this is not'
+			]
+			sectionTemplate = Dom.template ['section', {style:'width':'23px'}, headerTemplate]
+			section = sectionTemplate.spawn({options:{relatedInstance:window}}, {relatedInstance:obj, style:dynamicHeightStyle}).appendTo(sandbox)
+
+			expect(section.raw.style.height).to.equal('150px')
+			expect(section.children[0].raw.style.height).to.equal('150px')
+			expect(section.children[0].children[0].raw.style.height).to.equal('150px')
+			expect(section.raw.style.width).to.equal('')
+			expect(section.children[0].raw.style.width).to.equal('')
+			expect(section.children[0].children[0].raw.style.width).to.equal('')
+			expect(section.children.length).to.equal(1)
+			expect(section.children[0].type).to.equal('header')
+			expect(section.children[0].children.length).to.equal(2)
+			expect(section.text()).to.equal('This is bolded text while this is not')
+
 
 
 	suite "Misc", ()->
