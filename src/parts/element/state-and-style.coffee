@@ -52,7 +52,7 @@ QuickElement::state = (targetState, value)->
 						inferiorStateChains = @options.styleShared[helpers.removeItem(split, targetState).join('+')]
 						@style extend.clone(inferiorStateChains, targetStyle)
 					else
-						stylesToKeep = extend.clone.keys(targetStyle)(@options.style.$base, activeStateStyles...)
+						stylesToKeep = extend.clone.keys(targetStyle)(@options.style.$base, (activeStateStyles or [])...)
 						stylesToRemove = extend.transform(-> null).clone(targetStyle)
 						@style extend(stylesToRemove, stylesToKeep)
 
