@@ -15,14 +15,14 @@ QuickElement::state = (targetState, value)->
 		targetState = targetState.slice(1) if targetState[0] is '$'
 		desiredValue = !!value # Convert the value to a boolean
 		return @ if targetState is 'base'
+		activeStates = @_getActiveStates(targetState)
+		activeStateStyles = @_getStateStyles(activeStates)
 		
 		if @state(targetState) isnt desiredValue
 			if @options.style['$'+targetState]
 				targetStyle = @options.style['$'+targetState]
 				targetStateIndex = @providedStates.indexOf(targetState)
-				activeStates = @_getActiveStates(targetState)
 				superiorStates = activeStates.filter (state)=> @providedStates.indexOf(state) > targetStateIndex
-				activeStateStyles = @_getStateStyles(activeStates)
 				superiorStateStyles = @_getStateStyles(superiorStates)
 
 
@@ -52,7 +52,7 @@ QuickElement::state = (targetState, value)->
 						inferiorStateChains = @options.styleShared[helpers.removeItem(split, targetState).join('+')]
 						@style extend.clone(inferiorStateChains, targetStyle)
 					else
-						stylesToKeep = extend.clone.keys(targetStyle)(@options.style.$base, (activeStateStyles or [])...)
+						stylesToKeep = extend.clone.keys(targetStyle)(@options.style.$base, activeStateStyles...)
 						stylesToRemove = extend.transform(-> null).clone(targetStyle)
 						@style extend(stylesToRemove, stylesToKeep)
 
