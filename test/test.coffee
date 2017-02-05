@@ -1442,6 +1442,26 @@ suite "QuickDom", ()->
 			expect(div.children[0].el.nodeType).to.equal(3)
 
 
+		test "Appending/prepending elements to a text node should do nothing", ()->
+			text = Dom.text('abc123')
+			expect(text.text()).to.equal('abc123')
+			expect(text.raw.childNodes.length).to.equal(0)
+
+			text.append(Dom.text('def'))
+			expect(text.text()).to.equal('abc123')
+			expect(text.raw.childNodes.length).to.equal(0)
+
+			text.prepend(Dom.div(null, 'def'))
+			expect(text.text()).to.equal('abc123')
+			expect(text.raw.childNodes.length).to.equal(0)
+			
+			div = Dom.div(null, '456')
+			div.appendTo(text)
+			expect(text.text()).to.equal('abc123')
+			expect(text.raw.childNodes.length).to.equal(0)
+			expect(div.parent).to.equal(undefined)
+
+
 
 
 	suite "Batch", ()->
