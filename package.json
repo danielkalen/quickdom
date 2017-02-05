@@ -67,6 +67,6 @@
     "mocha": "^3.2.0",
     "phantomjs-prebuilt": "^2.1.14",
     "simplyimport": "^3.2.1",
-    "simplywatch": "^2.4.4"
+    "simplywatch": "^2.4.6"
   }
 }
