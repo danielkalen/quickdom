@@ -4,6 +4,9 @@ QuickElement = (@type, @options)->
 		else if @type[0] is '*' then document.createElementNS(svgNamespace, @type.slice(1))
 		else document.createElement(@type)
 
+	if @type is 'text'
+		@append = @prepend = ()->
+
 	@_parent = null
 	@_state = []
 	@_children = []
