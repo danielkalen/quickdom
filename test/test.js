@@ -40,7 +40,7 @@ var slice = [].slice;
         packageVersion = (function(){
 				return {
 				  "name": "quickdom",
-				  "version": "1.0.9",
+				  "version": "1.0.10",
 				  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
 				  "main": "dist/quickdom.js",
 				  "browser": {
@@ -83,7 +83,7 @@ var slice = [].slice;
 				  "dependencies": {
 				    "@danielkalen/is": "^1.0.0",
 				    "quickcss": "^1.0.5",
-				    "smart-extend": "^1.3.0"
+				    "smart-extend": "^1.3.1"
 				  },
 				  "devDependencies": {
 				    "bluebird": "^3.4.7",
