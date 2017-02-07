@@ -82,6 +82,7 @@ QuickElement::pipeState = (targetEl)->
 
 		if IS.quickDomEl(targetEl) and targetEl isnt @
 			@_statePipeTarget = targetEl
+			targetEl.state(activeState, on) for activeState in @_state
 
 	else if targetEl is false
 		delete @_statePipeTarget
