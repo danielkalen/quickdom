@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_26971, _sim_30308, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1883c, _sim_27526, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_26971 = (function(exports){
+  _sim_1883c = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_26971;
+  CSS = _sim_1883c;
 
   /* istanbul ignore next */
-  _sim_30308 = (function(exports){
+  _sim_27526 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_30308;
+  extend = _sim_27526;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -504,17 +504,21 @@ var slice = [].slice;
     }
     checkInnerStates = (function(_this) {
       return function(styleObject, parentStates) {
-        var i, innerState, innerStates, len, results1, stateChain;
+        var i, innerState, innerStates, len, results1, stateChain, stateChainString;
         innerStates = Object.keys(styleObject).filter(function(key) {
           return key[0] === '$';
         });
         if (innerStates.length) {
           _this.hasSharedStateStyle = true;
+          if (_this._stateShared == null) {
+            _this._stateShared = [];
+          }
           results1 = [];
           for (i = 0, len = innerStates.length; i < len; i++) {
             innerState = innerStates[i];
             stateChain = parentStates.concat(innerState.slice(1));
-            _this.options.styleShared[stateChain.join('+')] = styleObject[innerState];
+            stateChainString = stateChain.join('+');
+            _this.options.styleShared[stateChainString] = _this.options.style['$' + stateChainString] = styleObject[innerState];
             checkInnerStates(styleObject[innerState], stateChain);
             results1.push(delete styleObject[innerState]);
           }
@@ -634,12 +638,21 @@ var slice = [].slice;
     this.el[listenMethod](eventNameToListenFor, callback);
     return this;
   };
-  QuickElement.prototype._getActiveStates = function(stateToExclude) {
-    return this.providedStates.filter((function(_this) {
+  QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
+    var plainStates;
+    if (includeSharedStates == null) {
+      includeSharedStates = true;
+    }
+    plainStates = this.providedStates.filter((function(_this) {
       return function(state) {
         return helpers.includes(_this._state, state) && state !== stateToExclude;
       };
     })(this));
+    if (!includeSharedStates || !this.hasSharedStateStyle) {
+      return plainStates;
+    } else {
+      return plainStates.concat(this._stateShared);
+    }
   };
   QuickElement.prototype._getStateStyles = function(states) {
     return states.map((function(_this) {
@@ -717,10 +730,13 @@ var slice = [].slice;
     }
     return this;
   };
-  QuickElement.prototype.state = function(targetState, value) {
+  QuickElement.prototype.state = function(targetState, value, source) {
     var activeStateStyles, activeStates, child, desiredValue, i, inferiorStateChains, isApplicable, j, len, len1, ref, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
     if (arguments.length === 1) {
       return helpers.includes(this._state, targetState);
+    } else if (this._statePipeTarget && source !== this) {
+      this._statePipeTarget.state(targetState, value, this);
+      return this;
     } else if (IS.string(targetState)) {
       if (targetState[0] === '$') {
         targetState = targetState.slice(1);
@@ -729,7 +745,7 @@ var slice = [].slice;
       if (targetState === 'base') {
         return this;
       }
-      activeStates = this._getActiveStates(targetState);
+      activeStates = this._getActiveStates(targetState, false);
       activeStateStyles = this._getStateStyles(activeStates);
       if (this.state(targetState) !== desiredValue) {
         if (this.options.style['$' + targetState]) {
@@ -774,9 +790,13 @@ var slice = [].slice;
           if (isApplicable) {
             targetStyle = this.options.styleShared[stateChain];
             if (desiredValue) {
+              if (!helpers.includes(this._stateShared, stateChain)) {
+                this._stateShared.push(stateChain);
+              }
               inferiorStateChains = this.options.styleShared[helpers.removeItem(split, targetState).join('+')];
               this.style(extend.clone(inferiorStateChains, targetStyle));
             } else {
+              helpers.removeItem(this._stateShared, stateChain);
               stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
               stylesToRemove = extend.transform(function() {
                 return null;
@@ -790,7 +810,7 @@ var slice = [].slice;
         ref = this._children;
         for (j = 0, len1 = ref.length; j < len1; j++) {
           child = ref[j];
-          child.state(targetState, value);
+          child.state(targetState, value, source || this);
         }
       }
       return this;
@@ -802,6 +822,17 @@ var slice = [].slice;
     for (i = 0, len = ref.length; i < len; i++) {
       activeState = ref[i];
       this.state(activeState, false);
+    }
+    return this;
+  };
+  QuickElement.prototype.pipeState = function(targetEl) {
+    if (targetEl) {
+      targetEl = helpers.normalizeGivenEl(targetEl);
+      if (IS.quickDomEl(targetEl) && targetEl !== this) {
+        this._statePipeTarget = targetEl;
+      }
+    } else if (targetEl === false) {
+      delete this._statePipeTarget;
     }
     return this;
   };

@@ -33,6 +33,7 @@ replacements = [
 	[/_removeChild/g, '_r']
 	[/_getActiveStates/g, '_as']
 	[/_getStateStyles/g, '_ss']
+	[/_statePipeTarget/g, '_pt']
 	[/styleShared/g, 'sS']
 	[/hasSharedStateStyle/g, 'hS']
 ]

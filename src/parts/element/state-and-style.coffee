@@ -7,10 +7,14 @@ QuickElement::updateOptions = (options)->
 	return @
 
 
-QuickElement::state = (targetState, value)->
+QuickElement::state = (targetState, value, source)->
 	if arguments.length is 1
 		helpers.includes(@_state, targetState)
 
+	else if @_statePipeTarget and source isnt @
+		@_statePipeTarget.state(targetState, value, @)
+		return @
+	
 	else if IS.string(targetState)
 		targetState = targetState.slice(1) if targetState[0] is '$'
 		desiredValue = !!value # Convert the value to a boolean
@@ -60,7 +64,7 @@ QuickElement::state = (targetState, value)->
 
 
 		if @options.passStateToChildren
-			child.state(targetState, value) for child in @_children
+			child.state(targetState, value, source or @) for child in @_children
 		
 		return @
 
@@ -68,6 +72,19 @@ QuickElement::state = (targetState, value)->
 QuickElement::resetState = ()->
 	for activeState in @_state.slice()
 		@state(activeState, off)
+
+	return @
+
+
+QuickElement::pipeState = (targetEl)->
+	if targetEl
+		targetEl = helpers.normalizeGivenEl(targetEl)
+
+		if IS.quickDomEl(targetEl) and targetEl isnt @
+			@_statePipeTarget = targetEl
+
+	else if targetEl is false
+		delete @_statePipeTarget
 
 	return @
 
