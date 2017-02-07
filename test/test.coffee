@@ -859,6 +859,63 @@ suite "QuickDom", ()->
 			expect(invokeCount).to.equal(2)
 
 
+		test "QuickElement.pipeState can be used to redirect all state toggles to the provided target element", ()->
+			parentA = Dom.div()
+			parentB = Dom.div(passStateToChildren:false)
+			divA = Dom.div(null).appendTo(parentA)
+			divB = Dom.div(null).appendTo(parentB)
+			childA = Dom.span().appendTo(divA)
+			childB = Dom.span().appendTo(divB)
+
+			divA.pipeState()
+			divA.state '1', on
+			expect(parentA.state '1').to.equal off
+			expect(divA.state '1').to.equal on
+			expect(childA.state '1').to.equal on
+			
+			divA.pipeState(parentA)
+			divA.state '2', on
+			expect(parentA.state '2').to.equal on
+			expect(divA.state '2').to.equal on
+			expect(childA.state '2').to.equal on
+
+			divA.pipeState(false)
+			divA.state '2.5', on
+			expect(parentA.state '2.5').to.equal off
+			expect(divA.state '2.5').to.equal on
+			expect(childA.state '2.5').to.equal on
+			
+			divB.pipeState(true)
+			divB.state '3', on
+			expect(parentB.state '3').to.equal off
+			expect(divB.state '3').to.equal on
+			expect(childB.state '3').to.equal on
+			
+			divB.pipeState(parentB)
+			divB.state '4', on
+			expect(parentB.state '4').to.equal on
+			expect(divB.state '4').to.equal off
+			expect(childB.state '4').to.equal off
+			
+			divA.pipeState(parentB)
+			divA.state '5', on
+			expect(parentA.state '5').to.equal off
+			expect(parentB.state '5').to.equal on
+			expect(divA.state '5').to.equal off
+			expect(divB.state '5').to.equal off
+			expect(childA.state '5').to.equal off
+			expect(childB.state '5').to.equal off
+			
+			divA.pipeState(false)
+			divB.pipeState(parentA)
+			divB.state '6', on
+			expect(parentA.state '6').to.equal on
+			expect(parentB.state '6').to.equal off
+			expect(divA.state '6').to.equal on
+			expect(divB.state '6').to.equal off
+			expect(childA.state '6').to.equal on
+			expect(childB.state '6').to.equal off
+
 
 
 
@@ -1932,6 +1989,13 @@ suite "QuickDom", ()->
 
 			expect ()-> Dom.template(['div', null, 'Some Inner Text'])
 				.not.to.throw()
+
+			expect(()->
+				div = Dom.div()
+				div.pipeState(div)
+				div.state 'happy', on
+				expect(div.state 'happy').to.equal on
+			).not.to.throw()
 
 
 

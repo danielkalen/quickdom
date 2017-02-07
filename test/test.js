@@ -1028,7 +1028,7 @@ var slice = [].slice;
           detachedParent.appendTo(sandbox);
           return expect(divA.el.style.height).to.equal('19px');
         });
-        return test("QuickElement.onInserted can accept callbacks which will be invoked when inserted into a parent element", function() {
+        test("QuickElement.onInserted can accept callbacks which will be invoked when inserted into a parent element", function() {
           var div, invokeCount, parentA, parentB, parentC;
           invokeCount = 0;
           parentA = Dom.section();
@@ -1066,6 +1066,59 @@ var slice = [].slice;
           div.detach();
           div.appendTo(parentB);
           return expect(invokeCount).to.equal(2);
+        });
+        return test("QuickElement.pipeState can be used to redirect all state toggles to the provided target element", function() {
+          var childA, childB, divA, divB, parentA, parentB;
+          parentA = Dom.div();
+          parentB = Dom.div({
+            passStateToChildren: false
+          });
+          divA = Dom.div(null).appendTo(parentA);
+          divB = Dom.div(null).appendTo(parentB);
+          childA = Dom.span().appendTo(divA);
+          childB = Dom.span().appendTo(divB);
+          divA.pipeState();
+          divA.state('1', true);
+          expect(parentA.state('1')).to.equal(false);
+          expect(divA.state('1')).to.equal(true);
+          expect(childA.state('1')).to.equal(true);
+          divA.pipeState(parentA);
+          divA.state('2', true);
+          expect(parentA.state('2')).to.equal(true);
+          expect(divA.state('2')).to.equal(true);
+          expect(childA.state('2')).to.equal(true);
+          divA.pipeState(false);
+          divA.state('2.5', true);
+          expect(parentA.state('2.5')).to.equal(false);
+          expect(divA.state('2.5')).to.equal(true);
+          expect(childA.state('2.5')).to.equal(true);
+          divB.pipeState(true);
+          divB.state('3', true);
+          expect(parentB.state('3')).to.equal(false);
+          expect(divB.state('3')).to.equal(true);
+          expect(childB.state('3')).to.equal(true);
+          divB.pipeState(parentB);
+          divB.state('4', true);
+          expect(parentB.state('4')).to.equal(true);
+          expect(divB.state('4')).to.equal(false);
+          expect(childB.state('4')).to.equal(false);
+          divA.pipeState(parentB);
+          divA.state('5', true);
+          expect(parentA.state('5')).to.equal(false);
+          expect(parentB.state('5')).to.equal(true);
+          expect(divA.state('5')).to.equal(false);
+          expect(divB.state('5')).to.equal(false);
+          expect(childA.state('5')).to.equal(false);
+          expect(childB.state('5')).to.equal(false);
+          divA.pipeState(false);
+          divB.pipeState(parentA);
+          divB.state('6', true);
+          expect(parentA.state('6')).to.equal(true);
+          expect(parentB.state('6')).to.equal(false);
+          expect(divA.state('6')).to.equal(true);
+          expect(divB.state('6')).to.equal(false);
+          expect(childA.state('6')).to.equal(true);
+          return expect(childB.state('6')).to.equal(false);
         });
       });
       suite("Traversal", function() {
@@ -2136,8 +2189,14 @@ var slice = [].slice;
           expect(function() {
             return Dom.template(['div', 'someString']);
           }).to["throw"]();
-          return expect(function() {
+          expect(function() {
             return Dom.template(['div', null, 'Some Inner Text']);
+          }).not.to["throw"]();
+          return expect(function() {
+            div = Dom.div();
+            div.pipeState(div);
+            div.state('happy', true);
+            return expect(div.state('happy')).to.equal(true);
           }).not.to["throw"]();
         });
       });
