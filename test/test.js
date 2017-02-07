@@ -1012,21 +1012,44 @@ var slice = [].slice;
           detachedParent = Dom.div();
           divReg = Dom.div({
             style: {
-              height: '19px'
+              height: '19px',
+              $happy: {
+                $relaxed: {
+                  width: '31px'
+                }
+              }
             }
           });
           divA = Dom.div({
             style: {
-              height: '19px'
+              height: '19px',
+              $happy: {
+                $relaxed: {
+                  width: '31px'
+                }
+              }
             },
             styleAfterInsert: true
           });
+          divReg.state('happy', true);
+          divReg.state('relaxed', true);
+          divA.state('happy', true);
+          divA.state('relaxed', true);
+          divA.state('relaxed', true);
+          divA.style('visibility', 'hidden');
           expect(divReg.el.style.height).to.equal('19px');
+          expect(divReg.el.style.width).to.equal('31px');
           expect(divA.el.style.height).to.equal('');
+          expect(divA.el.style.width).to.equal('31px');
+          expect(divA.el.style.visibility).to.equal('hidden');
           divA.appendTo(detachedParent);
           expect(divA.el.style.height).to.equal('');
+          expect(divA.el.style.width).to.equal('31px');
+          expect(divA.el.style.visibility).to.equal('hidden');
           detachedParent.appendTo(sandbox);
-          return expect(divA.el.style.height).to.equal('19px');
+          expect(divA.el.style.height).to.equal('19px');
+          expect(divA.el.style.width).to.equal('31px');
+          return expect(divA.el.style.visibility).to.equal('hidden');
         });
         test("QuickElement.onInserted can accept callbacks which will be invoked when inserted into a parent element", function() {
           var div, invokeCount, parentA, parentB, parentC;

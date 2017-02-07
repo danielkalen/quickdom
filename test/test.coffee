@@ -805,17 +805,31 @@ suite "QuickDom", ()->
 
 		test "If an element with options.styleAfterInsert is appended into a detached element, styles will be applied only after the parent is appended to the DOM", ()->
 			detachedParent = Dom.div()
-			divReg = Dom.div(style:{height:'19px'})
-			divA = Dom.div(style:{height:'19px'}, styleAfterInsert:true)
+			divReg = Dom.div(style:{height:'19px', $happy:$relaxed:{width:'31px'}})
+			divA = Dom.div(style:{height:'19px', $happy:$relaxed:{width:'31px'}}, styleAfterInsert:true)
+
+			divReg.state 'happy', on
+			divReg.state 'relaxed', on
+			divA.state 'happy', on
+			divA.state 'relaxed', on
+			divA.state 'relaxed', on
+			divA.style 'visibility', 'hidden'
 
 			expect(divReg.el.style.height).to.equal('19px')
+			expect(divReg.el.style.width).to.equal('31px')
 			expect(divA.el.style.height).to.equal('')
+			expect(divA.el.style.width).to.equal('31px')
+			expect(divA.el.style.visibility).to.equal('hidden')
 
 			divA.appendTo(detachedParent)
 			expect(divA.el.style.height).to.equal('')
+			expect(divA.el.style.width).to.equal('31px')
+			expect(divA.el.style.visibility).to.equal('hidden')
 
 			detachedParent.appendTo(sandbox)
 			expect(divA.el.style.height).to.equal('19px')
+			expect(divA.el.style.width).to.equal('31px')
+			expect(divA.el.style.visibility).to.equal('hidden')
 
 
 		test "QuickElement.onInserted can accept callbacks which will be invoked when inserted into a parent element", ()->
