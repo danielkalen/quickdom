@@ -33,10 +33,12 @@ QuickElement::_normalizeStyle = ()->
 		innerStates = Object.keys(styleObject).filter((key)-> key[0] is '$')
 		if innerStates.length
 			@hasSharedStateStyle = true
+			@_stateShared ?= []
 			
 			for innerState in innerStates
 				stateChain = parentStates.concat(innerState.slice(1))
-				@options.styleShared[stateChain.join('+')] = styleObject[innerState]
+				stateChainString = stateChain.join('+')
+				@options.styleShared[stateChainString] = @options.style['$'+stateChainString] = styleObject[innerState]
 			
 				checkInnerStates(styleObject[innerState], stateChain)
 				delete styleObject[innerState]
@@ -104,8 +106,9 @@ QuickElement::_listenTo = (eventName, callback)->
 
 
 
-QuickElement::_getActiveStates = (stateToExclude)->
-	@providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
+QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
+	plainStates = @providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
+	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
 
 QuickElement::_getStateStyles = (states)->
 	states.map (state)=> @options.style['$'+state]
