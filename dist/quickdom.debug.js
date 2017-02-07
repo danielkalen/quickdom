@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1871c, _sim_23fab, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_191d3, _sim_28b87, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_1871c = (function(exports){
+  _sim_28b87 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_1871c;
+  CSS = _sim_28b87;
 
   /* istanbul ignore next */
-  _sim_23fab = (function(exports){
+  _sim_191d3 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_23fab;
+  extend = _sim_191d3;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -826,10 +826,16 @@ var slice = [].slice;
     return this;
   };
   QuickElement.prototype.pipeState = function(targetEl) {
+    var activeState, i, len, ref;
     if (targetEl) {
       targetEl = helpers.normalizeGivenEl(targetEl);
       if (IS.quickDomEl(targetEl) && targetEl !== this) {
         this._statePipeTarget = targetEl;
+        ref = this._state;
+        for (i = 0, len = ref.length; i < len; i++) {
+          activeState = ref[i];
+          targetEl.state(activeState, true);
+        }
       }
     } else if (targetEl === false) {
       delete this._statePipeTarget;
@@ -1238,6 +1244,9 @@ var slice = [].slice;
         }
       };
     }
+    if (IS.array(newOpts)) {
+      newOpts = parseTree(newOpts, false);
+    }
     output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts);
     currentChildren = currentOpts.children || [];
     newChildren = (newOpts != null ? newOpts.children : void 0) || [];
@@ -1247,6 +1256,9 @@ var slice = [].slice;
     for (index = i = 0, ref = Math.max(currentChildren.length, newChildren.length); 0 <= ref ? i < ref : i > ref; index = 0 <= ref ? ++i : --i) {
       currentChild = currentChildren[index];
       newChild = newChildren[index];
+      if (IS.array(newChild)) {
+        newChild = parseTree(newChild, false);
+      }
       if (IS.string(newChild)) {
         newChild = {
           type: 'text',
@@ -1263,7 +1275,7 @@ var slice = [].slice;
     }
     return output;
   };
-  parseTree = function(tree) {
+  parseTree = function(tree, parseChildren) {
     var output;
     switch (false) {
       case !IS.array(tree):
@@ -1278,7 +1290,10 @@ var slice = [].slice;
         } else {
           output.options = tree[1] ? extend.deep.clone(tree[1]) : null;
         }
-        output.children = tree.slice(2).map(QuickDom.template);
+        output.children = tree.slice(2);
+        if (parseChildren !== false) {
+          output.children = output.children.map(QuickDom.template);
+        }
         return output;
       case !(IS.string(tree) || IS.domText(tree)):
         return {

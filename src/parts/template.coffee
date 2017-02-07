@@ -24,6 +24,7 @@ QuickTemplate::extend = (newValues, globalOpts)->
 
 extendOptions = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
+	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
 	
 	output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children or []
@@ -34,6 +35,7 @@ extendOptions = (currentOpts, newOpts, globalOpts)->
 	for index in [0...Math.max(currentChildren.length, newChildren.length)]
 		currentChild = currentChildren[index]
 		newChild = newChildren[index]
+		newChild = parseTree(newChild, false) if IS.array(newChild)
 		newChild = {type:'text', options:{text:newChild}} if IS.string(newChild)
 		if currentChild
 			output.children.push currentChild.extend(newChild, globalOpts)
@@ -45,7 +47,7 @@ extendOptions = (currentOpts, newOpts, globalOpts)->
 
 
 
-parseTree = (tree)-> switch
+parseTree = (tree, parseChildren)-> switch
 	when IS.array(tree)
 		output = {}
 
@@ -59,7 +61,8 @@ parseTree = (tree)-> switch
 		else
 			output.options = if tree[1] then extend.deep.clone(tree[1]) else null
 
-		output.children = tree.slice(2).map(QuickDom.template)
+		output.children = tree.slice(2)
+		output.children = output.children.map(QuickDom.template) unless parseChildren is false
 		return output
 
 
