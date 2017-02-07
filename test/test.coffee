@@ -1801,6 +1801,62 @@ suite "QuickDom", ()->
 			expect(spawnB.el.childNodes[1].style.opacity).to.equal('0.2')
 
 
+		test "Template.extend/spawn() can accept a template tree array", ()->
+			template = Dom.template ['div', style:{'opacity':0.5}, ['span', null, 'text of span'], ['div', null, 'text of div']]
+			cloneA = template.extend(['section', style:{'opacity':0.8}])
+			cloneB = template.extend(['span', null, ['div']])
+			cloneC = template.extend(['section', {className:'the-section', style:{color:'blue'}}, ['section', null, 'text of subsection'], 'just a text node'])
+			spawn = template.spawn ['span', style:{'width':190, 'opacity':1}, 'so nice']
+
+			expect(template.type).to.equal 'div'
+			expect(template.options).to.eql {style:{'opacity':0.5}}
+			expect(template.children.length).to.equal 2
+			expect(template.children[0].type).to.equal 'span'
+			expect(template.children[0].children.length).to.equal 1
+			expect(template.children[0].children[0].options.text).to.equal 'text of span'
+			expect(template.children[1].type).to.equal 'div'
+			expect(template.children[1].children.length).to.equal 1
+			expect(template.children[1].children[0].options.text).to.equal 'text of div'
+
+			expect(cloneA.type).to.equal 'section'
+			expect(cloneA.options).to.eql {style:{'opacity':0.8}}
+			expect(cloneA.children.length).to.equal 2
+			expect(cloneA.children[0].type).to.equal 'span'
+			expect(cloneA.children[0].children.length).to.equal 1
+			expect(cloneA.children[0].children[0].options.text).to.equal 'text of span'
+			expect(cloneA.children[1].type).to.equal 'div'
+			expect(cloneA.children[1].children.length).to.equal 1
+			expect(cloneA.children[1].children[0].options.text).to.equal 'text of div'
+
+			expect(cloneB.type).to.equal 'span'
+			expect(cloneB.options).to.eql {style:{'opacity':0.5}}
+			expect(cloneB.children.length).to.equal 2
+			expect(cloneB.children[0].type).to.equal 'div'
+			expect(cloneB.children[0].children.length).to.equal 1
+			expect(cloneB.children[0].children[0].options.text).to.equal 'text of span'
+			expect(cloneB.children[1].type).to.equal 'div'
+			expect(cloneB.children[1].children.length).to.equal 1
+			expect(cloneB.children[1].children[0].options.text).to.equal 'text of div'
+
+			expect(cloneC.type).to.equal 'section'
+			expect(cloneC.options).to.eql {className:'the-section', style:{'opacity':0.5, 'color':'blue'}}
+			expect(cloneC.children.length).to.equal 2
+			expect(cloneC.children[0].type).to.equal 'section'
+			expect(cloneC.children[0].children.length).to.equal 1
+			expect(cloneC.children[0].children[0].options.text).to.equal 'text of subsection'
+			expect(cloneC.children[1].type).to.equal 'text'
+			expect(cloneC.children[1].options.text).to.equal 'just a text node'
+
+			expect(spawn.el.nodeName.toLowerCase()).to.equal 'span'
+			expect(spawn.el.style.opacity).to.equal '1'
+			expect(spawn.el.style.width).to.equal '190px'
+			expect(spawn.el.childNodes.length).to.equal 2
+			expect(spawn.el.childNodes[0].nodeType).to.equal 3
+			expect(spawn.el.childNodes[0].textContent).to.equal 'so nice'
+			expect(spawn.el.childNodes[1].nodeName.toLowerCase()).to.equal 'div'
+			expect(spawn.el.childNodes[1].textContent).to.equal 'text of div'
+
+
 		test "Templates can have other templates as their children", ()->
 			headerTemplate = Dom.template ['header', {style:'height':'200px'},
 				['span', {style:'textAlign':'center'}, 'This is bolded text']
