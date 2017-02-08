@@ -105,6 +105,15 @@ QuickElement::style = ()->
 	return @
 
 
+QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
+	plainStates = @providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
+	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
+
+QuickElement::_getStateStyles = (states)->
+	states.map (state)=> @options.style['$'+state]
+
+
+
 Object.defineProperty QuickElement::, 'rect',
 	get: ()-> @el.getBoundingClientRect()
 

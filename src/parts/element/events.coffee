@@ -47,3 +47,14 @@ QuickElement::onInserted = (callback, invokeIfInserted=true)-> if IS.function(ca
 
 
 
+### istanbul ignore next ###
+QuickElement::_listenTo = (eventName, callback)->
+	listenMethod = if @el.addEventListener then 'addEventListener' else 'attachEvent'
+	eventNameToListenFor = if @el.addEventListener then eventName else "on#{eventName}"
+	
+	@el[listenMethod](eventNameToListenFor, callback)
+	return @
+
+
+
+

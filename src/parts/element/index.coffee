@@ -21,7 +21,7 @@ QuickElement = (@type, @options)->
 
 import ./aliases
 import ./traversing
-import ./private
+import ./init
 import ./events
 import ./state-and-style
 import ./attributes-and-properties

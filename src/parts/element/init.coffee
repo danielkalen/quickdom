@@ -96,24 +96,4 @@ QuickElement::_attachStateEvents = ()->
 
 
 
-### istanbul ignore next ###
-QuickElement::_listenTo = (eventName, callback)->
-	listenMethod = if @el.addEventListener then 'addEventListener' else 'attachEvent'
-	eventNameToListenFor = if @el.addEventListener then eventName else "on#{eventName}"
-	
-	@el[listenMethod](eventNameToListenFor, callback)
-	return @
-
-
-
-QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
-	plainStates = @providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
-	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
-
-QuickElement::_getStateStyles = (states)->
-	states.map (state)=> @options.style['$'+state]
-
-
-
-
 
