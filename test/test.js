@@ -40,7 +40,7 @@ var slice = [].slice;
         packageVersion = (function(){
 				return {
 				  "name": "quickdom",
-				  "version": "1.0.11",
+				  "version": "1.0.12",
 				  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
 				  "main": "dist/quickdom.js",
 				  "browser": {
@@ -363,7 +363,7 @@ var slice = [].slice;
           expect(emitCountB).to.equal(1);
           return expect(emitCountC).to.equal(1);
         });
-        return test("Event listeners can be removed via the .off method", function() {
+        test("Event listeners can be removed via the .off method", function() {
           var div, emitCountA, emitCountB, emitCountC, emitCountD, eventCB;
           emitCountA = emitCountB = emitCountC = emitCountD = 0;
           div = Dom.div();
@@ -419,6 +419,45 @@ var slice = [].slice;
           expect(emitCountB).to.equal(1);
           expect(emitCountC).to.equal(3);
           return expect(emitCountD).to.equal(4);
+        });
+        return test("Events can be named via a '<event>.<name>' syntax which can be used to remove listeners later on without the original callbacks", function() {
+          var attachListeners, div, emitCountA, emitCountB;
+          emitCountA = emitCountB = 0;
+          div = Dom.div().appendTo(sandbox);
+          attachListeners = function() {
+            div.on('myEvent.someName', function() {
+              return emitCountA++;
+            });
+            return div.on('myEvent', function() {
+              return emitCountB++;
+            });
+          };
+          attachListeners();
+          expect(emitCountA).to.equal(0);
+          expect(emitCountB).to.equal(0);
+          div.emit('myEvent');
+          expect(emitCountA).to.equal(1);
+          expect(emitCountB).to.equal(1);
+          div.emit('myEvent.someName');
+          expect(emitCountA).to.equal(1);
+          expect(emitCountB).to.equal(1);
+          div.off('myEvent.someOtherName');
+          div.emit('myEvent');
+          expect(emitCountA).to.equal(2);
+          expect(emitCountB).to.equal(2);
+          div.off('myEvent.someName');
+          div.emit('myEvent');
+          expect(emitCountA).to.equal(2);
+          expect(emitCountB).to.equal(3);
+          div.off('myEvent');
+          attachListeners();
+          div.emit('myEvent');
+          expect(emitCountA).to.equal(3);
+          expect(emitCountB).to.equal(4);
+          div.off('myEvent');
+          div.emit('myEvent');
+          expect(emitCountA).to.equal(3);
+          return expect(emitCountB).to.equal(4);
         });
       });
       suite("Style", function() {

@@ -275,6 +275,48 @@ suite "QuickDom", ()->
 			expect(emitCountD).to.equal(4)
 
 
+		test "Events can be named via a '<event>.<name>' syntax which can be used to remove listeners later on without the original callbacks", ()->
+			emitCountA = emitCountB = 0
+			div = Dom.div().appendTo(sandbox)
+
+			attachListeners = ()->
+				div.on 'myEvent.someName', ()-> emitCountA++;
+				div.on 'myEvent', ()-> emitCountB++;
+
+			attachListeners()
+			expect(emitCountA).to.equal(0)
+			expect(emitCountB).to.equal(0)
+
+			div.emit('myEvent')
+			expect(emitCountA).to.equal(1)
+			expect(emitCountB).to.equal(1)
+			
+			div.emit('myEvent.someName')
+			expect(emitCountA).to.equal(1)
+			expect(emitCountB).to.equal(1)
+			
+			div.off('myEvent.someOtherName')
+			div.emit('myEvent')
+			expect(emitCountA).to.equal(2)
+			expect(emitCountB).to.equal(2)
+			
+			div.off('myEvent.someName')
+			div.emit('myEvent')
+			expect(emitCountA).to.equal(2)
+			expect(emitCountB).to.equal(3)
+			
+			div.off('myEvent')
+			attachListeners()
+			div.emit('myEvent')
+			expect(emitCountA).to.equal(3)
+			expect(emitCountB).to.equal(4)
+			
+			div.off('myEvent')
+			div.emit('myEvent')
+			expect(emitCountA).to.equal(3)
+			expect(emitCountB).to.equal(4)
+
+
 
 	suite "Style", ()->
 		test "Styles can be set via the .style/.css method with args pair of [property, value]", ()->
