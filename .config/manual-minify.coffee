@@ -34,6 +34,7 @@ replacements = [
 	[/_getActiveStates/g, '_as']
 	[/_getStateStyles/g, '_ss']
 	[/_statePipeTarget/g, '_pt']
+	[/__refs/g, '_R']
 	[/styleShared/g, 'sS']
 	[/hasSharedStateStyle/g, 'hS']
 ]

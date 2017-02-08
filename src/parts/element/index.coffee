@@ -11,7 +11,7 @@ QuickElement = (@type, @options)->
 	@_state = []
 	@_children = []
 	@_insertedCallbacks = []
-	@_eventCallbacks = {}
+	@_eventCallbacks = {__refs:{}}
 	
 	@_normalizeOptions()
 	@_applyOptions()

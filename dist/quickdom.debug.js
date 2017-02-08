@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_191d3, _sim_28b87, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1eb6e, _sim_25ca6, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_28b87 = (function(exports){
+  _sim_25ca6 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,16 +14,16 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_28b87;
+  CSS = _sim_25ca6;
 
   /* istanbul ignore next */
-  _sim_191d3 = (function(exports){
+  _sim_1eb6e = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
 		(function() {
-		  var _sim_1f4fa, extend;
-		  _sim_1f4fa = (function(_this) {
+		  var _sim_1c8a6, extend;
+		  _sim_1c8a6 = (function(_this) {
 		    return function(exports) {
 		      var module = {exports:exports};
 		      var build, extend, modifiers, normalizeKeys, simpleClone;
@@ -34,7 +34,7 @@ var slice = [].slice;
 		          return Array.isArray(target);
 		        };
 		        isObject = function(target) {
-		          return target && Object.prototype.toString.call(target) === '[object Object]';
+		          return target && Object.prototype.toString.call(target) === '[object Object]' || isArray(target);
 		        };
 		        shouldSkipDeep = function(target, options) {
 		          if (options.notDeep) {
@@ -222,7 +222,7 @@ var slice = [].slice;
 		      return module.exports;
 		    };
 		  })(this)({});
-		  extend = _sim_1f4fa;
+		  extend = _sim_1c8a6;
 		  if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
 		    module.exports = extend;
 		  } else if (typeof define === 'function' && define.amd) {
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_191d3;
+  extend = _sim_1eb6e;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -322,7 +322,9 @@ var slice = [].slice;
     this._state = [];
     this._children = [];
     this._insertedCallbacks = [];
-    this._eventCallbacks = {};
+    this._eventCallbacks = {
+      __refs: {}
+    };
     this._normalizeOptions();
     this._applyOptions();
     this._attachStateEvents();
@@ -629,40 +631,12 @@ var slice = [].slice;
     }
     return this;
   };
-
-  /* istanbul ignore next */
-  QuickElement.prototype._listenTo = function(eventName, callback) {
-    var eventNameToListenFor, listenMethod;
-    listenMethod = this.el.addEventListener ? 'addEventListener' : 'attachEvent';
-    eventNameToListenFor = this.el.addEventListener ? eventName : "on" + eventName;
-    this.el[listenMethod](eventNameToListenFor, callback);
-    return this;
-  };
-  QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
-    var plainStates;
-    if (includeSharedStates == null) {
-      includeSharedStates = true;
-    }
-    plainStates = this.providedStates.filter((function(_this) {
-      return function(state) {
-        return helpers.includes(_this._state, state) && state !== stateToExclude;
-      };
-    })(this));
-    if (!includeSharedStates || !this.hasSharedStateStyle) {
-      return plainStates;
-    } else {
-      return plainStates.concat(this._stateShared);
-    }
-  };
-  QuickElement.prototype._getStateStyles = function(states) {
-    return states.map((function(_this) {
-      return function(state) {
-        return _this.options.style['$' + state];
-      };
-    })(this));
-  };
   QuickElement.prototype.on = function(eventName, callback) {
+    var callbackRef, split;
     if (IS.string(eventName) && IS["function"](callback)) {
+      split = eventName.split('.');
+      callbackRef = split[1];
+      eventName = split[0];
       if (!this._eventCallbacks[eventName]) {
         this._eventCallbacks[eventName] = [];
         this._listenTo(eventName, (function(_this) {
@@ -676,20 +650,32 @@ var slice = [].slice;
           };
         })(this));
       }
+      if (callbackRef) {
+        this._eventCallbacks.__refs[callbackRef] = callback;
+      }
       this._eventCallbacks[eventName].push(callback);
     }
     return this;
   };
   QuickElement.prototype.off = function(eventName, callback) {
+    var callbackRef, split;
     if (!IS.string(eventName)) {
       for (eventName in this._eventCallbacks) {
         this.off(eventName);
       }
-    } else if (this._eventCallbacks[eventName]) {
-      if (IS["function"](callback)) {
-        helpers.removeItem(this._eventCallbacks[eventName], callback);
-      } else {
-        this._eventCallbacks[eventName].length = 0;
+    } else {
+      split = eventName.split('.');
+      callbackRef = split[1];
+      eventName = split[0];
+      if (this._eventCallbacks[eventName]) {
+        if (callback == null) {
+          callback = this._eventCallbacks.__refs[callbackRef];
+        }
+        if (IS["function"](callback)) {
+          helpers.removeItem(this._eventCallbacks[eventName], callback);
+        } else if (!callbackRef) {
+          this._eventCallbacks[eventName].length = 0;
+        }
       }
     }
     return this;
@@ -721,6 +707,15 @@ var slice = [].slice;
       }
       return this;
     }
+  };
+
+  /* istanbul ignore next */
+  QuickElement.prototype._listenTo = function(eventName, callback) {
+    var eventNameToListenFor, listenMethod;
+    listenMethod = this.el.addEventListener ? 'addEventListener' : 'attachEvent';
+    eventNameToListenFor = this.el.addEventListener ? eventName : "on" + eventName;
+    this.el[listenMethod](eventNameToListenFor, callback);
+    return this;
   };
   QuickElement.prototype.updateOptions = function(options) {
     if (IS.object(options)) {
@@ -865,6 +860,29 @@ var slice = [].slice;
       })(this)).clone(args[0]));
     }
     return this;
+  };
+  QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
+    var plainStates;
+    if (includeSharedStates == null) {
+      includeSharedStates = true;
+    }
+    plainStates = this.providedStates.filter((function(_this) {
+      return function(state) {
+        return helpers.includes(_this._state, state) && state !== stateToExclude;
+      };
+    })(this));
+    if (!includeSharedStates || !this.hasSharedStateStyle) {
+      return plainStates;
+    } else {
+      return plainStates.concat(this._stateShared);
+    }
+  };
+  QuickElement.prototype._getStateStyles = function(states) {
+    return states.map((function(_this) {
+      return function(state) {
+        return _this.options.style['$' + state];
+      };
+    })(this));
   };
   Object.defineProperty(QuickElement.prototype, 'rect', {
     get: function() {
@@ -1338,7 +1356,7 @@ var slice = [].slice;
     shortcut = shortcuts[i];
     fn(shortcut);
   }
-  QuickDom.version = '1.0.11';
+  QuickDom.version = '1.0.12';
 
   /* istanbul ignore next */
   if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
