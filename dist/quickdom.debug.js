@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_19f24, _sim_1d052, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_2734c, _sim_284d7, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_1d052 = (function(exports){
+  _sim_284d7 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_1d052;
+  CSS = _sim_284d7;
 
   /* istanbul ignore next */
-  _sim_19f24 = (function(exports){
+  _sim_2734c = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_19f24;
+  extend = _sim_2734c;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -631,52 +631,59 @@ var slice = [].slice;
     }
     return this;
   };
-  QuickElement.prototype.on = function(eventName, callback) {
+  regexWhitespace = /\s+/;
+  QuickElement.prototype.on = function(eventNames, callback) {
     var callbackRef, split;
-    if (IS.string(eventName) && IS["function"](callback)) {
-      split = eventName.split('.');
+    if (IS.string(eventNames) && IS["function"](callback)) {
+      split = eventNames.split('.');
       callbackRef = split[1];
-      eventName = split[0];
-      if (!this._eventCallbacks[eventName]) {
-        this._eventCallbacks[eventName] = [];
-        this._listenTo(eventName, (function(_this) {
-          return function(event) {
-            var i, len, ref;
-            ref = _this._eventCallbacks[eventName];
-            for (i = 0, len = ref.length; i < len; i++) {
-              callback = ref[i];
-              callback.call(_this.el, event);
-            }
-          };
-        })(this));
-      }
-      if (callbackRef) {
-        this._eventCallbacks.__refs[callbackRef] = callback;
-      }
-      this._eventCallbacks[eventName].push(callback);
+      eventNames = split[0];
+      eventNames.split(regexWhitespace).forEach((function(_this) {
+        return function(eventName) {
+          if (!_this._eventCallbacks[eventName]) {
+            _this._eventCallbacks[eventName] = [];
+            _this._listenTo(eventName, function(event) {
+              var i, len, ref;
+              ref = _this._eventCallbacks[eventName];
+              for (i = 0, len = ref.length; i < len; i++) {
+                callback = ref[i];
+                callback.call(_this.el, event);
+              }
+            });
+          }
+          if (callbackRef) {
+            _this._eventCallbacks.__refs[callbackRef] = callback;
+          }
+          return _this._eventCallbacks[eventName].push(callback);
+        };
+      })(this));
     }
     return this;
   };
-  QuickElement.prototype.off = function(eventName, callback) {
-    var callbackRef, split;
-    if (!IS.string(eventName)) {
+  QuickElement.prototype.off = function(eventNames, callback) {
+    var callbackRef, eventName, split;
+    if (!IS.string(eventNames)) {
       for (eventName in this._eventCallbacks) {
         this.off(eventName);
       }
     } else {
-      split = eventName.split('.');
+      split = eventNames.split('.');
       callbackRef = split[1];
-      eventName = split[0];
-      if (this._eventCallbacks[eventName]) {
-        if (callback == null) {
-          callback = this._eventCallbacks.__refs[callbackRef];
-        }
-        if (IS["function"](callback)) {
-          helpers.removeItem(this._eventCallbacks[eventName], callback);
-        } else if (!callbackRef) {
-          this._eventCallbacks[eventName].length = 0;
-        }
-      }
+      eventNames = split[0];
+      eventNames.split(regexWhitespace).forEach((function(_this) {
+        return function(eventName) {
+          if (_this._eventCallbacks[eventName]) {
+            if (callback == null) {
+              callback = _this._eventCallbacks.__refs[callbackRef];
+            }
+            if (IS["function"](callback)) {
+              return helpers.removeItem(_this._eventCallbacks[eventName], callback);
+            } else if (!callbackRef) {
+              return _this._eventCallbacks[eventName].length = 0;
+            }
+          }
+        };
+      })(this));
     }
     return this;
   };

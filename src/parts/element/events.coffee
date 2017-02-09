@@ -1,38 +1,40 @@
-QuickElement::on = (eventName, callback)->
-	if IS.string(eventName) and IS.function(callback)
-		split = eventName.split('.')
-		callbackRef = split[1]
-		eventName = split[0]
-		
-		if not @_eventCallbacks[eventName]
-			@_eventCallbacks[eventName] = []		
-			@_listenTo eventName, (event)=>
-				callback.call(@el, event) for callback in @_eventCallbacks[eventName]
-				return
+regexWhitespace = /\s+/
 
-		@_eventCallbacks.__refs[callbackRef] = callback if callbackRef
-		@_eventCallbacks[eventName].push(callback)
+QuickElement::on = (eventNames, callback)->
+	if IS.string(eventNames) and IS.function(callback)
+		split = eventNames.split('.')
+		callbackRef = split[1]
+		eventNames = split[0]
+		eventNames.split(regexWhitespace).forEach (eventName)=>
+			if not @_eventCallbacks[eventName]
+				@_eventCallbacks[eventName] = []		
+				@_listenTo eventName, (event)=>
+					callback.call(@el, event) for callback in @_eventCallbacks[eventName]
+					return
+
+			@_eventCallbacks.__refs[callbackRef] = callback if callbackRef
+			@_eventCallbacks[eventName].push(callback)
 	return @
 
 
 
 
-QuickElement::off = (eventName, callback)->
-	if not IS.string(eventName)
+QuickElement::off = (eventNames, callback)->
+	if not IS.string(eventNames)
 		@off(eventName) for eventName of @_eventCallbacks
 	
 	else
-		split = eventName.split('.')
+		split = eventNames.split('.')
 		callbackRef = split[1]
-		eventName = split[0]
-	
-		if @_eventCallbacks[eventName]
-			callback ?= @_eventCallbacks.__refs[callbackRef]
+		eventNames = split[0]
+		eventNames.split(regexWhitespace).forEach (eventName)=>
+			if @_eventCallbacks[eventName]
+				callback ?= @_eventCallbacks.__refs[callbackRef]
 
-			if IS.function(callback)
-				helpers.removeItem(@_eventCallbacks[eventName], callback)
-			else if not callbackRef
-				@_eventCallbacks[eventName].length = 0
+				if IS.function(callback)
+					helpers.removeItem(@_eventCallbacks[eventName], callback)
+				else if not callbackRef
+					@_eventCallbacks[eventName].length = 0
 
 	return @
 
