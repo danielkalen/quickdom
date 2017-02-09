@@ -317,6 +317,69 @@ suite "QuickDom", ()->
 			expect(emitCountB).to.equal(4)
 
 
+		test "Multiple events can be registered/deregistered at once using whitespace separators", ()->
+			emitCount = 0
+			div = Dom.div()
+
+			div.on 'one two   three', ()-> emitCount++
+			expect(emitCount).to.equal 0
+
+			div.emit('one')
+			expect(emitCount).to.equal 1
+
+			div.emit('two')
+			expect(emitCount).to.equal 2
+
+			div.emit('three')
+			expect(emitCount).to.equal 3
+
+			div.off('one      three')
+			div.emit('one')
+			expect(emitCount).to.equal 3
+
+			div.emit('two')
+			expect(emitCount).to.equal 4
+
+			div.emit('three')
+			expect(emitCount).to.equal 4
+
+			div.off()
+			div.emit('one'); div.emit('two'); div.emit('three');
+			div.on 'one two   three.someName', ()-> emitCount++
+			div.on 'one two   three', ()-> emitCount++
+			expect(emitCount).to.equal 4
+
+			div.emit('one')
+			expect(emitCount).to.equal 6
+
+			div.emit('two')
+			expect(emitCount).to.equal 8
+
+			div.emit('three')
+			expect(emitCount).to.equal 10
+
+			div.off('two \tone.someName')
+			div.emit('one')
+			expect(emitCount).to.equal 11
+
+			div.emit('two')
+			expect(emitCount).to.equal 12
+
+			div.emit('three')
+			expect(emitCount).to.equal 14
+			
+			div.off('one three')
+			div.emit('one')
+			expect(emitCount).to.equal 14
+
+			div.emit('two')
+			expect(emitCount).to.equal 15
+
+			div.emit('three')
+			expect(emitCount).to.equal 15
+
+
+
 
 	suite "Style", ()->
 		test "Styles can be set via the .style/.css method with args pair of [property, value]", ()->
