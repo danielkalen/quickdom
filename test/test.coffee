@@ -134,6 +134,16 @@ suite "QuickDom", ()->
 			expect(divRaw.className).to.equal('def-456')
 
 
+		test "Document Element", ()->
+			doc = Dom(document)
+			expect(doc).not.to.be.undefined
+			expect(doc.raw).to.equal(document)
+			expect(doc.parent).to.equal(undefined)
+			expect(doc.children.length).to.equal(1)
+			expect(Dom(sandbox).parents).not.to.contain(doc)
+			expect(Dom(sandbox).parents).to.contain(doc.children[0])
+
+
 		test "Creation w/ styling", ()->
 			div = Dom.div style:
 				'width': '10px'

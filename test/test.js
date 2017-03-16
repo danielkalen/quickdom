@@ -56,7 +56,7 @@ var slice = [].slice;
 				    "test:karma": "karma start .config/karma.conf.coffee",
 				    "test:phantom": "karma start --single-run --browsers PhantomJS .config/karma.conf.coffee",
 				    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
-				    "test:sauce": "coffee .config/sauce-launch.coffee",
+				    "test:sauce": "coffee .config/sauce-launch.coffee && npm run test-serve",
 				    "test-serve": "http-server -p 9201 --cors ./",
 				    "sauce-connect": "sc -u quickdom -k 0c7a6cc2-ed14-4f08-b48d-e46c74905b6a",
 				    "build": "npm run compile && npm run super-minify && npm run manual-minify",
@@ -251,6 +251,16 @@ var slice = [].slice;
           });
           expect(divRaw.id).to.equal('C');
           return expect(divRaw.className).to.equal('def-456');
+        });
+        test("Document Element", function() {
+          var doc;
+          doc = Dom(document);
+          expect(doc).not.to.be.undefined;
+          expect(doc.raw).to.equal(document);
+          expect(doc.parent).to.equal(void 0);
+          expect(doc.children.length).to.equal(1);
+          expect(Dom(sandbox).parents).not.to.contain(doc);
+          return expect(Dom(sandbox).parents).to.contain(doc.children[0]);
         });
         test("Creation w/ styling", function() {
           var computedStyle, div;
@@ -1238,7 +1248,7 @@ var slice = [].slice;
       });
       suite("Traversal", function() {
         test("Children", function() {
-          var div;
+          var comment, div, div$, spanA, spanB, text;
           div = Dom.div(null, Dom.div(), 'Some Text');
           expect(div.children.length).to.equal(2);
           expect(div.el.childNodes.length).to.equal(2);
@@ -1247,7 +1257,25 @@ var slice = [].slice;
           expect(div.el.childNodes.length).to.equal(3);
           div.el.appendChild(document.createElement('div'));
           expect(div.children.length).to.equal(4);
-          return expect(div.el.childNodes.length).to.equal(4);
+          expect(div.el.childNodes.length).to.equal(4);
+          if ('Comment' in window) {
+            div = document.createElement('div');
+            spanA = document.createElement('span');
+            spanB = document.createElement('span');
+            text = document.createTextNode('someTextNode');
+            comment = new Comment('someCommentNode');
+            div.appendChild(spanA);
+            div.appendChild(comment);
+            div.appendChild(spanB);
+            div.appendChild(text);
+            expect(div.childNodes.length).to.equal(4);
+            expect(div.children.length).to.equal(2);
+            div$ = Dom(div);
+            expect(div$.children.length).to.equal(3);
+            expect(div$.children[0].raw).to.equal(spanA);
+            expect(div$.children[1].raw).to.equal(spanB);
+            return expect(div$.children[2].raw).to.equal(text);
+          }
         });
         test("Parent", function() {
           var A, B, C;
