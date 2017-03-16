@@ -134,7 +134,7 @@ suite "QuickDom", ()->
 			expect(divRaw.className).to.equal('def-456')
 
 
-		test "Document Element", ()->
+		test "Document node", ()->
 			doc = Dom(document)
 			expect(doc).not.to.be.undefined
 			expect(doc.raw).to.equal(document)
@@ -142,6 +142,18 @@ suite "QuickDom", ()->
 			expect(doc.children.length).to.equal(1)
 			expect(Dom(sandbox).parents).not.to.contain(doc)
 			expect(Dom(sandbox).parents).to.contain(doc.children[0])
+
+
+		test "Window object", ()->
+			win = Dom(window)
+			expect(win).not.to.be.undefined
+			expect(win.raw is window).to.be.true
+			expect(win.parent).to.equal(undefined)
+			expect(win.children).to.equal(undefined)
+			expect(win.append).to.equal(undefined)
+			expect(win.html).to.equal(undefined)
+			expect(win.style).to.equal(undefined)
+			expect(Dom(sandbox).parents).not.to.contain(win)
 
 
 		test "Creation w/ styling", ()->
@@ -1063,7 +1075,7 @@ suite "QuickDom", ()->
 			expect(div.children.length).to.equal(4)
 			expect(div.el.childNodes.length).to.equal(4)
 
-			if 'Comment' of window
+			if typeof window.Comment is 'function'
 				div = document.createElement('div')
 				spanA = document.createElement('span')
 				spanB = document.createElement('span')

@@ -252,7 +252,7 @@ var slice = [].slice;
           expect(divRaw.id).to.equal('C');
           return expect(divRaw.className).to.equal('def-456');
         });
-        test("Document Element", function() {
+        test("Document node", function() {
           var doc;
           doc = Dom(document);
           expect(doc).not.to.be.undefined;
@@ -261,6 +261,18 @@ var slice = [].slice;
           expect(doc.children.length).to.equal(1);
           expect(Dom(sandbox).parents).not.to.contain(doc);
           return expect(Dom(sandbox).parents).to.contain(doc.children[0]);
+        });
+        test("Window object", function() {
+          var win;
+          win = Dom(window);
+          expect(win).not.to.be.undefined;
+          expect(win.raw === window).to.be["true"];
+          expect(win.parent).to.equal(void 0);
+          expect(win.children).to.equal(void 0);
+          expect(win.append).to.equal(void 0);
+          expect(win.html).to.equal(void 0);
+          expect(win.style).to.equal(void 0);
+          return expect(Dom(sandbox).parents).not.to.contain(win);
         });
         test("Creation w/ styling", function() {
           var computedStyle, div;
@@ -1258,7 +1270,7 @@ var slice = [].slice;
           div.el.appendChild(document.createElement('div'));
           expect(div.children.length).to.equal(4);
           expect(div.el.childNodes.length).to.equal(4);
-          if ('Comment' in window) {
+          if (typeof window.Comment === 'function') {
             div = document.createElement('div');
             spanA = document.createElement('span');
             spanB = document.createElement('span');
