@@ -9,7 +9,7 @@ QuickElement::on = (eventNames, callback)->
 			if not @_eventCallbacks[eventName]
 				@_eventCallbacks[eventName] = []		
 				@_listenTo eventName, (event)=>
-					callback.call(@el, event) for callback in @_eventCallbacks[eventName]
+					cb.call(@el, event) for cb in @_eventCallbacks[eventName]
 					return
 
 			@_eventCallbacks.__refs[callbackRef] = callback if callbackRef

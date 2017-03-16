@@ -14,7 +14,7 @@ Object.defineProperties QuickElement::,
 	'children': get: ()->
 		if @el.childNodes.length isnt @_children.length # Re-collect children	
 			@_children.length = 0 # Empty out children array
-			@_children.push(QuickDom(child)) for child in @el.childNodes
+			@_children.push(QuickDom(child)) for child in @el.childNodes when child.nodeType < 4
 
 		return @_children
 
