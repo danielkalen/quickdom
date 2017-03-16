@@ -1052,6 +1052,26 @@ suite "QuickDom", ()->
 			div.el.appendChild(document.createElement('div'))
 			expect(div.children.length).to.equal(4)
 			expect(div.el.childNodes.length).to.equal(4)
+
+			if 'Comment' of window
+				div = document.createElement('div')
+				spanA = document.createElement('span')
+				spanB = document.createElement('span')
+				text = document.createTextNode('someTextNode')
+				comment = new Comment('someCommentNode')
+				
+				div.appendChild(spanA)
+				div.appendChild(comment)
+				div.appendChild(spanB)
+				div.appendChild(text)
+				expect(div.childNodes.length).to.equal(4)
+				expect(div.children.length).to.equal(2)
+
+				div$ = Dom(div)
+				expect(div$.children.length).to.equal(3)
+				expect(div$.children[0].raw).to.equal(spanA)
+				expect(div$.children[1].raw).to.equal(spanB)
+				expect(div$.children[2].raw).to.equal(text)
 		
 
 		test "Parent", ()->
