@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1e179, _sim_25ad9, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, _sim_1a328, _sim_2055d, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_25ad9 = (function(exports){
+  _sim_2055d = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_25ad9;
+  CSS = _sim_2055d;
 
   /* istanbul ignore next */
-  _sim_1e179 = (function(exports){
+  _sim_1a328 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1e179;
+  extend = _sim_1a328;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -295,6 +295,9 @@ var slice = [].slice;
     };
   })(this)({});
   IS = extend.clone(IS, {
+    domDoc: function(subject) {
+      return subject && subject.nodeType === 9;
+    },
     domEl: function(subject) {
       return subject && subject.nodeType === 1;
     },
@@ -376,7 +379,9 @@ var slice = [].slice;
           ref = this.el.childNodes;
           for (i = 0, len = ref.length; i < len; i++) {
             child = ref[i];
-            this._children.push(QuickDom(child));
+            if (child.nodeType < 4) {
+              this._children.push(QuickDom(child));
+            }
           }
         }
         return this._children;
@@ -384,7 +389,7 @@ var slice = [].slice;
     },
     'parent': {
       get: function() {
-        if (!this._parent || this._parent.el !== this.el.parentNode) {
+        if ((!this._parent || this._parent.el !== this.el.parentNode) && !IS.domDoc(this.el.parentNode)) {
           this._parent = QuickDom(this.el.parentNode);
         }
         return this._parent;
@@ -643,11 +648,11 @@ var slice = [].slice;
           if (!_this._eventCallbacks[eventName]) {
             _this._eventCallbacks[eventName] = [];
             _this._listenTo(eventName, function(event) {
-              var i, len, ref;
+              var cb, i, len, ref;
               ref = _this._eventCallbacks[eventName];
               for (i = 0, len = ref.length; i < len; i++) {
-                callback = ref[i];
-                callback.call(_this.el, event);
+                cb = ref[i];
+                cb.call(_this.el, event);
               }
             });
           }
@@ -1150,7 +1155,7 @@ var slice = [].slice;
         } else {
           return args[0];
         }
-      case !IS.domNode(args[0]):
+      case !(IS.domNode(args[0]) || IS.domDoc(args[0])):
         if (args[0]._quickElement) {
           return args[0]._quickElement;
         }

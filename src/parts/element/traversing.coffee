@@ -19,7 +19,7 @@ Object.defineProperties QuickElement::,
 		return @_children
 
 	'parent': get: ()->
-		if not @_parent or @_parent.el isnt @el.parentNode
+		if (not @_parent or @_parent.el isnt @el.parentNode) and not IS.domDoc(@el.parentNode)
 			@_parent = QuickDom(@el.parentNode)
 
 		return @_parent

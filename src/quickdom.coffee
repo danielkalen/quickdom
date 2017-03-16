@@ -16,7 +16,7 @@ do ()->
 		when IS.quickDomEl(args[0])
 			return if args[1] then args[0].updateOptions(args[1]) else args[0]
 		
-		when IS.domNode(args[0])
+		when IS.domNode(args[0]) or IS.domDoc(args[0])
 			if args[0]._quickElement
 				return args[0]._quickElement
 			
