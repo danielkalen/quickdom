@@ -1204,7 +1204,7 @@ var slice = [].slice;
           div.appendTo(parentB);
           return expect(invokeCount).to.equal(2);
         });
-        return test("QuickElement.pipeState can be used to redirect all state toggles to the provided target element", function() {
+        test("QuickElement.pipeState can be used to redirect all state toggles to the provided target element", function() {
           var childA, childB, divA, divB, parentA, parentB;
           parentA = Dom.div();
           parentB = Dom.div({
@@ -1256,6 +1256,46 @@ var slice = [].slice;
           expect(divB.state('6')).to.equal(false);
           expect(childA.state('6')).to.equal(true);
           return expect(childB.state('6')).to.equal(false);
+        });
+        return test("States can be marked as unpassable to avoid passing to children by including them in options.unpassableStates", function() {
+          var div, spanA, spanB, subSpan;
+          div = Dom.div({
+            unpassableStates: ['B', 'D']
+          });
+          spanA = Dom.span().appendTo(div);
+          spanB = Dom.span().appendTo(div);
+          subSpan = Dom.span().appendTo(spanB);
+          expect(div.state('A')).to.equal(false);
+          expect(spanA.state('A')).to.equal(false);
+          expect(spanB.state('A')).to.equal(false);
+          expect(subSpan.state('A')).to.equal(false);
+          div.state('A', true);
+          expect(div.state('A')).to.equal(true);
+          expect(spanA.state('A')).to.equal(true);
+          expect(spanB.state('A')).to.equal(true);
+          expect(subSpan.state('A')).to.equal(true);
+          div.state('B', true);
+          expect(div.state('B')).to.equal(true);
+          expect(spanA.state('B')).to.equal(false);
+          expect(spanB.state('B')).to.equal(false);
+          expect(subSpan.state('B')).to.equal(false);
+          div.state('C', true);
+          expect(div.state('C')).to.equal(true);
+          expect(spanA.state('C')).to.equal(true);
+          expect(spanB.state('C')).to.equal(true);
+          expect(subSpan.state('C')).to.equal(true);
+          div.state('D', true);
+          expect(div.state('D')).to.equal(true);
+          expect(spanA.state('D')).to.equal(false);
+          expect(spanB.state('D')).to.equal(false);
+          expect(subSpan.state('D')).to.equal(false);
+          spanB.state('D', true);
+          expect(spanB.state('D')).to.equal(true);
+          expect(subSpan.state('D')).to.equal(true);
+          div.state('D', false);
+          expect(div.state('D')).to.equal(false);
+          expect(spanB.state('D')).to.equal(true);
+          return expect(subSpan.state('D')).to.equal(true);
         });
       });
       suite("Traversal", function() {

@@ -1058,6 +1058,51 @@ suite "QuickDom", ()->
 			expect(childB.state '6').to.equal off
 
 
+		test "States can be marked as unpassable to avoid passing to children by including them in options.unpassableStates", ()->
+			div = Dom.div(unpassableStates: ['B','D'])
+			spanA = Dom.span().appendTo(div)
+			spanB = Dom.span().appendTo(div)
+			subSpan = Dom.span().appendTo(spanB)
+
+			expect(div.state 'A').to.equal off
+			expect(spanA.state 'A').to.equal off
+			expect(spanB.state 'A').to.equal off
+			expect(subSpan.state 'A').to.equal off
+
+			div.state 'A', on
+			expect(div.state 'A').to.equal on
+			expect(spanA.state 'A').to.equal on
+			expect(spanB.state 'A').to.equal on
+			expect(subSpan.state 'A').to.equal on
+
+			div.state 'B', on
+			expect(div.state 'B').to.equal on
+			expect(spanA.state 'B').to.equal off
+			expect(spanB.state 'B').to.equal off
+			expect(subSpan.state 'B').to.equal off
+
+			div.state 'C', on
+			expect(div.state 'C').to.equal on
+			expect(spanA.state 'C').to.equal on
+			expect(spanB.state 'C').to.equal on
+			expect(subSpan.state 'C').to.equal on
+
+			div.state 'D', on
+			expect(div.state 'D').to.equal on
+			expect(spanA.state 'D').to.equal off
+			expect(spanB.state 'D').to.equal off
+			expect(subSpan.state 'D').to.equal off
+			
+			spanB.state 'D', on
+			expect(spanB.state 'D').to.equal on
+			expect(subSpan.state 'D').to.equal on
+			
+			div.state 'D', off
+			expect(div.state 'D').to.equal off
+			expect(spanB.state 'D').to.equal on
+			expect(subSpan.state 'D').to.equal on
+
+
 
 
 	suite "Traversal", ()->
