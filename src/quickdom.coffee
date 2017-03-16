@@ -8,6 +8,7 @@ do ()->
 	import parts/helpers
 	import parts/checks
 	import parts/element
+	import parts/window
 
 	QuickDom = (args...)-> switch
 		when IS.template(args[0])
@@ -25,6 +26,8 @@ do ()->
 			options.existing = args[0]
 			return new QuickElement(type, options)
 
+		when args[0] is window
+			return QuickWindow
 
 		when IS.string(args[0])			
 			type = args[0].toLowerCase()
