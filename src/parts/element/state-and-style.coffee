@@ -63,7 +63,7 @@ QuickElement::state = (targetState, value, source)->
 						@style extend(stylesToRemove, stylesToKeep)
 
 
-		if @options.passStateToChildren
+		if @options.passStateToChildren and not helpers.includes(@options.unpassableStates, targetState)
 			child.state(targetState, value, source or @) for child in @_children
 		
 		return @

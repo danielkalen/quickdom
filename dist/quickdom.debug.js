@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _sim_2b4ce, _sim_2d241, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _sim_1b36b, _sim_2f944, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_2d241 = (function(exports){
+  _sim_2f944 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_2d241;
+  CSS = _sim_2f944;
 
   /* istanbul ignore next */
-  _sim_2b4ce = (function(exports){
+  _sim_1b36b = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2b4ce;
+  extend = _sim_1b36b;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -457,7 +457,7 @@ var slice = [].slice;
     return parents;
   };
   QuickElement.prototype._normalizeOptions = function() {
-    var base, base1, base2;
+    var base, base1, base2, base3;
     if ((base = this.options).style == null) {
       base.style = {};
     }
@@ -471,8 +471,11 @@ var slice = [].slice;
     if ((base1 = this.options).relatedInstance == null) {
       base1.relatedInstance = this;
     }
-    if ((base2 = this.options).passStateToChildren == null) {
-      base2.passStateToChildren = true;
+    if ((base2 = this.options).unpassableStates == null) {
+      base2.unpassableStates = [];
+    }
+    if ((base3 = this.options).passStateToChildren == null) {
+      base3.passStateToChildren = true;
     }
     this.options.stateTriggers = extend.deep({
       'hover': {
@@ -813,7 +816,7 @@ var slice = [].slice;
           }
         }
       }
-      if (this.options.passStateToChildren) {
+      if (this.options.passStateToChildren && !helpers.includes(this.options.unpassableStates, targetState)) {
         ref = this._children;
         for (j = 0, len1 = ref.length; j < len1; j++) {
           child = ref[j];

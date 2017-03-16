@@ -4,6 +4,7 @@ QuickElement::_normalizeOptions = ()->
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
 	@options.relatedInstance ?= @
+	@options.unpassableStates ?= []
 	@options.passStateToChildren ?= true
 	@options.stateTriggers = extend.deep
 		'hover': {on:'mouseenter', off:'mouseleave'}
