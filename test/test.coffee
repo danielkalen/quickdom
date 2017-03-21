@@ -479,6 +479,64 @@ suite "QuickDom", ()->
 			expect(div.style 'width').to.equal '250px'
 
 
+		test ".styleSafe() can be used to obtain the value for a given property even for non-inserted elements or elements with options.styleAfterInsert", ()->
+			style =
+				width: '8px'
+				height: '9px'
+				$happy:
+					width: '18px'
+				$relaxed:
+					height: '100%'
+			divA = Dom.div {style}
+			divB = Dom.div {style, styleAfterInsert:true}
+
+			expect(divA.style('width')).to.equal('')
+			expect(divA.raw.style.width).to.equal('8px')
+			expect(divA.styleSafe('width')).to.equal('8px')
+
+			divA.state 'happy', on
+			expect(divA.style('width')).to.equal('')
+			expect(divA.raw.style.width).to.equal('18px')
+			expect(divA.styleSafe('width')).to.equal('18px')
+
+			expect(divB.style('width')).to.equal('')
+			expect(divB.raw.style.width).to.equal('')
+			expect(divB.styleSafe('width')).to.equal('8px')
+
+			divB.state 'happy', on
+			expect(divB.style('width')).to.equal('')
+			expect(divB.raw.style.width).to.equal('18px')
+			expect(divB.styleSafe('width')).to.equal('18px')
+			
+			expect(divB.style('height')).to.equal('')
+			expect(divB.raw.style.height).to.equal('')
+			expect(divB.styleSafe('height')).to.equal('9px')
+			
+			divB.state 'relaxed', on
+			expect(divB.style('height')).to.equal('')
+			expect(divB.raw.style.height).to.equal('100%')
+			expect(divB.styleSafe('height')).to.equal('100%')
+			
+			divB.appendTo(sandbox)
+			expect(divB.style('height')).not.to.equal('')
+			expect(divB.style('height')).not.to.equal('100%')
+			expect(divB.style('height')).to.contain('px')
+			expect(divB.raw.style.height).to.equal('100%')
+			expect(divB.styleSafe('height')).to.equal(divB.style('height'))
+			expect(divB.styleSafe('height', true)).not.to.equal(divB.style('height'))
+			expect(divB.styleSafe('height', true)).to.equal('100%')
+			expect(divB.styleSafe('margin', true)).to.equal('')
+			expect(divB.style('width')).to.equal('18px')
+
+			expect(divA.styleSafe('fakeProp')).to.equal(divA)
+			expect(divA.styleSafe(123)).to.equal(divA)
+
+			text = Dom.text('abc123').appendTo(divA)
+			expect(text.styleSafe('fakeProp')).to.equal(undefined)
+			expect(text.styleSafe(123)).to.equal(undefined)
+
+
+
 
 	suite "State", ()->
 		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->

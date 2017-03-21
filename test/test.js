@@ -607,7 +607,7 @@ var slice = [].slice;
           div.style('width', '19vw');
           return expect(div.style('width')).to.contain('px');
         });
-        return test("Functions can be passed as values for properties in style objects which will be invoked with the element's options.relatedElement as the only argument", function() {
+        test("Functions can be passed as values for properties in style objects which will be invoked with the element's options.relatedElement as the only argument", function() {
           var anotherObj, applyWidth, div;
           div = Dom.div({
             rate: 25
@@ -628,6 +628,62 @@ var slice = [].slice;
           div.options.relatedInstance = anotherObj = {};
           applyWidth(anotherObj);
           return expect(div.style('width')).to.equal('250px');
+        });
+        return test(".styleSafe() can be used to obtain the value for a given property even for non-inserted elements or elements with options.styleAfterInsert", function() {
+          var divA, divB, style, text;
+          style = {
+            width: '8px',
+            height: '9px',
+            $happy: {
+              width: '18px'
+            },
+            $relaxed: {
+              height: '100%'
+            }
+          };
+          divA = Dom.div({
+            style: style
+          });
+          divB = Dom.div({
+            style: style,
+            styleAfterInsert: true
+          });
+          expect(divA.style('width')).to.equal('');
+          expect(divA.raw.style.width).to.equal('8px');
+          expect(divA.styleSafe('width')).to.equal('8px');
+          divA.state('happy', true);
+          expect(divA.style('width')).to.equal('');
+          expect(divA.raw.style.width).to.equal('18px');
+          expect(divA.styleSafe('width')).to.equal('18px');
+          expect(divB.style('width')).to.equal('');
+          expect(divB.raw.style.width).to.equal('');
+          expect(divB.styleSafe('width')).to.equal('8px');
+          divB.state('happy', true);
+          expect(divB.style('width')).to.equal('');
+          expect(divB.raw.style.width).to.equal('18px');
+          expect(divB.styleSafe('width')).to.equal('18px');
+          expect(divB.style('height')).to.equal('');
+          expect(divB.raw.style.height).to.equal('');
+          expect(divB.styleSafe('height')).to.equal('9px');
+          divB.state('relaxed', true);
+          expect(divB.style('height')).to.equal('');
+          expect(divB.raw.style.height).to.equal('100%');
+          expect(divB.styleSafe('height')).to.equal('100%');
+          divB.appendTo(sandbox);
+          expect(divB.style('height')).not.to.equal('');
+          expect(divB.style('height')).not.to.equal('100%');
+          expect(divB.style('height')).to.contain('px');
+          expect(divB.raw.style.height).to.equal('100%');
+          expect(divB.styleSafe('height')).to.equal(divB.style('height'));
+          expect(divB.styleSafe('height', true)).not.to.equal(divB.style('height'));
+          expect(divB.styleSafe('height', true)).to.equal('100%');
+          expect(divB.styleSafe('margin', true)).to.equal('');
+          expect(divB.style('width')).to.equal('18px');
+          expect(divA.styleSafe('fakeProp')).to.equal(divA);
+          expect(divA.styleSafe(123)).to.equal(divA);
+          text = Dom.text('abc123').appendTo(divA);
+          expect(text.styleSafe('fakeProp')).to.equal(void 0);
+          return expect(text.styleSafe(123)).to.equal(void 0);
         });
       });
       suite("State", function() {
