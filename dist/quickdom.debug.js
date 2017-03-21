@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _sim_18b71, _sim_2a014, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _sim_1b277, _sim_27a23, allowedTemplateOptions, configSchema, extend, extendOptions, fn, getParents, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_18b71 = (function(exports){
+  _sim_1b277 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_18b71;
+  CSS = _sim_1b277;
 
   /* istanbul ignore next */
-  _sim_2a014 = (function(exports){
+  _sim_27a23 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2a014;
+  extend = _sim_27a23;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -873,6 +873,29 @@ var slice = [].slice;
           }
         };
       })(this)).clone(args[0]));
+    }
+    return this;
+  };
+
+  /**
+  	 * Attempts to resolve the value for a given property in the following order:
+  	 * 1. from computed style (for dom-inserted els)
+  	 * 2. from DOMElement.style object (for non-inserted els; if options.styleAfterInsert, will only have state styles)
+  	 * 3. from provided style options
+  	 * (for non-inserted els; checking only $base since state styles will always be applied to the style object even for non-inserted)
+   */
+  QuickElement.prototype.styleSafe = function(property, skipComputed) {
+    var args, computedResult;
+    if (this.type === 'text') {
+      return;
+    }
+    args = arguments;
+    computedResult = this.style(property);
+    if (IS.string(computedResult)) {
+      if (skipComputed) {
+        computedResult = 0;
+      }
+      return computedResult || this.el.style[args[0]] || this.options.style.$base[args[0]] || '';
     }
     return this;
   };

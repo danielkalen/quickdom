@@ -105,6 +105,25 @@ QuickElement::style = ()->
 	return @
 
 
+###*
+ * Attempts to resolve the value for a given property in the following order:
+ * 1. from computed style (for dom-inserted els)
+ * 2. from DOMElement.style object (for non-inserted els; if options.styleAfterInsert, will only have state styles)
+ * 3. from provided style options
+ * (for non-inserted els; checking only $base since state styles will always be applied to the style object even for non-inserted)
+###
+QuickElement::styleSafe = (property, skipComputed)->
+	return if @type is 'text'
+	args = arguments
+	computedResult = @style(property)
+
+	if IS.string(computedResult)
+		computedResult = 0 if skipComputed
+		return computedResult or @el.style[args[0]] or @options.style.$base[args[0]] or ''
+
+	return @
+
+
 QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
 	plainStates = @providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
 	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
