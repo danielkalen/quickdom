@@ -5,7 +5,7 @@ QuickElement = (@type, @options)->
 		else document.createElement(@type)
 
 	if @type is 'text'
-		@append = @prepend = ()->
+		@append = @prepend = @attr = ()->
 
 	@_parent = null
 	@_state = []
