@@ -40,7 +40,7 @@ var slice = [].slice;
         packageVersion = (function(){
 				return {
 				  "name": "quickdom",
-				  "version": "1.0.16",
+				  "version": "1.0.17",
 				  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
 				  "main": "dist/quickdom.js",
 				  "browser": {
@@ -1484,11 +1484,110 @@ var slice = [].slice;
           expect(A.prev).to.equal(void 0);
           return expect(D.prevAll).to.eql([C, B, A]);
         });
-        return test("Siblings", function() {
+        test("Siblings", function() {
           var A, B, C, D, E, div;
           div = Dom.div(null, A = Dom.div(), B = Dom.div(), C = Dom.div(), D = Dom.div(), E = Dom.div());
           expect(C.siblings).to.eql(C.prevAll.reverse().concat(C.nextAll));
           return expect(C.siblings).to.eql([A, B, D, E]);
+        });
+        return test("Child (by ref)", function() {
+          var divA, divB, newChild, newChildChild, newParent, sandBox;
+          divA = Dom.div({
+            id: 'divA'
+          }, Dom.div({
+            id: 'childA'
+          }, Dom.span({
+            ref: 'childA_1'
+          }), Dom.div({
+            ref: 'childA_2',
+            id: 'childA_2'
+          })), Dom.div({}, Dom.span({
+            ref: 'childB_1'
+          }), Dom.text({
+            id: 'childB_2'
+          }, 'The Text')));
+          divB = Dom.template([
+            'div', {
+              id: 'divB'
+            }, [
+              'div', {
+                id: 'childA',
+                style: {
+                  color: 'pink'
+                }
+              }, [
+                'span', {
+                  ref: 'childA_1'
+                }
+              ], [
+                'div', {
+                  ref: 'childA_3',
+                  id: 'childA_2'
+                }
+              ]
+            ], [
+              'div', null, [
+                'span', {
+                  ref: 'childB_1'
+                }
+              ]
+            ]
+          ]).spawn();
+          expect(divA.child.childA).to.equal(divA.children[0]);
+          expect(divA.child.childA_1).to.equal(divA.children[0].children[0]);
+          expect(divA.child.childA_2).to.equal(divA.children[0].children[1]);
+          expect(divA.child.childA_3).to.equal(void 0);
+          expect(divA.child.childB).to.equal(void 0);
+          expect(divA.child.childB_1).to.equal(divA.children[1].children[0]);
+          expect(divA.child.childB_2).to.equal(divA.children[1].children[1]);
+          expect(divA.child.childB_2.type).to.equal('text');
+          expect(divB.child.childA).to.equal(divB.children[0]);
+          expect(divB.child.childA_1).to.equal(divB.children[0].children[0]);
+          expect(divB.child.childA_2).to.equal(divB.children[0].children[1]);
+          expect(divB.child.childA_3).to.equal(void 0);
+          expect(divB.child.childB).to.equal(void 0);
+          expect(divB.child.childB_1).to.equal(divB.children[1].children[0]);
+          expect(divB.child.childB_2).to.equal(divB.children[1].children[1]);
+          expect(divB.child.childA.style('color')).to.equal('');
+          expect(divB.child.childA.styleSafe('color')).not.to.equal('');
+          expect(divB.child.childA.styleSafe('color').length >= 4).to.be["true"];
+          expect(divA.child.childA.raw.getAttribute('id')).to.equal('childA');
+          expect(divA.child.childA.raw.getAttribute('data-ref')).to.equal('childA');
+          expect(divA.child.childA_1.raw.getAttribute('id')).to.equal(null);
+          expect(divA.child.childA_1.raw.getAttribute('data-ref')).to.equal('childA_1');
+          expect(divA.child.childA_2.raw.getAttribute('id')).to.equal('childA_2');
+          expect(divA.child.childA_2.raw.getAttribute('data-ref')).to.equal('childA_2');
+          sandBox = Dom(sandbox);
+          expect(sandBox.child.childA).to.equal(void 0);
+          expect(sandBox.child.childB_2).to.equal(void 0);
+          expect(sandBox.child.divA).to.equal(void 0);
+          sandBox.append(divA);
+          expect(sandBox.child.childA).to.equal(void 0);
+          expect(sandBox.child.childB_2).to.equal(void 0);
+          expect(sandBox.child.divA).to.equal(void 0);
+          expect(sandBox.childf.divA).to.equal(divA);
+          expect(sandBox.child.childA).to.equal(divA.children[0]);
+          expect(sandBox.child.childB_2).to.equal(divA.children[1].children[1]);
+          expect(sandBox.child.divA).to.equal(divA);
+          newChild = Dom.div({
+            ref: 'newChild'
+          });
+          newChildChild = Dom.div({
+            ref: 'newChildChild'
+          });
+          expect(newChild.child.newChildChild).to.equal(void 0);
+          expect(newChildChild.child.newChildChild).to.equal(newChildChild);
+          expect(Object.keys(newChildChild.child).length).to.equal(1);
+          newChildChild.appendTo(newChild);
+          expect(newChild.child.newChildChild).to.equal(void 0);
+          expect(newChild.childf.newChildChild).to.equal(newChildChild);
+          expect(newChild.child.newChildChild).to.equal(newChildChild);
+          expect(Object.keys(newChildChild.child).length).to.equal(1);
+          newParent = Dom.div({
+            ref: 'newParent'
+          });
+          newChild.appendTo(newParent);
+          return expect(newParent.child.newChildChild).to.equal(newChildChild);
         });
       });
       suite("Manipulation", function() {
