@@ -54,6 +54,7 @@ QuickElement::_normalizeStyle = ()->
 
 
 QuickElement::_applyOptions = ()->
+	if ref=(@options.id or @options.ref) then @attr('data-ref', @ref=ref)
 	if @options.id then @el.id = @options.id
 	if @options.className then @el.className = @options.className
 	if @options.href then @el.href = @options.href

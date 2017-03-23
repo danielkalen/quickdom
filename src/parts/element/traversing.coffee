@@ -1,5 +1,5 @@
 QuickElement::parentsUntil = (filterFn)->
-	getParents(@, filterFn)
+	_getParents(@, filterFn)
 
 QuickElement::parentMatching = (filterFn)-> if IS.function(filterFn)
 	nextParent = @parent
@@ -26,7 +26,7 @@ Object.defineProperties QuickElement::,
 
 
 	'parents': get: ()->
-		getParents(@)
+		_getParents(@)
 
 	'next': get: ()->
 		QuickDom(@el.nextSibling)
@@ -54,9 +54,15 @@ Object.defineProperties QuickElement::,
 
 	'siblings': get: ()->
 		@prevAll.reverse().concat(@nextAll)
+	
+	'child': get: ()->
+		@_childRefs or _getChildRefs(@)
+
+	'childf': get: ()->
+		_getChildRefs(@, true)
 
 
-getParents = (targetEl, filterFn)->
+_getParents = (targetEl, filterFn)->
 	filterFn = undefined if not IS.function(filterFn)
 	parents = []
 	nextParent = targetEl.parent
@@ -66,6 +72,17 @@ getParents = (targetEl, filterFn)->
 		nextParent = null if filterFn and filterFn(nextParent)
 
 	return parents
+
+
+_getChildRefs = (target, freshCopy)->
+	target._childRefs = {} if freshCopy or not target._childRefs
+	refs = target._childRefs
+	refs[target.ref] = target if target.ref
+
+	if target.children.length
+		extend target._childRefs, target._children.map((child)-> _getChildRefs(child, freshCopy))...
+
+	return target._childRefs
 
 
 
