@@ -23,6 +23,7 @@ replacements = [
 	[/_parent/g, '_p']
 	[/_state/g, '_s']
 	[/_children/g, '_c']
+	[/_childRefs/g, '_C']
 	[/_eventCallbacks/g, '_e']
 	[/_insertedCallbacks/g, '_i']
 	# [/_inserted/g, '_I']
