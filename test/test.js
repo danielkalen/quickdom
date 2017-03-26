@@ -4,6 +4,68 @@ var slice = [].slice;
 (function(_this) {
   return (function(global) {
     var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox, sandbox$, should;
+    _this.dimensions = (function() {
+      var dimensions, origDescriptors;
+      origDescriptors = {
+        'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+        'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
+      };
+      return dimensions = new function() {
+        var current, getReal, overwrite, overwritten;
+        overwritten = false;
+        current = {
+          width: window.innerWidth,
+          height: window.innerHeight
+        };
+        getReal = function(dimension) {
+          dimension = 'inner' + dimension.replace(/\b./, function(letter) {
+            return letter.toUpperCase();
+          });
+          return origDescriptors[dimension].get.call(window);
+        };
+        overwrite = function() {
+          if (!overwritten) {
+            overwritten = true;
+            Object.defineProperty(window, 'innerWidth', {
+              configurable: true,
+              get: function() {
+                return current.width;
+              },
+              set: function(newValue) {
+                return current.width = newValue;
+              }
+            });
+            return Object.defineProperty(window, 'innerHeight', {
+              configurable: true,
+              get: function() {
+                return current.height;
+              },
+              set: function(newValue) {
+                return current.height = newValue;
+              }
+            });
+          }
+        };
+        this.simulate = function(width, height) {
+          var event;
+          if (width) {
+            current.width = width;
+          }
+          if (height) {
+            current.height = height;
+          }
+          overwrite();
+          event = document.createEvent('Event');
+          event.initEvent('resize', true, false);
+          return window.dispatchEvent(event);
+        };
+        this.restore = function() {
+          Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
+          return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
+        };
+        return this;
+      };
+    })();
     mocha.setup('tdd');
     mocha.slow(400);
     mocha.timeout(12000);
@@ -1313,7 +1375,7 @@ var slice = [].slice;
           expect(childA.state('6')).to.equal(true);
           return expect(childB.state('6')).to.equal(false);
         });
-        return test("States can be marked as unpassable to avoid passing to children by including them in options.unpassableStates", function() {
+        test("States can be marked as unpassable to avoid passing to children by including them in options.unpassableStates", function() {
           var div, spanA, spanB, subSpan;
           div = Dom.div({
             unpassableStates: ['B', 'D']
@@ -1352,6 +1414,161 @@ var slice = [].slice;
           expect(div.state('D')).to.equal(false);
           expect(spanB.state('D')).to.equal(true);
           return expect(subSpan.state('D')).to.equal(true);
+        });
+        return suite("Media Queries", function() {
+          test.skip("Window dimensions", function() {
+            var div;
+            dimensions.simulate(1000, 1000);
+            div = Dom.div({
+              style: {
+                position: 'relative',
+                zIndex: 2,
+                width: '300px',
+                height: '300px',
+                fontSize: '30px',
+                lineHeight: '30px',
+                '@window(orientation:landscape)': {
+                  fontWeight: 600
+                },
+                '@window(orientation:portrait)': {
+                  fontWeight: 700
+                },
+                '@window(max-width:800)': {
+                  zIndex: 3,
+                  width: '280px'
+                },
+                '@window(max-width:700, max-height:1000)': {
+                  zIndex: 4,
+                  width: '250px',
+                  height: '250px'
+                },
+                '@window(max-height:1000)': {
+                  fontSize: '25px'
+                },
+                '@window(min-width:900px)': {
+                  fontSize: '23px'
+                },
+                '@window(aspect-ratio:1/2)': {
+                  fontSize: '21px',
+                  lineHeight: '12px'
+                },
+                '@window(min-height:1200)': {
+                  fontSize: '20px'
+                }
+              }
+            });
+            expect(div.raw.style.zIndex).to.equal('2');
+            expect(div.raw.style.width).to.equal('300px');
+            expect(div.raw.style.height).to.equal('300px');
+            expect(div.raw.style.fontSize).to.equal('23px');
+            expect(div.raw.style.fontWeight).to.equal('600');
+            dimensions.simulate(900);
+            expect(div.raw.style.fontSize).to.equal('23px');
+            dimensions.simulate(899);
+            expect(div.raw.style.fontSize).to.equal('25px');
+            dimensions.simulate(899, 1100);
+            expect(div.raw.style.fontSize).to.equal('30px');
+            dimensions.simulate(950);
+            expect(div.raw.style.fontSize).to.equal('23px');
+            dimensions.simulate(950, 1900);
+            expect(div.raw.style.fontSize).to.equal('20px');
+            expect(div.raw.style.lineHeight).to.equal('12px');
+            dimensions.simulate(950, 1899);
+            expect(div.raw.style.fontSize).to.equal('20px');
+            expect(div.raw.style.lineHeight).to.equal('30px');
+            dimensions.simulate(790);
+            expect(div.raw.style.zIndex).to.equal('3');
+            expect(div.raw.style.width).to.equal('280px');
+            dimensions.simulate(810);
+            expect(div.raw.style.zIndex).to.equal('2');
+            expect(div.raw.style.width).to.equal('300px');
+            dimensions.simulate(791);
+            expect(div.raw.style.zIndex).to.equal('3');
+            expect(div.raw.style.width).to.equal('280px');
+            dimensions.simulate(701, 900);
+            expect(div.raw.style.zIndex).to.equal('3');
+            expect(div.raw.style.width).to.equal('280px');
+            expect(div.raw.style.height).to.equal('300px');
+            dimensions.simulate(700, 900);
+            expect(div.raw.style.zIndex).to.equal('4');
+            expect(div.raw.style.width).to.equal('250px');
+            expect(div.raw.style.height).to.equal('250px');
+            dimensions.simulate(700, 1001);
+            expect(div.raw.style.zIndex).to.equal('3');
+            expect(div.raw.style.width).to.equal('280px');
+            expect(div.raw.style.height).to.equal('300px');
+            dimensions.simulate(700, 1000);
+            expect(div.raw.style.zIndex).to.equal('4');
+            expect(div.raw.style.width).to.equal('250px');
+            expect(div.raw.style.height).to.equal('250px');
+            expect(div.raw.style.fontWeight).to.equal('600');
+            dimensions.simulate(1100, 1000);
+            expect(div.raw.style.fontWeight).to.equal('700');
+            dimensions.simulate(1100, 1101);
+            return expect(div.raw.style.fontWeight).to.equal('600');
+          });
+          return test.skip("Self dimensions/styles", function() {
+            var div;
+            dimensions.simulate(1000, 1000);
+            div = Dom.div({
+              style: {
+                position: 'relative',
+                zIndex: 2,
+                width: '400px',
+                height: '300px',
+                fontSize: '30px',
+                lineHeight: '30px',
+                color: 'black',
+                '@self(orientation:landscape)': {
+                  fontWeight: 600
+                },
+                '@self(orientation:portrait)': {
+                  fontWeight: 700
+                },
+                '@self(position:relative)': {
+                  color: 'green'
+                },
+                '@self(max-width:350)': {
+                  zIndex: 3,
+                  fontSize: '33px'
+                },
+                '@self(max-width:500, min-height:400)': {
+                  zIndex: 4,
+                  fontSize: '27px',
+                  lineHeight: '37px'
+                },
+                '@self(zIndex:4)': {
+                  lineHeight: '15px'
+                },
+                '@self(min-zIndex:6)': {
+                  opacity: '0'
+                },
+                '@self(max-fontSize:20)': {
+                  lineHeight: '15px'
+                },
+                '@self(min-width:600px)': {
+                  fontSize: '19px'
+                },
+                '@self(aspect-ratio:1/3)': {
+                  fontSize: '21px',
+                  lineHeight: '12px'
+                },
+                '@self(min-height:700)': {
+                  fontSize: '40px'
+                }
+              }
+            });
+            div.appendTo(sandbox);
+            expect(div.raw.style.zIndex).to.equal('2');
+            expect(div.raw.style.width).to.equal('400px');
+            expect(div.raw.style.height).to.equal('300px');
+            expect(div.raw.style.fontSize).to.equal('30px');
+            expect(div.raw.style.lineHeight).to.equal('30px');
+            expect(div.raw.style.fontWeight).to.equal('600');
+            expect(div.raw.style.color).to.equal('green');
+            dimensions.simulate(900);
+            return expect(div.raw.style.fontSize).to.equal('23px');
+          });
         });
       });
       suite("Traversal", function() {

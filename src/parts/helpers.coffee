@@ -14,4 +14,5 @@ helpers.normalizeGivenEl = (targetEl)-> switch
 	else targetEl
 
 
-
+helpers.isStateStyle = (string)->
+	string[0] is '$' or string[0] is '@'
