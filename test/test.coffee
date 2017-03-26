@@ -1,3 +1,4 @@
+@dimensions = import './simulate'
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
@@ -1159,6 +1160,174 @@ suite "QuickDom", ()->
 			expect(div.state 'D').to.equal off
 			expect(spanB.state 'D').to.equal on
 			expect(subSpan.state 'D').to.equal on
+
+
+		suite "Media Queries", ()->
+			test.skip "Window dimensions", ()->
+				dimensions.simulate(1000, 1000)
+				div = Dom.div style:
+					position: 'relative'
+					zIndex: 2
+					width: '300px'
+					height: '300px'
+					fontSize: '30px'
+					lineHeight: '30px'
+
+					'@window(orientation:landscape)':
+						fontWeight: 600
+
+					'@window(orientation:portrait)':
+						fontWeight: 700
+
+					'@window(max-width:800)':
+						zIndex: 3
+						width: '280px'
+					
+					'@window(max-width:700, max-height:1000)':
+						zIndex: 4
+						width: '250px'
+						height: '250px'
+					
+					'@window(max-height:1000)':
+						fontSize: '25px'
+					
+					'@window(min-width:900px)':
+						fontSize: '23px'
+					
+					'@window(aspect-ratio:1/2)':
+						fontSize: '21px'
+						lineHeight: '12px'
+					
+					'@window(min-height:1200)':
+						fontSize: '20px'
+
+				
+				expect(div.raw.style.zIndex).to.equal '2'
+				expect(div.raw.style.width).to.equal '300px'
+				expect(div.raw.style.height).to.equal '300px'
+				expect(div.raw.style.fontSize).to.equal '23px'
+				expect(div.raw.style.fontWeight).to.equal '600'
+				
+				dimensions.simulate(900)
+				expect(div.raw.style.fontSize).to.equal '23px'
+				
+				dimensions.simulate(899)
+				expect(div.raw.style.fontSize).to.equal '25px'
+
+				dimensions.simulate(899, 1100)
+				expect(div.raw.style.fontSize).to.equal '30px'
+
+				dimensions.simulate(950)
+				expect(div.raw.style.fontSize).to.equal '23px'
+
+				dimensions.simulate(950, 1900)
+				expect(div.raw.style.fontSize).to.equal '20px'
+				expect(div.raw.style.lineHeight).to.equal '12px'
+				
+				dimensions.simulate(950, 1899)
+				expect(div.raw.style.fontSize).to.equal '20px'
+				expect(div.raw.style.lineHeight).to.equal '30px'
+
+				dimensions.simulate(790)
+				expect(div.raw.style.zIndex).to.equal '3'
+				expect(div.raw.style.width).to.equal '280px'
+
+				dimensions.simulate(810)
+				expect(div.raw.style.zIndex).to.equal '2'
+				expect(div.raw.style.width).to.equal '300px'
+
+				dimensions.simulate(791)
+				expect(div.raw.style.zIndex).to.equal '3'
+				expect(div.raw.style.width).to.equal '280px'
+
+				dimensions.simulate(701, 900)
+				expect(div.raw.style.zIndex).to.equal '3'
+				expect(div.raw.style.width).to.equal '280px'
+				expect(div.raw.style.height).to.equal '300px'
+
+				dimensions.simulate(700, 900)
+				expect(div.raw.style.zIndex).to.equal '4'
+				expect(div.raw.style.width).to.equal '250px'
+				expect(div.raw.style.height).to.equal '250px'
+
+				dimensions.simulate(700, 1001)
+				expect(div.raw.style.zIndex).to.equal '3'
+				expect(div.raw.style.width).to.equal '280px'
+				expect(div.raw.style.height).to.equal '300px'
+
+				dimensions.simulate(700, 1000)
+				expect(div.raw.style.zIndex).to.equal '4'
+				expect(div.raw.style.width).to.equal '250px'
+				expect(div.raw.style.height).to.equal '250px'
+				expect(div.raw.style.fontWeight).to.equal '600'
+				
+				dimensions.simulate(1100, 1000)
+				expect(div.raw.style.fontWeight).to.equal '700'
+				
+				dimensions.simulate(1100, 1101)
+				expect(div.raw.style.fontWeight).to.equal '600'
+
+
+			test.skip "Self dimensions/styles", ()->
+				dimensions.simulate(1000, 1000)
+				div = Dom.div style:
+					position: 'relative'
+					zIndex: 2
+					width: '400px'
+					height: '300px'
+					fontSize: '30px'
+					lineHeight: '30px'
+					color: 'black'
+
+					'@self(orientation:landscape)':
+						fontWeight: 600
+
+					'@self(orientation:portrait)':
+						fontWeight: 700
+					
+					'@self(position:relative)':
+						color: 'green'
+
+					'@self(max-width:350)':
+						zIndex: 3
+						fontSize: '33px'
+					
+					'@self(max-width:500, min-height:400)':
+						zIndex: 4
+						fontSize: '27px'
+						lineHeight: '37px'
+					
+					'@self(zIndex:4)':
+						lineHeight: '15px'
+					
+					'@self(min-zIndex:6)':
+						opacity: '0'
+					
+					'@self(max-fontSize:20)':
+						lineHeight: '15px'
+					
+					'@self(min-width:600px)':
+						fontSize: '19px'
+					
+					'@self(aspect-ratio:1/3)':
+						fontSize: '21px'
+						lineHeight: '12px'
+					
+					'@self(min-height:700)':
+						fontSize: '40px'
+
+				div.appendTo(sandbox)
+				expect(div.raw.style.zIndex).to.equal '2'
+				expect(div.raw.style.width).to.equal '400px'
+				expect(div.raw.style.height).to.equal '300px'
+				expect(div.raw.style.fontSize).to.equal '30px'
+				expect(div.raw.style.lineHeight).to.equal '30px'
+				expect(div.raw.style.fontWeight).to.equal '600'
+				expect(div.raw.style.color).to.equal 'green'
+				
+				dimensions.simulate(900)
+				expect(div.raw.style.fontSize).to.equal '23px'
+
 
 
 

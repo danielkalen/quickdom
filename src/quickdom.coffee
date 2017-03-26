@@ -9,6 +9,7 @@ do ()->
 	import parts/checks
 	import parts/element
 	import parts/window
+	import parts/mediaQuery
 
 	QuickDom = (args...)-> switch
 		when IS.template(args[0])

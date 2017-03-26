@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1af3a, _sim_26f74, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_25204, _sim_2698e, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, mediaQuery, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_26f74 = (function(exports){
+  _sim_25204 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_26f74;
+  CSS = _sim_25204;
 
   /* istanbul ignore next */
-  _sim_1af3a = (function(exports){
+  _sim_2698e = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1af3a;
+  extend = _sim_2698e;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -259,6 +259,9 @@ var slice = [].slice;
       default:
         return targetEl;
     }
+  };
+  helpers.isStateStyle = function(string) {
+    return string[0] === '$' || string[0] === '@';
   };
 
   /* istanbul ignore next */
@@ -514,22 +517,24 @@ var slice = [].slice;
       }
     }, this.options.stateTriggers);
     this._normalizeStyle();
-    return this;
   };
   QuickElement.prototype._normalizeStyle = function() {
-    var checkInnerStates, i, keys, len, nonStateProps, specialStates, state, states;
+    var checkInnerStates, i, j, keys, len, len1, mediaState, nonStateProps, ref1, specialStates, state, states;
     keys = Object.keys(this.options.style);
     states = keys.filter(function(key) {
-      return key[0] === '$';
+      return helpers.isStateStyle(key);
     });
     specialStates = helpers.removeItem(states.slice(), '$base');
-    this.providedStates = states.map(function(state) {
+    this._mediaStates = states.filter(function(key) {
+      return key[0] === '@';
+    });
+    this._providedStates = states.map(function(state) {
       return state.slice(1);
     });
     if (!helpers.includes(states, '$base') && keys.length) {
       if (states.length) {
         nonStateProps = keys.filter(function(property) {
-          return property[0] !== '$';
+          return !helpers.isStateStyle(property);
         });
         this.options.style.$base = extend.clone.keys(nonStateProps)(this.options.style);
       } else {
@@ -542,7 +547,7 @@ var slice = [].slice;
       return function(styleObject, parentStates) {
         var i, innerState, innerStates, len, results1, stateChain, stateChainString;
         innerStates = Object.keys(styleObject).filter(function(key) {
-          return key[0] === '$';
+          return helpers.isStateStyle(key);
         });
         if (innerStates.length) {
           _this.hasSharedStateStyle = true;
@@ -566,10 +571,14 @@ var slice = [].slice;
       state = specialStates[i];
       checkInnerStates(this.options.style[state], [state.slice(1)]);
     }
-    return this;
+    ref1 = this._mediaStates;
+    for (j = 0, len1 = ref1.length; j < len1; j++) {
+      mediaState = ref1[j];
+      mediaQuery.register(this, mediaState);
+    }
   };
   QuickElement.prototype._applyOptions = function() {
-    var applyBaseStylesOnInsert, key, ref, ref1, ref2, value;
+    var applyBaseStylesOnInsert, i, key, len, mediaState, ref, ref1, ref2, ref3, value;
     if (ref = this.options.id || this.options.ref) {
       this.attr('data-ref', this.ref = ref);
     }
@@ -640,7 +649,11 @@ var slice = [].slice;
         }
       }
     });
-    return this;
+    ref3 = this._mediaStates;
+    for (i = 0, len = ref3.length; i < len; i++) {
+      mediaState = ref3[i];
+      mediaQuery.test(this, mediaState);
+    }
   };
   QuickElement.prototype._attachStateEvents = function() {
     var fn, ref1, state, trigger;
@@ -666,7 +679,6 @@ var slice = [].slice;
       trigger = ref1[state];
       fn(state, trigger);
     }
-    return this;
   };
   regexWhitespace = /\s+/;
   QuickElement.prototype.on = function(eventNames, callback) {
@@ -789,10 +801,10 @@ var slice = [].slice;
       if (this.state(targetState) !== desiredValue) {
         if (this.options.style['$' + targetState]) {
           targetStyle = this.options.style['$' + targetState];
-          targetStateIndex = this.providedStates.indexOf(targetState);
+          targetStateIndex = this._providedStates.indexOf(targetState);
           superiorStates = activeStates.filter((function(_this) {
             return function(state) {
-              return _this.providedStates.indexOf(state) > targetStateIndex;
+              return _this._providedStates.indexOf(state) > targetStateIndex;
             };
           })(this));
           superiorStateStyles = this._getStateStyles(superiorStates);
@@ -933,7 +945,7 @@ var slice = [].slice;
     if (includeSharedStates == null) {
       includeSharedStates = true;
     }
-    plainStates = this.providedStates.filter((function(_this) {
+    plainStates = this._providedStates.filter((function(_this) {
       return function(state) {
         return helpers.includes(_this._state, state) && state !== stateToExclude;
       };
@@ -1210,6 +1222,20 @@ var slice = [].slice;
   QuickWindow.off = QuickElement.prototype.off;
   QuickWindow.emit = QuickElement.prototype.emit;
   QuickWindow._listenTo = QuickElement.prototype._listenTo;
+  mediaQuery = new function() {
+    var callbacks;
+    callbacks = [];
+    window.addEventListener('resize', function() {
+      var callback, i, len;
+      for (i = 0, len = callbacks.length; i < len; i++) {
+        callback = callbacks[i];
+        callback();
+      }
+    });
+    this.register = function(target, queryString) {};
+    this.test = function() {};
+    return this;
+  };
   QuickDom = function() {
     var args, child, children, element, i, len, options, type;
     args = 1 <= arguments.length ? slice.call(arguments, 0) : [];

@@ -13,25 +13,25 @@ QuickElement::_normalizeOptions = ()->
 		@options.stateTriggers
 	
 	@_normalizeStyle()
-	return @
-
+	return
 
 
 QuickElement::_normalizeStyle = ()->
 	keys = Object.keys(@options.style)
-	states = keys.filter (key)-> key[0] is '$'
+	states = keys.filter (key)-> helpers.isStateStyle(key)
 	specialStates = helpers.removeItem(states.slice(), '$base')
-	@providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
+	@_mediaStates = states.filter (key)-> key[0] is '@'
+	@_providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
 
 	if not helpers.includes(states, '$base') and keys.length
 		if states.length # Indicates other states were provided but the $base state has no styling
-			nonStateProps = keys.filter (property)-> property[0] isnt '$'
+			nonStateProps = keys.filter (property)-> not helpers.isStateStyle(property)
 			@options.style.$base = extend.clone.keys(nonStateProps)(@options.style)
 		else
 			@options.style = $base: @options.style
 
 	checkInnerStates = (styleObject, parentStates)=>
-		innerStates = Object.keys(styleObject).filter((key)-> key[0] is '$')
+		innerStates = Object.keys(styleObject).filter (key)-> helpers.isStateStyle(key)
 		if innerStates.length
 			@hasSharedStateStyle = true
 			@_stateShared ?= []
@@ -48,7 +48,10 @@ QuickElement::_normalizeStyle = ()->
 	for state in specialStates
 		checkInnerStates(@options.style[state], [state.slice(1)])
 
-	return @
+	for mediaState in @_mediaStates
+		mediaQuery.register(@, mediaState)
+
+	return
 
 
 
@@ -83,7 +86,10 @@ QuickElement::_applyOptions = ()->
 		callback(@) for callback in @_insertedCallbacks
 		return
 
-	return @
+	for mediaState in @_mediaStates
+		mediaQuery.test(@, mediaState)
+
+	return
 
 
 QuickElement::_attachStateEvents = ()->
@@ -94,7 +100,7 @@ QuickElement::_attachStateEvents = ()->
 		@_listenTo enabler, ()=> @state(state, on)
 		if disabler then @_listenTo disabler, ()=> @state(state, off)
 	
-	return @
+	return
 
 
 

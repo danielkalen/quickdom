@@ -22,6 +22,8 @@ replacements = [
 	[/_parsed/g, '_']
 	[/_parent/g, '_p']
 	[/_state/g, '_s']
+	[/_mediaStates/g, '_m']
+	[/_providedStates/g, '_ps']
 	[/_children/g, '_c']
 	[/_eventCallbacks/g, '_e']
 	[/_insertedCallbacks/g, '_i']
