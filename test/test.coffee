@@ -931,6 +931,21 @@ suite "QuickDom", ()->
 			expect(div.width).to.equal(97)
 
 
+		test "QuickElement.height should return the updated version of an element's computed height", ()->
+			parent = Dom.div().appendTo(sandbox)
+			div = Dom.div().appendTo(parent)
+			
+			parent.style height:'1000px'
+			div.style height:'50%'
+			expect(div.height).to.equal(500)
+			
+			div.style height:'10%'
+			expect(div.height).to.equal(100)
+			
+			div.style height:'97px'
+			expect(div.height).to.equal(97)
+
+
 		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
 			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
 			divReg = Dom.div(style:{height:'19px', opacity:parentOpacityGetter})
