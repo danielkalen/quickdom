@@ -10,4 +10,6 @@ QuickWindow.off =  QuickElement::off
 QuickWindow.emit =  QuickElement::emit
 QuickWindow._listenTo =  QuickElement::_listenTo
 
+Object.defineProperties QuickWindow,
+	'width': get: ()-> window.innerWidth
 

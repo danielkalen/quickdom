@@ -135,6 +135,9 @@ QuickElement::_getStateStyles = (states)->
 
 Object.defineProperty QuickElement::, 'rect',
 	get: ()-> @el.getBoundingClientRect()
+Object.defineProperties QuickElement::,
+	'rect': get: ()-> @el.getBoundingClientRect()
+	'width': get: ()-> parseFloat @style('width')
 
 
 
