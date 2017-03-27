@@ -16,6 +16,7 @@ QuickElement = (@type, @options)->
 	@_normalizeOptions()
 	@_applyOptions()
 	@_attachStateEvents()
+	@_proxyParent()
 	return @el._quickElement = @
 
 

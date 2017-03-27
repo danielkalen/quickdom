@@ -104,4 +104,26 @@ QuickElement::_attachStateEvents = ()->
 
 
 
+QuickElement::_proxyParent = ()->
+	parent = undefined
+	Object.defineProperty @, '_parent',
+		get: ()-> parent
+		set: (newParent)-> if parent=newParent
+			lastParent = @parents.slice(-1)[0]
+			if lastParent.raw is document.documentElement
+				@_unproxyParent(newParent)
+			else
+				parent.onInserted ()=>
+					@_unproxyParent(newParent)
+			return
+
+
+QuickElement::_unproxyParent = (newParent)->
+	delete @_parent
+	@_parent = newParent
+	callback(@) for callback in @_insertedCallbacks
+	return
+
+
+
 
