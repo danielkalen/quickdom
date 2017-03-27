@@ -106,7 +106,7 @@ QuickElement::_proxyParent = ()->
 				@_unproxyParent(newParent)
 			else
 				parent.onInserted ()=>
-					@_unproxyParent(newParent)
+					@_unproxyParent(newParent) if parent is newParent
 			return
 
 

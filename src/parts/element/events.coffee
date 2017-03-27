@@ -51,7 +51,7 @@ QuickElement::emit = (eventName, bubbles=true, cancelable=true)->
 
 
 QuickElement::onInserted = (callback, invokeIfInserted=true)-> if IS.function(callback)
-	if not @_parent
+	if not @_inserted
 		@_insertedCallbacks.push(callback)
 	
 	else if invokeIfInserted

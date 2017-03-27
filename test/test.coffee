@@ -1086,7 +1086,8 @@ suite "QuickDom", ()->
 		test "QuickElement.onInserted can accept callbacks which will be invoked when inserted into the DOM", ()->
 			invokeCount = 0
 			parentA = Dom.section()
-			parentB = Dom.section().appendTo(sandbox)
+			parentB = Dom.section()
+			masterParentB = Dom.div()
 			parentC = Dom.section().appendTo(sandbox)
 			div = Dom.div()
 
@@ -1098,14 +1099,17 @@ suite "QuickDom", ()->
 			div.appendTo(parentA)
 			expect(invokeCount).to.equal(0)
 			
-			div.appendTo(parentB)
-			expect(invokeCount).to.equal(1)
+			div.appendTo(parentB.appendTo(masterParentB))
+			expect(invokeCount).to.equal(0)
+			
+			parentA.appendTo(sandbox)
+			expect(invokeCount).to.equal(0)
 			
 			div.appendTo(parentC)
 			expect(invokeCount).to.equal(1)
 
 			div.detach()
-			div.appendTo(parentB)
+			div.appendTo(parentB.appendTo(sandbox))
 			expect(invokeCount).to.equal(1)
 			expect(div.parent).to.equal parentB
 

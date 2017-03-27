@@ -1374,10 +1374,11 @@ var slice = [].slice;
           return expect(divA.el.style.visibility).to.equal('hidden');
         });
         test("QuickElement.onInserted can accept callbacks which will be invoked when inserted into the DOM", function() {
-          var div, invokeCount, parentA, parentB, parentC;
+          var div, invokeCount, masterParentB, parentA, parentB, parentC;
           invokeCount = 0;
           parentA = Dom.section();
-          parentB = Dom.section().appendTo(sandbox);
+          parentB = Dom.section();
+          masterParentB = Dom.div();
           parentC = Dom.section().appendTo(sandbox);
           div = Dom.div();
           div.onInserted(function(el) {
@@ -1387,12 +1388,14 @@ var slice = [].slice;
           expect(invokeCount).to.equal(0);
           div.appendTo(parentA);
           expect(invokeCount).to.equal(0);
-          div.appendTo(parentB);
-          expect(invokeCount).to.equal(1);
+          div.appendTo(parentB.appendTo(masterParentB));
+          expect(invokeCount).to.equal(0);
+          parentA.appendTo(sandbox);
+          expect(invokeCount).to.equal(0);
           div.appendTo(parentC);
           expect(invokeCount).to.equal(1);
           div.detach();
-          div.appendTo(parentB);
+          div.appendTo(parentB.appendTo(sandbox));
           expect(invokeCount).to.equal(1);
           expect(div.parent).to.equal(parentB);
           div.onInserted(function() {
