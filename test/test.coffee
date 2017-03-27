@@ -946,6 +946,23 @@ suite "QuickDom", ()->
 			expect(div.height).to.equal(97)
 
 
+		test "QuickElement.orientation should return the updated version of an element's computed orientation", ()->
+			parent = Dom.div().appendTo(sandbox)
+			div = Dom.div().appendTo(parent)
+			
+			div.style width:500, height:400
+			expect(div.orientation).to.equal('landscape')
+			
+			div.style width:550, height:600
+			expect(div.orientation).to.equal('portrait')
+			
+			div.style width:600, height:600
+			expect(div.orientation).to.equal('portrait')
+			
+			div.style width:601, height:600
+			expect(div.orientation).to.equal('landscape')
+
+
 		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
 			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
 			divReg = Dom.div(style:{height:'19px', opacity:parentOpacityGetter})
