@@ -2477,9 +2477,9 @@ suite "QuickDom", ()->
 
 
 		test "Templates can be extended via template.extend", ()->
-			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
-			templateCopyA = template.extend {type:'span', options:{className:'some-span'}, children:[]}
-			templateCopyB = template.extend {options:{id:'theMainDiv'}, children:['The Other Inner Text']}
+			window.template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
+			window.templateCopyA = template.extend {type:'span', options:{className:'some-span'}, children:[]}
+			window.templateCopyB = template.extend {options:{id:'theMainDiv'}, children:['The Other Inner Text']}
 
 			expect(templateCopyA).not.to.equal(template)
 			expect(templateCopyB).not.to.equal(template)
@@ -2630,6 +2630,46 @@ suite "QuickDom", ()->
 			expect(spawn.el.childNodes[0].textContent).to.equal 'so nice'
 			expect(spawn.el.childNodes[1].nodeName.toLowerCase()).to.equal 'div'
 			expect(spawn.el.childNodes[1].textContent).to.equal 'text of div'
+
+
+		test "Template.extend/spawn() can accept other template instances as children which will replace existing children", ()->
+			template = Dom.template ['div', null, ['span', {style:opacity:0.5}], 'original text']
+			childA = Dom.template ['div', {style:fontFamily:'pink'}]
+			childB = Dom.template 'replaced text'
+			childC = Dom.template ['section']
+			templateCopy = template.extend(['span', {style:fontSize:'77px'}, childA, childB, childC])
+			spawnedA = template.spawn()
+			spawnedB = templateCopy.spawn()
+			spawnedC = template.spawn(['span', {style:fontSize:'77px'}, childA, childB, childC])
+
+			expect(spawnedA.type).to.equal('div')
+			expect(spawnedA.children.length).to.equal(2)
+			expect(spawnedA.children[0].type).to.equal('span')
+			expect(spawnedA.children[0].raw.style.opacity).to.equal('0.5')
+			expect(spawnedA.children[0].raw.style.fontFamily).to.equal('')
+			expect(spawnedA.children[1].type).to.equal('text')
+			expect(spawnedA.text()).to.equal('original text')
+
+			expect(spawnedB.type).to.equal('span')
+			expect(spawnedB.children.length).to.equal(3)
+			expect(spawnedB.children[0].type).to.equal('div')
+			expect(spawnedB.children[0].raw.style.opacity).to.equal('')
+			expect(spawnedB.children[0].raw.style.fontFamily).to.equal('pink')
+			expect(spawnedB.children[1].type).to.equal('text')
+			expect(spawnedB.text()).to.equal('replaced text')
+			expect(spawnedB.children[2].type).to.equal('section')
+			expect(spawnedB.raw.style.fontSize).to.equal('77px')
+
+			expect(spawnedC.type).to.equal('span')
+			expect(spawnedC.children.length).to.equal(3)
+			expect(spawnedC.children[0].type).to.equal('div')
+			expect(spawnedC.children[0].raw.style.opacity).to.equal('')
+			expect(spawnedC.children[0].raw.style.fontFamily).to.equal('pink')
+			expect(spawnedC.children[1].type).to.equal('text')
+			expect(spawnedC.text()).to.equal('replaced text')
+			expect(spawnedC.children[2].type).to.equal('section')
+			expect(spawnedC.raw.style.fontSize).to.equal('77px')
+
 
 
 		test "Templates can have other templates as their children", ()->
@@ -2834,6 +2874,9 @@ suite "QuickDom", ()->
 
 			expect ()-> Dom.template(['div', null, 'Some Inner Text'])
 				.not.to.throw()
+
+			expect ()-> Dom.div(style:{opacity:0.5, '@abc(max-width:390)':{opacity:1}}).appendTo(sandbox)
+				.to.to.throw()
 
 			expect(()->
 				div = Dom.div()

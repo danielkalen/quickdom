@@ -31,6 +31,6 @@ module.exports = (config)-> config.set
 	autoWatch: true
 	autoWatchBatchDelay: 1000
 	restartOnFileChange: true
-	singleRun: false
+	singleRun: true
 	concurrency: Infinity
 	browsers: ['Chrome', 'Firefox', 'Opera', 'Safari']

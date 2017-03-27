@@ -12,9 +12,7 @@ MediaQuery = new ()->
 			when 'window' then QuickWindow
 			when 'parent' then target.parent
 			when 'self' then target
-			else
-				if source[0] is '#'
-					target.parentMatching (parent)-> parent.ref is source.slice(1)
+			else target.parentMatching (parent)-> parent.ref is source.slice(1)
 
 		rules = querySplit[1]
 			.slice(0,-1)
