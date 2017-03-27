@@ -33,14 +33,23 @@ extendOptions = (currentOpts, newOpts, globalOpts)->
 	
 	### istanbul ignore next ###
 	for index in [0...Math.max(currentChildren.length, newChildren.length)]
+		needsTemplateWrap = false
 		currentChild = currentChildren[index]
 		newChild = newChildren[index]
-		newChild = parseTree(newChild, false) if IS.array(newChild)
-		newChild = {type:'text', options:{text:newChild}} if IS.string(newChild)
-		if currentChild
-			output.children.push currentChild.extend(newChild, globalOpts)
-		else
-			output.children.push new QuickTemplate(extend.deep.clone(configSchema, newChild))
+		newChildProcessed = switch
+			when IS.template(newChild) then newChild
+			when IS.array(newChild) then needsTemplateWrap = parseTree(newChild, false)
+			when IS.string(newChild) then needsTemplateWrap = {type:'text', options:{text:newChild}}
+			else needsTemplateWrap = newChild or true
+
+		if needsTemplateWrap
+			newChildProcessed = 
+				if currentChild
+					currentChild.extend(newChildProcessed, globalOpts)
+				else
+					new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed))
+
+		output.children.push newChildProcessed
 
 	return output
 

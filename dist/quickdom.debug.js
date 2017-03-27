@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_2e5db, _sim_2e776, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendOptions, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_2adf8, _sim_2fd08, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendOptions, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_2e5db = (function(exports){
+  _sim_2fd08 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_2e5db;
+  CSS = _sim_2fd08;
 
   /* istanbul ignore next */
-  _sim_2e776 = (function(exports){
+  _sim_2adf8 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2e776;
+  extend = _sim_2adf8;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -1543,7 +1543,7 @@ var slice = [].slice;
     return new QuickTemplate(extendOptions(this._config, newValues, globalOpts));
   };
   extendOptions = function(currentOpts, newOpts, globalOpts) {
-    var currentChild, currentChildren, globalOptsTransform, i, index, newChild, newChildren, output, ref1;
+    var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, output, ref1;
     if (globalOpts) {
       globalOptsTransform = {
         options: function(opts) {
@@ -1561,24 +1561,30 @@ var slice = [].slice;
 
     /* istanbul ignore next */
     for (index = i = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? i < ref1 : i > ref1; index = 0 <= ref1 ? ++i : --i) {
+      needsTemplateWrap = false;
       currentChild = currentChildren[index];
       newChild = newChildren[index];
-      if (IS.array(newChild)) {
-        newChild = parseTree(newChild, false);
+      newChildProcessed = (function() {
+        switch (false) {
+          case !IS.template(newChild):
+            return newChild;
+          case !IS.array(newChild):
+            return needsTemplateWrap = parseTree(newChild, false);
+          case !IS.string(newChild):
+            return needsTemplateWrap = {
+              type: 'text',
+              options: {
+                text: newChild
+              }
+            };
+          default:
+            return needsTemplateWrap = newChild || true;
+        }
+      })();
+      if (needsTemplateWrap) {
+        newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed));
       }
-      if (IS.string(newChild)) {
-        newChild = {
-          type: 'text',
-          options: {
-            text: newChild
-          }
-        };
-      }
-      if (currentChild) {
-        output.children.push(currentChild.extend(newChild, globalOpts));
-      } else {
-        output.children.push(new QuickTemplate(extend.deep.clone(configSchema, newChild)));
-      }
+      output.children.push(newChildProcessed);
     }
     return output;
   };

@@ -41,6 +41,8 @@ replacements = [
 	[/_proxyParent/g, '_pp']
 	[/_unproxyParent/g, '_up']
 	[/__refs/g, '_R']
+	[/returnResults/g, 'rR']
+	[/lastResults/g, 'lR']
 	[/styleShared/g, 'sS']
 	[/hasSharedStateStyle/g, 'hS']
 	[/parseQuery/g, 'pQ']
