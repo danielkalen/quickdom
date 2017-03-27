@@ -1083,10 +1083,10 @@ suite "QuickDom", ()->
 			expect(divA.el.style.visibility).to.equal('hidden')
 
 
-		test "QuickElement.onInserted can accept callbacks which will be invoked when inserted into a parent element", ()->
+		test "QuickElement.onInserted can accept callbacks which will be invoked when inserted into the DOM", ()->
 			invokeCount = 0
 			parentA = Dom.section()
-			parentB = Dom.section()
+			parentB = Dom.section().appendTo(sandbox)
 			parentC = Dom.section().appendTo(sandbox)
 			div = Dom.div()
 
@@ -1096,9 +1096,12 @@ suite "QuickDom", ()->
 
 			expect(invokeCount).to.equal(0)
 			div.appendTo(parentA)
-			expect(invokeCount).to.equal(1)
+			expect(invokeCount).to.equal(0)
 			
 			div.appendTo(parentB)
+			expect(invokeCount).to.equal(1)
+			
+			div.appendTo(parentC)
 			expect(invokeCount).to.equal(1)
 
 			div.detach()
@@ -1228,7 +1231,10 @@ suite "QuickDom", ()->
 
 
 		suite "Media Queries", ()->
-			test.skip "Window dimensions", ()->
+			suiteSetup ()->
+				@skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth').configurable
+			
+			test "Window dimensions", ()->
 				dimensions.simulate(1000, 1000)
 				div = Dom.div style:
 					position: 'relative'
@@ -1259,19 +1265,20 @@ suite "QuickDom", ()->
 					'@window(min-width:900px)':
 						fontSize: '23px'
 					
-					'@window(aspect-ratio:1/2)':
+					'@window(aspect-ratio:0.5)':
 						fontSize: '21px'
 						lineHeight: '12px'
 					
 					'@window(min-height:1200)':
 						fontSize: '20px'
 
+				div.appendTo(sandbox)
 				
 				expect(div.raw.style.zIndex).to.equal '2'
 				expect(div.raw.style.width).to.equal '300px'
 				expect(div.raw.style.height).to.equal '300px'
 				expect(div.raw.style.fontSize).to.equal '23px'
-				expect(div.raw.style.fontWeight).to.equal '600'
+				expect(div.raw.style.fontWeight).to.equal '700'
 				
 				dimensions.simulate(900)
 				expect(div.raw.style.fontSize).to.equal '23px'
@@ -1324,25 +1331,30 @@ suite "QuickDom", ()->
 				expect(div.raw.style.zIndex).to.equal '4'
 				expect(div.raw.style.width).to.equal '250px'
 				expect(div.raw.style.height).to.equal '250px'
-				expect(div.raw.style.fontWeight).to.equal '600'
-				
-				dimensions.simulate(1100, 1000)
 				expect(div.raw.style.fontWeight).to.equal '700'
 				
-				dimensions.simulate(1100, 1101)
+				dimensions.simulate(1100, 1000)
 				expect(div.raw.style.fontWeight).to.equal '600'
+				
+				dimensions.simulate(1100, 1101)
+				expect(div.raw.style.fontWeight).to.equal '700'
 
 
-			test.skip "Self dimensions/styles", ()->
-				dimensions.simulate(1000, 1000)
+			test "Self dimensions/styles", ()->
+				parent = Dom.div().appendTo(sandbox)
+				simulateParent = (width, height)->
+					parent.style 'width', width if width
+					parent.style 'height', height if height
+					dimensions.simulate()
+				
 				div = Dom.div style:
 					position: 'relative'
 					zIndex: 2
-					width: '400px'
-					height: '300px'
+					top: '30px'
+					width: '100%'
+					height: '100%'
 					fontSize: '30px'
 					lineHeight: '30px'
-					color: 'black'
 
 					'@self(orientation:landscape)':
 						fontWeight: 600
@@ -1351,7 +1363,7 @@ suite "QuickDom", ()->
 						fontWeight: 700
 					
 					'@self(position:relative)':
-						color: 'green'
+						top: '20px'
 
 					'@self(max-width:350)':
 						zIndex: 3
@@ -1369,30 +1381,225 @@ suite "QuickDom", ()->
 						opacity: '0'
 					
 					'@self(max-fontSize:20)':
-						lineHeight: '15px'
+						lineHeight: '19px'
 					
 					'@self(min-width:600px)':
 						fontSize: '19px'
 					
-					'@self(aspect-ratio:1/3)':
+					'@self(aspect-ratio:2.25)':
 						fontSize: '21px'
 						lineHeight: '12px'
 					
 					'@self(min-height:700)':
 						fontSize: '40px'
 
-				div.appendTo(sandbox)
-				expect(div.raw.style.zIndex).to.equal '2'
-				expect(div.raw.style.width).to.equal '400px'
-				expect(div.raw.style.height).to.equal '300px'
-				expect(div.raw.style.fontSize).to.equal '30px'
-				expect(div.raw.style.lineHeight).to.equal '30px'
-				expect(div.raw.style.fontWeight).to.equal '600'
-				expect(div.raw.style.color).to.equal 'green'
+				simulateParent(400, 300)
+				div.appendTo(parent)
+				expect(div.style 'zIndex').to.equal '2'
+				expect(div.style 'width').to.equal '400px'
+				expect(div.style 'height').to.equal '300px'
+				expect(div.style 'fontSize').to.equal '30px'
+				expect(div.style 'lineHeight').to.equal '30px'
+				expect(div.style 'fontWeight').to.equal '600'
+				expect(div.style 'top').to.equal '20px'
 				
-				dimensions.simulate(900)
-				expect(div.raw.style.fontSize).to.equal '23px'
+				simulateParent(349, 420)
+				expect(div.style 'zIndex').to.equal '4'
+				expect(div.style 'fontSize').to.equal '27px'
+				expect(div.style 'lineHeight').to.equal '15px'
+				
+				simulateParent(349, 399)
+				expect(div.style 'zIndex').to.equal '3'
+				expect(div.style 'fontSize').to.equal '33px'
+				
+				simulateParent(349, 401)
+				expect(div.style 'zIndex').to.equal '4'
+				expect(div.style 'fontSize').to.equal '27px'
+				expect(div.style 'lineHeight').to.equal '15px'
+				expect(div.style 'opacity').to.equal '1'
+				
+				div.style('zIndex', 5)
+				dimensions.simulate()
+				expect(div.style 'opacity').to.equal '1'
+				expect(div.style 'lineHeight').to.equal '37px'
+				
+				div.style('zIndex', 17)
+				expect(div.style 'opacity').to.equal '1'
+				
+				dimensions.simulate()
+				expect(div.style 'opacity').to.equal '0'
 
+				simulateParent(900)
+				expect(div.style 'fontSize').to.equal '19px'
+				expect(div.style 'lineHeight').to.equal '30px'
+				
+				simulateParent(900)
+				expect(div.style 'lineHeight').to.equal '19px'
+				
+				simulateParent(900, 400)
+				expect(div.style 'fontSize').to.equal '21px'
+				expect(div.style 'lineHeight').to.equal '12px'
+				
+				simulateParent(2025, 900)
+				expect(div.style 'fontSize').to.equal '40px'
+				expect(div.style 'lineHeight').to.equal '12px'
+				expect(div.raw.style.fontWeight).to.equal '600'
+				
+				simulateParent(2025, 2026)
+				expect(div.raw.style.fontWeight).to.equal '700'
+
+
+			test "Parent dimensions/styles", ()->
+				parent = Dom.div(style:{position:'absolute'}).appendTo(sandbox)
+				simulateParent = (width, height)->
+					parent.style 'width', width if width
+					parent.style 'height', height if height
+					dimensions.simulate()
+				
+				div = Dom.div style:
+					position: 'relative'
+					zIndex: 2
+					top: '30px'
+					width: '400px'
+					height: '300px'
+					fontSize: '30px'
+					lineHeight: '30px'
+
+					'@parent(orientation:landscape)':
+						fontWeight: 600
+
+					'@parent(orientation:portrait)':
+						fontWeight: 700
+					
+					'@parent(position:relative)':
+						top: '20px'
+
+					'@parent(max-width:350)':
+						zIndex: 3
+						fontSize: '33px'
+					
+					'@parent(max-width:500, min-height:400)':
+						zIndex: 4
+						fontSize: '27px'
+						lineHeight: '37px'
+					
+					'@parent(zIndex:7)':
+						lineHeight: '15px'
+
+
+				simulateParent(400, 300)
+				div.appendTo(parent)
+				expect(div.style 'zIndex').to.equal '2'
+				expect(div.style 'width').to.equal '400px'
+				expect(div.style 'height').to.equal '300px'
+				expect(div.style 'fontSize').to.equal '30px'
+				expect(div.style 'lineHeight').to.equal '30px'
+				expect(div.style 'fontWeight').to.equal '600'
+				expect(div.style 'top').to.equal '30px'
+
+				parent.style 'position', 'relative'
+				expect(div.style 'top').to.equal '30px'
+
+				simulateParent()
+				expect(div.style 'top').to.equal '20px'
+
+				simulateParent(349, 420)
+				expect(div.style 'zIndex').to.equal '4'
+				expect(div.style 'fontSize').to.equal '27px'
+				expect(div.style 'lineHeight').to.equal '37px'
+				
+				simulateParent(349, 399)
+				expect(div.style 'zIndex').to.equal '3'
+				expect(div.style 'fontSize').to.equal '33px'
+				
+				parent.style 'zIndex', '7'
+				simulateParent(349, 401)
+				expect(div.style 'zIndex').to.equal '4'
+				expect(div.style 'fontSize').to.equal '27px'
+				expect(div.style 'lineHeight').to.equal '15px'
+				expect(div.style 'opacity').to.equal '1'
+				
+
+			test "Parent Ref dimensions/styles", ()->
+				parent =
+					Dom.div({ref:'abc'},
+						Dom.div {id:'def'},
+							Dom.div {ref:'ghi'}
+					).appendTo(sandbox)
+				
+				div = Dom.div style:
+					position: 'relative'
+					zIndex: 2
+					top: '30px'
+					width: '400px'
+					height: '300px'
+					fontSize: '30px'
+					lineHeight: '30px'
+
+					'@#abc(orientation:landscape)':
+						fontWeight: 600
+
+					'@#abc(orientation:portrait)':
+						fontWeight: 500
+					
+					'@#def(position:relative)':
+						top: '20px'
+
+					'@#def(max-width:350)':
+						zIndex: 3
+						fontSize: '33px'
+					
+					'@#ghi(max-width:500, min-height:400)':
+						zIndex: 4
+						fontSize: '27px'
+						lineHeight: '37px'
+					
+					'@#abc(zIndex:7)':
+						lineHeight: '15px'
+
+
+				parent.style(width:400, height:300)
+				parent.child.def.style(width:400, height:300)
+				parent.child.ghi.style(width:400, height:300)
+				div.appendTo(parent.child.ghi)
+				expect(div.style 'zIndex').to.equal '2'
+				expect(div.style 'width').to.equal '400px'
+				expect(div.style 'height').to.equal '300px'
+				expect(div.style 'fontSize').to.equal '30px'
+				expect(div.style 'lineHeight').to.equal '30px'
+				expect(div.style 'fontWeight').to.equal '600'
+				expect(div.style 'top').to.equal '30px'
+
+				parent.style(width:400, height:900, position:'relative')
+				dimensions.simulate()
+				expect(div.style 'fontWeight').to.equal '500'
+				expect(div.style 'top').to.equal '30px'
+				
+				parent.child.def.style(position:'relative')
+				expect(div.style 'top').to.equal '30px'
+
+				dimensions.simulate()
+				expect(div.style 'top').to.equal '20px'
+
+				parent.child.def.style(width:349, height:420)
+				dimensions.simulate()
+				expect(div.style 'zIndex').to.equal '3'
+				expect(div.style 'fontSize').to.equal '33px'
+				
+				parent.child.ghi.style(width:450, height:420)
+				dimensions.simulate()
+				expect(div.style 'zIndex').to.equal '4'
+				expect(div.style 'fontSize').to.equal '27px'
+				expect(div.style 'lineHeight').to.equal '37px'
+				
+				parent.style(zIndex:7)
+				dimensions.simulate()
+				expect(div.style 'zIndex').to.equal '4'
+				expect(div.style 'fontSize').to.equal '27px'
+				expect(div.style 'lineHeight').to.equal '15px'
+				expect(div.style 'opacity').to.equal '1'
+				dimensions.restore()
+				
 
 
 
@@ -2704,5 +2911,9 @@ if HTMLElement.name isnt 'HTMLElement'
 	window.SVGElement?.name = 'SVGElement'
 	window.SVGSVGElement?.name = 'SVGSVGElement'
 	window.SVGPolylineElement?.name = 'SVGPolylineElement'
+
+window.ClientRect ?= DOMRect
+
+
 
 
