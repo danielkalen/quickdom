@@ -138,6 +138,7 @@ Object.defineProperty QuickElement::, 'rect',
 Object.defineProperties QuickElement::,
 	'rect': get: ()-> @el.getBoundingClientRect()
 	'width': get: ()-> parseFloat @style('width')
+	'height': get: ()-> parseFloat @style('height')
 
 
 
