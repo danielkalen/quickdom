@@ -116,7 +116,7 @@ var slice = [].slice;
 				    "postversion": "echo \\'$(json -f package.json version)\\' > .config/.version.coffee && npm run build",
 				    "test": "open test/testrunner.html",
 				    "test:karma": "karma start .config/karma.conf.coffee",
-				    "test:phantom": "karma start --single-run --browsers PhantomJS .config/karma.conf.coffee",
+				    "test:electron": "karma start --single-run --browsers Electron .config/karma.conf.coffee",
 				    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
 				    "test:sauce": "coffee .config/sauce-launch.coffee && npm run test-serve",
 				    "test-serve": "http-server -p 9201 --cors ./",
@@ -152,6 +152,7 @@ var slice = [].slice;
 				    "chai": "^3.5.0",
 				    "closure-compiler-service": "^0.6.1",
 				    "coffee-script": "^1.12.2",
+				    "electron": "^1.6.2",
 				    "foreach-cli": "^1.7.1",
 				    "http-server": "^0.9.0",
 				    "jquery": "^3.1.1",
@@ -160,14 +161,13 @@ var slice = [].slice;
 				    "karma-chai": "^0.1.0",
 				    "karma-chrome-launcher": "^2.0.0",
 				    "karma-coverage": "^1.1.1",
+				    "karma-electron": "^5.1.1",
 				    "karma-firefox-launcher": "^1.0.0",
 				    "karma-mocha": "^1.3.0",
 				    "karma-mocha-reporter": "^2.2.1",
 				    "karma-opera-launcher": "^1.0.0",
-				    "karma-phantomjs-launcher": "^1.0.2",
 				    "karma-safari-launcher": "^1.0.0",
 				    "mocha": "^3.2.0",
-				    "phantomjs-prebuilt": "^2.1.14",
 				    "simplyimport": "^3.2.6",
 				    "simplywatch": "^2.4.6"
 				  }
@@ -3243,7 +3243,7 @@ var slice = [].slice;
                 }
               }
             }).appendTo(sandbox);
-          }).to.to["throw"]();
+          }).not.to["throw"]();
           return expect(function() {
             div = Dom.div();
             div.pipeState(div);

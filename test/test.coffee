@@ -2880,7 +2880,7 @@ suite "QuickDom", ()->
 				.not.to.throw()
 
 			expect ()-> Dom.div(style:{opacity:0.5, '@abc(max-width:390)':{opacity:1}}).appendTo(sandbox)
-				.to.to.throw()
+				.not.to.throw()
 
 			expect(()->
 				div = Dom.div()

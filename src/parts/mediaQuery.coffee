@@ -42,8 +42,9 @@ MediaQuery = new ()->
 
 	@register = (target, queryString)->
 		query = @parseQuery(target, queryString)
-		callbacks.push callback = ()-> testRule(target, query, queryString)
-		callback()
+		if query.source
+			callbacks.push callback = ()-> testRule(target, query, queryString)
+			callback()
 		return query
 
 
