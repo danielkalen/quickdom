@@ -13,4 +13,5 @@ QuickWindow._listenTo =  QuickElement::_listenTo
 Object.defineProperties QuickWindow,
 	'width': get: ()-> window.innerWidth
 	'height': get: ()-> window.innerHeight
+	'orientation': orientationGetter
 

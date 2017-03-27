@@ -139,6 +139,7 @@ Object.defineProperties QuickElement::,
 	'rect': get: ()-> @el.getBoundingClientRect()
 	'width': get: ()-> parseFloat @style('width')
 	'height': get: ()-> parseFloat @style('height')
+	'orientation': orientationGetter = get: ()-> if @width > @height then 'landscape' else 'portrait'
 
 
 
