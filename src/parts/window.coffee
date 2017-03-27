@@ -14,4 +14,5 @@ Object.defineProperties QuickWindow,
 	'width': get: ()-> window.innerWidth
 	'height': get: ()-> window.innerHeight
 	'orientation': orientationGetter
+	'aspectRatio': aspectRatioGetter
 

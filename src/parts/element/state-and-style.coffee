@@ -140,6 +140,7 @@ Object.defineProperties QuickElement::,
 	'width': get: ()-> parseFloat @style('width')
 	'height': get: ()-> parseFloat @style('height')
 	'orientation': orientationGetter = get: ()-> if @width > @height then 'landscape' else 'portrait'
+	'aspectRatio': aspectRatioGetter = get: ()-> @width/@height
 
 
 
