@@ -963,6 +963,24 @@ suite "QuickDom", ()->
 			expect(div.orientation).to.equal('landscape')
 
 
+		test "QuickElement.aspectRatio should return the updated version of an element's computed aspect-ratio", ()->
+			parent = Dom.div().appendTo(sandbox)
+			div = Dom.div().appendTo(parent)
+			
+			div.style width:500, height:400
+			expect(div.aspectRatio).to.equal(1.25)
+			
+			div.style width:540, height:600
+			expect(div.aspectRatio).to.equal(0.9)
+			
+			div.style width:600, height:600
+			expect(div.aspectRatio).to.equal(1)
+			
+			div.style width:300, height:900
+			expect(div.aspectRatio).to.equal(0.33333333333333333333333333)
+			
+
+
 		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
 			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
 			divReg = Dom.div(style:{height:'19px', opacity:parentOpacityGetter})
