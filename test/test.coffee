@@ -916,6 +916,21 @@ suite "QuickDom", ()->
 			expect(rectC.width).to.equal(7)
 
 
+		test "QuickElement.width should return the updated version of an element's computed width", ()->
+			parent = Dom.div().appendTo(sandbox)
+			div = Dom.div().appendTo(parent)
+			
+			parent.style width:'1000px'
+			div.style width:'50%'
+			expect(div.width).to.equal(500)
+			
+			div.style width:'10%'
+			expect(div.width).to.equal(100)
+			
+			div.style width:'97px'
+			expect(div.width).to.equal(97)
+
+
 		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
 			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
 			divReg = Dom.div(style:{height:'19px', opacity:parentOpacityGetter})
