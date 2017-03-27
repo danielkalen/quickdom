@@ -90,12 +90,24 @@ QuickElement::pipeState = (targetEl)->
 	return @
 
 
+###*
+ * Sets/gets the value of a style property. In getter mode the computed property of
+ * the style will be returned unless the element is not inserted into the DOM. In
+ * webkit browsers all computed properties of a detached node are always an empty
+ * string but in gecko they reflect on the actual computed value, hence we need
+ * to "normalize" this behavior and make sure that even on gecko an empty string
+ * is returned
+ * @return {[type]} [description]
+###
 QuickElement::style = ()->
 	return if @type is 'text'
 	args = arguments
+	
 	if IS.string(args[0])
 		returnValue = CSS(@el, args[0], args[1])
-		return returnValue if not IS.defined(args[1])
+		if not IS.defined(args[1])
+			### istanbul ignore next ###
+			return if @_inserted then returnValue else if not returnValue then returnValue else ''
 
 	else if IS.object(args[0])
 		CSS @el, extend.allowNull.transform((value)=>
@@ -106,7 +118,7 @@ QuickElement::style = ()->
 
 
 ###*
- * Attempts to resolve the value for a given property in the following order:
+ * Attempts to resolve the value for a given property in the following order if each one isn't a valid value:
  * 1. from computed style (for dom-inserted els)
  * 2. from DOMElement.style object (for non-inserted els; if options.styleAfterInsert, will only have state styles)
  * 3. from provided style options
@@ -133,8 +145,6 @@ QuickElement::_getStateStyles = (states)->
 
 
 
-Object.defineProperty QuickElement::, 'rect',
-	get: ()-> @el.getBoundingClientRect()
 Object.defineProperties QuickElement::,
 	'rect': get: ()-> @el.getBoundingClientRect()
 	'width': get: ()-> parseFloat @style('width')
