@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_25204, _sim_2698e, allowedTemplateOptions, configSchema, extend, extendOptions, fn, helpers, i, len, mediaQuery, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_207ab, _sim_217cd, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendOptions, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_25204 = (function(exports){
+  _sim_217cd = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_25204;
+  CSS = _sim_217cd;
 
   /* istanbul ignore next */
-  _sim_2698e = (function(exports){
+  _sim_207ab = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_2698e;
+  extend = _sim_207ab;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -334,6 +334,7 @@ var slice = [].slice;
     this._normalizeOptions();
     this._applyOptions();
     this._attachStateEvents();
+    this._proxyParent();
     return this.el._quickElement = this;
   };
   Object.defineProperties(QuickElement.prototype, {
@@ -519,7 +520,7 @@ var slice = [].slice;
     this._normalizeStyle();
   };
   QuickElement.prototype._normalizeStyle = function() {
-    var checkInnerStates, i, j, keys, len, len1, mediaState, nonStateProps, ref1, specialStates, state, states;
+    var checkInnerStates, i, keys, len, nonStateProps, specialStates, state, states;
     keys = Object.keys(this.options.style);
     states = keys.filter(function(key) {
       return helpers.isStateStyle(key);
@@ -545,7 +546,7 @@ var slice = [].slice;
     }
     checkInnerStates = (function(_this) {
       return function(styleObject, parentStates) {
-        var i, innerState, innerStates, len, results1, stateChain, stateChainString;
+        var i, innerState, innerStates, len, stateChain, stateChainString;
         innerStates = Object.keys(styleObject).filter(function(key) {
           return helpers.isStateStyle(key);
         });
@@ -554,16 +555,14 @@ var slice = [].slice;
           if (_this._stateShared == null) {
             _this._stateShared = [];
           }
-          results1 = [];
           for (i = 0, len = innerStates.length; i < len; i++) {
             innerState = innerStates[i];
             stateChain = parentStates.concat(innerState.slice(1));
             stateChainString = stateChain.join('+');
             _this.options.styleShared[stateChainString] = _this.options.style['$' + stateChainString] = styleObject[innerState];
             checkInnerStates(styleObject[innerState], stateChain);
-            results1.push(delete styleObject[innerState]);
+            delete styleObject[innerState];
           }
-          return results1;
         }
       };
     })(this);
@@ -571,14 +570,9 @@ var slice = [].slice;
       state = specialStates[i];
       checkInnerStates(this.options.style[state], [state.slice(1)]);
     }
-    ref1 = this._mediaStates;
-    for (j = 0, len1 = ref1.length; j < len1; j++) {
-      mediaState = ref1[j];
-      mediaQuery.register(this, mediaState);
-    }
   };
   QuickElement.prototype._applyOptions = function() {
-    var applyBaseStylesOnInsert, i, key, len, mediaState, ref, ref1, ref2, ref3, value;
+    var key, ref, ref1, ref2, value;
     if (ref = this.options.id || this.options.ref) {
       this.attr('data-ref', this.ref = ref);
     }
@@ -622,38 +616,28 @@ var slice = [].slice;
     }
     if (!this.options.styleAfterInsert) {
       this.style(this.options.style.$base);
-    } else {
-      this.onInserted(applyBaseStylesOnInsert = (function(_this) {
-        return function() {
-          var lastParent;
-          lastParent = _this.parents.slice(-1)[0];
-          if (lastParent.raw === document.documentElement) {
-            return _this.style(extend.clone.apply(extend, [_this.options.style.$base].concat(slice.call(_this._getStateStyles(_this._getActiveStates())))));
-          } else {
-            return lastParent.onInserted(applyBaseStylesOnInsert);
-          }
-        };
-      })(this));
     }
-    Object.defineProperty(this, '_parent', {
-      set: function(newParent) {
-        var callback, i, len, ref3;
-        if (newParent) {
-          delete this._parent;
-          this._parent = newParent;
-          ref3 = this._insertedCallbacks;
-          for (i = 0, len = ref3.length; i < len; i++) {
-            callback = ref3[i];
-            callback(this);
-          }
+    this.onInserted((function(_this) {
+      return function() {
+        var _, mediaStates;
+        if (_this.options.styleAfterInsert) {
+          _this.style(extend.clone.apply(extend, [_this.options.style.$base].concat(slice.call(_this._getStateStyles(_this._getActiveStates())))));
         }
-      }
-    });
-    ref3 = this._mediaStates;
-    for (i = 0, len = ref3.length; i < len; i++) {
-      mediaState = ref3[i];
-      mediaQuery.test(this, mediaState);
-    }
+        _ = _this._inserted = _this;
+        mediaStates = _this._mediaStates;
+        if (mediaStates.length) {
+          return _this._mediaStates = new function() {
+            var i, len, queryString;
+            for (i = 0, len = mediaStates.length; i < len; i++) {
+              queryString = mediaStates[i];
+              queryString = queryString.slice(1);
+              this[queryString] = MediaQuery.register(_, queryString);
+            }
+            return this;
+          };
+        }
+      };
+    })(this));
   };
   QuickElement.prototype._attachStateEvents = function() {
     var fn, ref1, state, trigger;
@@ -678,6 +662,40 @@ var slice = [].slice;
     for (state in ref1) {
       trigger = ref1[state];
       fn(state, trigger);
+    }
+  };
+  QuickElement.prototype._proxyParent = function() {
+    var parent;
+    parent = void 0;
+    return Object.defineProperty(this, '_parent', {
+      get: function() {
+        return parent;
+      },
+      set: function(newParent) {
+        var lastParent;
+        if (parent = newParent) {
+          lastParent = this.parents.slice(-1)[0];
+          if (lastParent.raw === document.documentElement) {
+            this._unproxyParent(newParent);
+          } else {
+            parent.onInserted((function(_this) {
+              return function() {
+                return _this._unproxyParent(newParent);
+              };
+            })(this));
+          }
+        }
+      }
+    });
+  };
+  QuickElement.prototype._unproxyParent = function(newParent) {
+    var callback, i, len, ref1;
+    delete this._parent;
+    this._parent = newParent;
+    ref1 = this._insertedCallbacks;
+    for (i = 0, len = ref1.length; i < len; i++) {
+      callback = ref1[i];
+      callback(this);
     }
   };
   regexWhitespace = /\s+/;
@@ -799,8 +817,8 @@ var slice = [].slice;
       activeStates = this._getActiveStates(targetState, false);
       activeStateStyles = this._getStateStyles(activeStates);
       if (this.state(targetState) !== desiredValue) {
-        if (this.options.style['$' + targetState]) {
-          targetStyle = this.options.style['$' + targetState];
+        targetStyle = this.options.style['$' + targetState] || this.options.style['@' + targetState];
+        if (targetStyle) {
           targetStateIndex = this._providedStates.indexOf(targetState);
           superiorStates = activeStates.filter((function(_this) {
             return function(state) {
@@ -893,6 +911,16 @@ var slice = [].slice;
     }
     return this;
   };
+
+  /**
+  	 * Sets/gets the value of a style property. In getter mode the computed property of
+  	 * the style will be returned unless the element is not inserted into the DOM. In
+  	 * webkit browsers all computed properties of a detached node are always an empty
+  	 * string but in gecko they reflect on the actual computed value, hence we need
+  	 * to "normalize" this behavior and make sure that even on gecko an empty string
+  	 * is returned
+  	 * @return {[type]} [description]
+   */
   QuickElement.prototype.style = function() {
     var args, returnValue;
     if (this.type === 'text') {
@@ -902,7 +930,15 @@ var slice = [].slice;
     if (IS.string(args[0])) {
       returnValue = CSS(this.el, args[0], args[1]);
       if (!IS.defined(args[1])) {
-        return returnValue;
+
+        /* istanbul ignore next */
+        if (this._inserted) {
+          return returnValue;
+        } else if (!returnValue) {
+          return returnValue;
+        } else {
+          return '';
+        }
       }
     } else if (IS.object(args[0])) {
       CSS(this.el, extend.allowNull.transform((function(_this) {
@@ -919,7 +955,7 @@ var slice = [].slice;
   };
 
   /**
-  	 * Attempts to resolve the value for a given property in the following order:
+  	 * Attempts to resolve the value for a given property in the following order if each one isn't a valid value:
   	 * 1. from computed style (for dom-inserted els)
   	 * 2. from DOMElement.style object (for non-inserted els; if options.styleAfterInsert, will only have state styles)
   	 * 3. from provided style options
@@ -959,13 +995,39 @@ var slice = [].slice;
   QuickElement.prototype._getStateStyles = function(states) {
     return states.map((function(_this) {
       return function(state) {
-        return _this.options.style['$' + state];
+        return _this.options.style['$' + state] || _this.options.style['@' + state];
       };
     })(this));
   };
-  Object.defineProperty(QuickElement.prototype, 'rect', {
-    get: function() {
-      return this.el.getBoundingClientRect();
+  Object.defineProperties(QuickElement.prototype, {
+    'rect': {
+      get: function() {
+        return this.el.getBoundingClientRect();
+      }
+    },
+    'width': {
+      get: function() {
+        return parseFloat(this.style('width'));
+      }
+    },
+    'height': {
+      get: function() {
+        return parseFloat(this.style('height'));
+      }
+    },
+    'orientation': orientationGetter = {
+      get: function() {
+        if (this.width > this.height) {
+          return 'landscape';
+        } else {
+          return 'portrait';
+        }
+      }
+    },
+    'aspectRatio': aspectRatioGetter = {
+      get: function() {
+        return this.width / this.height;
+      }
     }
   });
   QuickElement.prototype.attr = function(attrName, newValue) {
@@ -1222,8 +1284,22 @@ var slice = [].slice;
   QuickWindow.off = QuickElement.prototype.off;
   QuickWindow.emit = QuickElement.prototype.emit;
   QuickWindow._listenTo = QuickElement.prototype._listenTo;
-  mediaQuery = new function() {
-    var callbacks;
+  Object.defineProperties(QuickWindow, {
+    'width': {
+      get: function() {
+        return window.innerWidth;
+      }
+    },
+    'height': {
+      get: function() {
+        return window.innerHeight;
+      }
+    },
+    'orientation': orientationGetter,
+    'aspectRatio': aspectRatioGetter
+  });
+  MediaQuery = new function() {
+    var callbacks, testRule;
     callbacks = [];
     window.addEventListener('resize', function() {
       var callback, i, len;
@@ -1232,10 +1308,116 @@ var slice = [].slice;
         callback();
       }
     });
-    this.register = function(target, queryString) {};
-    this.test = function() {};
+    this.parseQuery = function(target, queryString) {
+      var querySplit, rules, source;
+      querySplit = queryString.split('(');
+      source = querySplit[0];
+      source = (function() {
+        switch (source) {
+          case 'window':
+            return QuickWindow;
+          case 'parent':
+            return target.parent;
+          case 'self':
+            return target;
+          default:
+            if (source[0] === '#') {
+              return target.parentMatching(function(parent) {
+                return parent.ref === source.slice(1);
+              });
+            }
+        }
+      })();
+      rules = querySplit[1].slice(0, -1).split(ruleDelimiter).map(function(rule) {
+        var getter, key, keyPrefix, max, min, split, value;
+        split = rule.split(':');
+        value = parseFloat(split[1]);
+        if (isNaN(value)) {
+          value = split[1];
+        }
+        key = split[0];
+        keyPrefix = key.slice(0, 4);
+        max = keyPrefix === 'max-';
+        min = !max && keyPrefix === 'min-';
+        if (max || min) {
+          key = key.slice(4);
+        }
+        getter = (function() {
+          switch (key) {
+            case 'orientation':
+              return function() {
+                return source.orientation;
+              };
+            case 'aspect-ratio':
+              return function() {
+                return source.aspectRatio;
+              };
+            case 'width':
+            case 'height':
+              return function() {
+                return source[key];
+              };
+            default:
+              return function() {
+                var parsedValue, stringValue;
+                stringValue = source.style(key);
+                parsedValue = parseFloat(stringValue);
+                if (isNaN(parsedValue)) {
+                  return stringValue;
+                } else {
+                  return parsedValue;
+                }
+              };
+          }
+        })();
+        return {
+          key: key,
+          value: value,
+          min: min,
+          max: max,
+          getter: getter
+        };
+      });
+      return {
+        source: source,
+        rules: rules
+      };
+    };
+    this.register = function(target, queryString) {
+      var callback, query;
+      query = this.parseQuery(target, queryString);
+      callbacks.push(callback = function() {
+        return testRule(target, query, queryString);
+      });
+      callback();
+      return query;
+    };
+    testRule = function(target, query, queryString) {
+      var currentValue, i, len, passed, ref1, rule;
+      passed = true;
+      ref1 = query.rules;
+      for (i = 0, len = ref1.length; i < len; i++) {
+        rule = ref1[i];
+        currentValue = rule.getter();
+        passed = (function() {
+          switch (false) {
+            case !rule.min:
+              return currentValue >= rule.value;
+            case !rule.max:
+              return currentValue <= rule.value;
+            default:
+              return currentValue === rule.value;
+          }
+        })();
+        if (!passed) {
+          break;
+        }
+      }
+      return target.state(queryString, passed);
+    };
     return this;
   };
+  ruleDelimiter = /,\s*/;
   QuickDom = function() {
     var args, child, children, element, i, len, options, type;
     args = 1 <= arguments.length ? slice.call(arguments, 0) : [];

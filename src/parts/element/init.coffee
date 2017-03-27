@@ -43,13 +43,11 @@ QuickElement::_normalizeStyle = ()->
 			
 				checkInnerStates(styleObject[innerState], stateChain)
 				delete styleObject[innerState]
+			return
 
 
 	for state in specialStates
 		checkInnerStates(@options.style[state], [state.slice(1)])
-
-	for mediaState in @_mediaStates
-		mediaQuery.register(@, mediaState)
 
 	return
 
@@ -68,26 +66,20 @@ QuickElement::_applyOptions = ()->
 	if @options.checked then @el.checked = @options.checked
 	if @options.props then @prop(key,value) for key,value of @options.props
 	if @options.attrs then @attr(key,value) for key,value of @options.attrs
-	if not @options.styleAfterInsert
-		@style(@options.style.$base)
-	else
-		@onInserted applyBaseStylesOnInsert = ()=>
-			lastParent = @parents.slice(-1)[0]
+	@style(@options.style.$base) if not @options.styleAfterInsert
+
+	@onInserted ()=>
+		if @options.styleAfterInsert
+			@style(extend.clone @options.style.$base, @_getStateStyles(@_getActiveStates())...)
+
+		_ = @_inserted = @
+		mediaStates = @_mediaStates
+		if mediaStates.length then @_mediaStates = new ()->
+			for queryString in mediaStates
+				queryString = queryString.slice(1)
+				@[queryString] = MediaQuery.register(_, queryString)
 			
-			if lastParent.raw is document.documentElement
-				@style(extend.clone @options.style.$base, @_getStateStyles(@_getActiveStates())...)
-			else
-				lastParent.onInserted(applyBaseStylesOnInsert)
-
-
-	Object.defineProperty @, '_parent', set: (newParent)-> if newParent
-		delete @_parent
-		@_parent = newParent
-		callback(@) for callback in @_insertedCallbacks
-		return
-
-	for mediaState in @_mediaStates
-		mediaQuery.test(@, mediaState)
+			return @
 
 	return
 

@@ -23,8 +23,8 @@ QuickElement::state = (targetState, value, source)->
 		activeStateStyles = @_getStateStyles(activeStates)
 		
 		if @state(targetState) isnt desiredValue
-			if @options.style['$'+targetState]
-				targetStyle = @options.style['$'+targetState]
+			targetStyle = @options.style['$'+targetState] or @options.style['@'+targetState]
+			if targetStyle
 				targetStateIndex = @_providedStates.indexOf(targetState)
 				superiorStates = activeStates.filter (state)=> @_providedStates.indexOf(state) > targetStateIndex
 				superiorStateStyles = @_getStateStyles(superiorStates)
@@ -141,7 +141,7 @@ QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
 	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
 
 QuickElement::_getStateStyles = (states)->
-	states.map (state)=> @options.style['$'+state]
+	states.map (state)=> @options.style['$'+state] or @options.style['@'+state]
 
 
 

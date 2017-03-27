@@ -28,7 +28,7 @@ replacements = [
 	[/_childRefs/g, '_C']
 	[/_eventCallbacks/g, '_e']
 	[/_insertedCallbacks/g, '_i']
-	# [/_inserted/g, '_I']
+	[/_inserted/g, '_I']
 	[/_normalizeOptions/g, '_n']
 	[/_normalizeStyle/g, '_ns']
 	[/_applyOptions/g, '_a']
@@ -38,9 +38,13 @@ replacements = [
 	[/_getActiveStates/g, '_as']
 	[/_getStateStyles/g, '_ss']
 	[/_statePipeTarget/g, '_pt']
+	[/_proxyParent/g, '_pp']
+	[/_unproxyParent/g, '_up']
 	[/__refs/g, '_R']
 	[/styleShared/g, 'sS']
 	[/hasSharedStateStyle/g, 'hS']
+	[/parseQuery/g, 'pQ']
+	[/register/g, 'rg']
 ]
 
 
