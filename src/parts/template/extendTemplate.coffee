@@ -9,16 +9,21 @@ module.exports = (currentOpts, newOpts, globalOpts)->
 	
 	### istanbul ignore next ###
 	for index in [0...Math.max(currentChildren.length, newChildren.length)]
-		needsTemplateWrap = false
+		needsTemplateWrap = noChanges = false
 		currentChild = currentChildren[index]
 		newChild = newChildren[index]
 		newChildProcessed = switch
 			when IS.template(newChild) then newChild
 			when IS.array(newChild) then needsTemplateWrap = parseTree(newChild, false)
 			when IS.string(newChild) then needsTemplateWrap = {type:'text', options:{text:newChild}}
+			when not newChild and not globalOpts then noChanges = true
 			else needsTemplateWrap = newChild or true
 
-		if needsTemplateWrap
+
+		if noChanges
+			newChildProcessed = currentChild
+		
+		else if needsTemplateWrap
 			newChildProcessed = 
 				if currentChild
 					currentChild.extend(newChildProcessed, globalOpts)
