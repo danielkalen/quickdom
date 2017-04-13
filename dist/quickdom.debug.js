@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_18794, _sim_1a28e, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendOptions, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1ed4f, _sim_245cd, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_18794 = (function(exports){
+  _sim_245cd = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_18794;
+  CSS = _sim_245cd;
 
   /* istanbul ignore next */
-  _sim_1a28e = (function(exports){
+  _sim_1ed4f = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1a28e;
+  extend = _sim_1ed4f;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -478,6 +478,9 @@ var slice = [].slice;
     refs = target._childRefs;
     if (target.ref) {
       refs[target.ref] = target;
+    }
+    if (!target.children) {
+      debugger;
     }
     if (target.children.length) {
       extend.apply(null, [target._childRefs].concat(slice.call(target._children.map(function(child) {
@@ -1519,14 +1522,127 @@ var slice = [].slice;
     }
     return new QuickBatch(elements, returnResults);
   };
+  extendTemplate = (function(_this) {
+    return function(exports) {
+      var module = {exports:exports};
+      module.exports = function(currentOpts, newOpts, globalOpts) {
+        var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, output, ref1;
+        if (globalOpts) {
+          globalOptsTransform = {
+            options: function(opts) {
+              return extend(opts, globalOpts);
+            }
+          };
+        }
+        if (IS.array(newOpts)) {
+          newOpts = parseTree(newOpts, false);
+        }
+        output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts);
+        currentChildren = currentOpts.children || [];
+        newChildren = (newOpts != null ? newOpts.children : void 0) || [];
+        output.children = [];
+
+        /* istanbul ignore next */
+        for (index = i = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? i < ref1 : i > ref1; index = 0 <= ref1 ? ++i : --i) {
+          needsTemplateWrap = false;
+          currentChild = currentChildren[index];
+          newChild = newChildren[index];
+          newChildProcessed = (function() {
+            switch (false) {
+              case !IS.template(newChild):
+                return newChild;
+              case !IS.array(newChild):
+                return needsTemplateWrap = parseTree(newChild, false);
+              case !IS.string(newChild):
+                return needsTemplateWrap = {
+                  type: 'text',
+                  options: {
+                    text: newChild
+                  }
+                };
+              default:
+                return needsTemplateWrap = newChild || true;
+            }
+          })();
+          if (needsTemplateWrap) {
+            newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed));
+          }
+          output.children.push(newChildProcessed);
+        }
+        return output;
+      };
+      return module.exports;
+    };
+  })(this)({});
+  parseTree = (function(_this) {
+    return function(exports) {
+      var module = {exports:exports};
+      var parseErrorPrefix;
+      module.exports = function(tree, parseChildren) {
+        var output;
+        switch (false) {
+          case !IS.array(tree):
+            output = {};
+            if (!IS.string(tree[0])) {
+              throw new Error(parseErrorPrefix + " string for 'type', got '" + (String(tree[0])) + "'");
+            } else {
+              output.type = tree[0];
+            }
+            if (tree.length > 1 && !IS.object(tree[1]) && tree[1] !== null) {
+              throw new Error(parseErrorPrefix + " object for 'options', got '" + (String(tree[1])) + "'");
+            } else {
+              output.options = tree[1] ? extend.deep.clone(tree[1]) : null;
+              if (tree[1]) {
+                output.ref = tree[1].id || tree[1].ref;
+              }
+            }
+            output.children = tree.slice(2);
+            if (parseChildren !== false) {
+              output.children = output.children.map(QuickDom.template);
+            }
+            return output;
+          case !(IS.string(tree) || IS.domText(tree)):
+            return {
+              type: 'text',
+              options: {
+                text: tree.textContent || tree
+              },
+              children: configSchema.children
+            };
+          case !IS.domEl(tree):
+            return {
+              type: tree.nodeName.toLowerCase(),
+              ref: tree.id,
+              options: extend.clone.keys(allowedTemplateOptions)(tree),
+              children: configSchema.children.map.call(tree.childNodes, QuickDom.template)
+            };
+          case !IS.quickDomEl(tree):
+            return {
+              type: tree.type,
+              ref: tree.ref,
+              options: extend.clone.deep.notKeys('relatedInstance')(tree.options),
+              children: tree.children.map(QuickDom.template)
+            };
+          case !IS.template(tree):
+            return extendTemplate(tree._config);
+          default:
+            throw new Error(parseErrorPrefix + " (array || string || domEl || quickDomEl || template), got " + (String(tree)));
+        }
+      };
+      parseErrorPrefix = 'Template Parse Error: expected';
+      return module.exports;
+    };
+  })(this)({});
   pholderRegex = /\{\{.+?\}\}/g;
   configSchema = {
     type: 'div',
+    ref: void 0,
     options: {},
     children: []
   };
   QuickTemplate = function(config, isTree) {
     this._config = isTree ? parseTree(config) : config;
+    this._children = this._config.children;
     return this;
   };
   Object.keys(configSchema).forEach(function(key) {
@@ -1536,106 +1652,19 @@ var slice = [].slice;
       }
     });
   });
+  Object.defineProperty(QuickTemplate.prototype, 'child', {
+    get: function() {
+      return this._childRefs || _getChildRefs(this);
+    }
+  });
   QuickTemplate.prototype.spawn = function(newValues, globalOpts) {
     var opts;
-    opts = extendOptions(this._config, newValues, globalOpts);
+    opts = extendTemplate(this._config, newValues, globalOpts);
     return QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
   };
   QuickTemplate.prototype.extend = function(newValues, globalOpts) {
-    return new QuickTemplate(extendOptions(this._config, newValues, globalOpts));
+    return new QuickTemplate(extendTemplate(this._config, newValues, globalOpts));
   };
-  extendOptions = function(currentOpts, newOpts, globalOpts) {
-    var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, output, ref1;
-    if (globalOpts) {
-      globalOptsTransform = {
-        options: function(opts) {
-          return extend(opts, globalOpts);
-        }
-      };
-    }
-    if (IS.array(newOpts)) {
-      newOpts = parseTree(newOpts, false);
-    }
-    output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts);
-    currentChildren = currentOpts.children || [];
-    newChildren = (newOpts != null ? newOpts.children : void 0) || [];
-    output.children = [];
-
-    /* istanbul ignore next */
-    for (index = i = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? i < ref1 : i > ref1; index = 0 <= ref1 ? ++i : --i) {
-      needsTemplateWrap = false;
-      currentChild = currentChildren[index];
-      newChild = newChildren[index];
-      newChildProcessed = (function() {
-        switch (false) {
-          case !IS.template(newChild):
-            return newChild;
-          case !IS.array(newChild):
-            return needsTemplateWrap = parseTree(newChild, false);
-          case !IS.string(newChild):
-            return needsTemplateWrap = {
-              type: 'text',
-              options: {
-                text: newChild
-              }
-            };
-          default:
-            return needsTemplateWrap = newChild || true;
-        }
-      })();
-      if (needsTemplateWrap) {
-        newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed));
-      }
-      output.children.push(newChildProcessed);
-    }
-    return output;
-  };
-  parseTree = function(tree, parseChildren) {
-    var output;
-    switch (false) {
-      case !IS.array(tree):
-        output = {};
-        if (!IS.string(tree[0])) {
-          throw new Error(parseErrorPrefix + " string for 'type', got '" + (String(tree[0])) + "'");
-        } else {
-          output.type = tree[0];
-        }
-        if (tree.length > 1 && !IS.object(tree[1]) && tree[1] !== null) {
-          throw new Error(parseErrorPrefix + " object for 'options', got '" + (String(tree[1])) + "'");
-        } else {
-          output.options = tree[1] ? extend.deep.clone(tree[1]) : null;
-        }
-        output.children = tree.slice(2);
-        if (parseChildren !== false) {
-          output.children = output.children.map(QuickDom.template);
-        }
-        return output;
-      case !(IS.string(tree) || IS.domText(tree)):
-        return {
-          type: 'text',
-          options: {
-            text: tree.textContent || tree
-          }
-        };
-      case !IS.domEl(tree):
-        return {
-          type: tree.nodeName.toLowerCase(),
-          options: extend.clone.keys(allowedTemplateOptions)(tree),
-          children: [].map.call(tree.childNodes, QuickDom.template)
-        };
-      case !IS.quickDomEl(tree):
-        return {
-          type: tree.type,
-          options: extend.clone.deep.notKeys('relatedInstance')(tree.options),
-          children: tree.children.map(QuickDom.template)
-        };
-      case !IS.template(tree):
-        return extendOptions(tree._config);
-      default:
-        throw new Error(parseErrorPrefix + " (array || string || domEl || quickDomEl || template), got " + (String(tree)));
-    }
-  };
-  parseErrorPrefix = 'Template Parse Error: expected';
   shortcuts = ['link:a', 'anchor:a', 'a', 'text', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'section', 'button', 'br', 'ul', 'ol', 'li', 'fieldset', 'input', 'textarea', 'select', 'option', 'form', 'frame', 'hr', 'iframe', 'img', 'picture', 'main', 'nav', 'meta', 'object', 'pre', 'style', 'table', 'tbody', 'th', 'tr', 'td', 'tfoot', 'video'];
   fn = function(shortcut) {
     var prop, split, type;

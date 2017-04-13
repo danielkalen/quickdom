@@ -78,7 +78,7 @@ _getChildRefs = (target, freshCopy)->
 	target._childRefs = {} if freshCopy or not target._childRefs
 	refs = target._childRefs
 	refs[target.ref] = target if target.ref
-
+	debugger if not target.children
 	if target.children.length
 		extend target._childRefs, target._children.map((child)-> _getChildRefs(child, freshCopy))...
 
