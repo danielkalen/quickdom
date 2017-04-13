@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1ed4f, _sim_245cd, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1e884, _sim_29d43, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_245cd = (function(exports){
+  _sim_29d43 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_245cd;
+  CSS = _sim_29d43;
 
   /* istanbul ignore next */
-  _sim_1ed4f = (function(exports){
+  _sim_1e884 = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1ed4f;
+  extend = _sim_1e884;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -471,7 +471,7 @@ var slice = [].slice;
     return parents;
   };
   _getChildRefs = function(target, freshCopy) {
-    var refs;
+    var children, refs;
     if (freshCopy || !target._childRefs) {
       target._childRefs = {};
     }
@@ -479,11 +479,9 @@ var slice = [].slice;
     if (target.ref) {
       refs[target.ref] = target;
     }
-    if (!target.children) {
-      debugger;
-    }
-    if (target.children.length) {
-      extend.apply(null, [target._childRefs].concat(slice.call(target._children.map(function(child) {
+    children = target.children;
+    if (children.length) {
+      extend.apply(null, [target._childRefs].concat(slice.call(children.map(function(child) {
         return _getChildRefs(child, freshCopy);
       }))));
     }
@@ -1525,8 +1523,9 @@ var slice = [].slice;
   extendTemplate = (function(_this) {
     return function(exports) {
       var module = {exports:exports};
+      var extendByRef;
       module.exports = function(currentOpts, newOpts, globalOpts) {
-        var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, output, ref1;
+        var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, noChanges, output, ref1;
         if (globalOpts) {
           globalOptsTransform = {
             options: function(opts) {
@@ -1543,33 +1542,60 @@ var slice = [].slice;
         output.children = [];
 
         /* istanbul ignore next */
-        for (index = i = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? i < ref1 : i > ref1; index = 0 <= ref1 ? ++i : --i) {
-          needsTemplateWrap = false;
-          currentChild = currentChildren[index];
-          newChild = newChildren[index];
-          newChildProcessed = (function() {
-            switch (false) {
-              case !IS.template(newChild):
-                return newChild;
-              case !IS.array(newChild):
-                return needsTemplateWrap = parseTree(newChild, false);
-              case !IS.string(newChild):
-                return needsTemplateWrap = {
-                  type: 'text',
-                  options: {
-                    text: newChild
-                  }
-                };
-              default:
-                return needsTemplateWrap = newChild || true;
+        if (IS.array(newChildren)) {
+          for (index = i = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? i < ref1 : i > ref1; index = 0 <= ref1 ? ++i : --i) {
+            needsTemplateWrap = noChanges = false;
+            currentChild = currentChildren[index];
+            newChild = newChildren[index];
+            newChildProcessed = (function() {
+              switch (false) {
+                case !IS.template(newChild):
+                  return newChild;
+                case !IS.array(newChild):
+                  return needsTemplateWrap = parseTree(newChild, false);
+                case !IS.string(newChild):
+                  return needsTemplateWrap = {
+                    type: 'text',
+                    options: {
+                      text: newChild
+                    }
+                  };
+                case !(!newChild && !globalOpts):
+                  return noChanges = true;
+                default:
+                  return needsTemplateWrap = newChild || true;
+              }
+            })();
+            if (noChanges) {
+              newChildProcessed = currentChild;
+            } else if (needsTemplateWrap) {
+              newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed));
             }
-          })();
-          if (needsTemplateWrap) {
-            newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed));
+            output.children.push(newChildProcessed);
           }
-          output.children.push(newChildProcessed);
+        } else if (IS.object(newChildren)) {
+          output.children = extendByRef(newChildren, currentChildren, globalOpts);
         }
         return output;
+      };
+      extendByRef = function(newChildrenRefs, currentChildren, globalOpts) {
+        var currentChild, i, len, newChild, newChildProcessed, output, theNewChildren;
+        if (!currentChildren.length) {
+          return currentChildren;
+        } else {
+          output = [];
+          for (i = 0, len = currentChildren.length; i < len; i++) {
+            currentChild = currentChildren[i];
+            if (newChild = newChildrenRefs[currentChild.ref]) {
+              newChildProcessed = currentChild.extend(newChild, globalOpts);
+            } else {
+              newChildProcessed = globalOpts ? currentChild.extend(null, globalOpts) : currentChild;
+            }
+            newChildProcessed._config.children = theNewChildren = extendByRef(newChildrenRefs, newChildProcessed.children);
+            output.push(newChildProcessed);
+          }
+          return output;
+        }
       };
       return module.exports;
     };
@@ -1597,7 +1623,11 @@ var slice = [].slice;
               }
             }
             output.children = tree.slice(2);
-            if (parseChildren !== false) {
+            if (parseChildren === false) {
+              if (tree.length === 3 && IS.objectPlain(tree[2])) {
+                output.children = tree[2];
+              }
+            } else {
               output.children = output.children.map(QuickDom.template);
             }
             return output;
@@ -1642,7 +1672,6 @@ var slice = [].slice;
   };
   QuickTemplate = function(config, isTree) {
     this._config = isTree ? parseTree(config) : config;
-    this._children = this._config.children;
     return this;
   };
   Object.keys(configSchema).forEach(function(key) {

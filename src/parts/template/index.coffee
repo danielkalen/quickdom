@@ -9,7 +9,6 @@ configSchema =
 
 QuickTemplate = (config, isTree)->
 	@_config = if isTree then parseTree(config) else config
-	@_children = @_config.children
 	return @
 
 
