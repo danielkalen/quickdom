@@ -3098,7 +3098,7 @@ var slice = [].slice;
           expect(section.children[0].children.length).to.equal(2);
           return expect(section.text()).to.equal('This is bolded text while this is not');
         });
-        return test("Template children can be navigated by ref using the .child property", function() {
+        test("Template children can be navigated by ref using the .child property", function() {
           var rendered, template;
           template = Dom.template([
             'div', {
@@ -3123,8 +3123,9 @@ var slice = [].slice;
                 }
               ], [
                 'text', {
-                  id: 'childB_2'
-                }, 'The Text'
+                  id: 'childB_2',
+                  text: 'The Text'
+                }
               ]
             ]
           ]);
@@ -3138,7 +3139,91 @@ var slice = [].slice;
           expect(template.child.childB_1).to.equal(template.children[1].children[0]);
           expect(template.child.childB_2).to.equal(template.children[1].children[1]);
           rendered = template.spawn();
-          return expect(rendered.child.childB_2).to.equal(rendered.children[1].children[1]);
+          expect(rendered.child.childB_2).to.equal(rendered.children[1].children[1]);
+          return expect(rendered.text()).to.equal('The Text');
+        });
+        return test("Template's children can be extend/spawned with a {ref:newChild} map instead of a positional array", function() {
+          var rendered, templateCopy, templateMain;
+          templateMain = Dom.template([
+            'div', {
+              id: 'divA'
+            }, [
+              'div', {
+                id: 'childA'
+              }, [
+                'span', {
+                  ref: 'childA_1'
+                }
+              ], [
+                'div', {
+                  ref: 'childA_2',
+                  id: 'childA_2'
+                }
+              ]
+            ], [
+              'div', null, [
+                'span', {
+                  ref: 'childB_1'
+                }
+              ], [
+                'text', {
+                  id: 'childB_2',
+                  text: 'The Text'
+                }
+              ]
+            ]
+          ]);
+          templateCopy = templateMain.extend([
+            'section', null, {
+              childA: {
+                type: 'form',
+                options: {
+                  style: {
+                    display: 'inline-block'
+                  }
+                }
+              },
+              childA_2: [
+                'a', {
+                  id: 'CHILDa_2',
+                  href: 'http://google.com'
+                }, [
+                  'text', {
+                    ref: 'childA_2_1',
+                    text: 'New Text'
+                  }
+                ]
+              ],
+              childC: [
+                'div', {
+                  ref: 'childD'
+                }
+              ]
+            }
+          ], {
+            value: 'theValue'
+          });
+          expect(typeof templateCopy.child.childA_2_1).not.to.equal('undefined');
+          expect(Object.keys(templateMain.child).length).to.equal(6);
+          expect(Object.keys(templateCopy.child).length).to.equal(7);
+          expect(templateCopy.children.length).to.equal(2);
+          expect(templateCopy.child.divA).to.equal(templateCopy);
+          expect(templateCopy.child.childA).to.equal(templateCopy.children[0]);
+          expect(templateCopy.child.childA_1).to.equal(templateCopy.children[0].children[0]);
+          expect(templateCopy.child.childA_2).to.equal(void 0);
+          expect(templateCopy.child.CHILDa_2).to.equal(templateCopy.children[0].children[1]);
+          expect(templateCopy.child.childA_2_1).to.equal(templateCopy.children[0].children[1].children[0]);
+          expect(templateCopy.child.childA_2_1.options.text).to.equal('New Text');
+          expect(templateCopy.child.childB_1).to.equal(templateCopy.children[1].children[0]);
+          expect(templateCopy.child.childB_2).to.equal(templateCopy.children[1].children[1]);
+          expect(templateCopy.child.childC).to.equal(void 0);
+          expect(templateCopy.child.childD).to.equal(void 0);
+          rendered = templateCopy.spawn();
+          expect(Object.keys(rendered.child).length).to.equal(7);
+          expect(rendered.child.childB_2).to.equal(rendered.children[1].children[1]);
+          expect(rendered.child.childA.raw.style.display).to.equal('inline-block');
+          expect(rendered.child.CHILDa_2.prop('href')).to.contain('http://google.com');
+          return expect(rendered.child.childB_1.prop('value')).to.equal('theValue');
         });
       });
       return suite("Misc", function() {

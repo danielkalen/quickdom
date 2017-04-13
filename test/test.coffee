@@ -2727,7 +2727,7 @@ suite "QuickDom", ()->
 					]
 					['div', null, 
 						['span', {ref:'childB_1'}]
-						['text', {id:'childB_2'}, 'The Text']
+						['text', {id:'childB_2', text:'The Text'}]
 					]
 				]
 
@@ -2743,6 +2743,57 @@ suite "QuickDom", ()->
 
 			rendered = template.spawn()
 			expect(rendered.child.childB_2).to.equal rendered.children[1].children[1]
+			expect(rendered.text()).to.equal('The Text')
+
+
+		test "Template's children can be extend/spawned with a {ref:newChild} map instead of a positional array", ()->
+			templateMain = 
+				Dom.template ['div', {id:'divA'},
+					['div', {id:'childA'},
+						['span', {ref:'childA_1'}]
+						['div', {ref:'childA_2', id:'childA_2'}]
+					]
+					['div', null, 
+						['span', {ref:'childB_1'}]
+						['text', {id:'childB_2', text:'The Text'}]
+					]
+				]
+			templateCopy = templateMain.extend ['section', null, 
+				childA:
+					type: 'form'
+					options:
+						style: display: 'inline-block'
+				childA_2:
+					['a', {id:'CHILDa_2', href:'http://google.com'},
+						['text', {ref:'childA_2_1', text:'New Text'}]
+					]
+				childC:
+					['div', ref:'childD']
+			], {value:'theValue'}
+
+			expect(typeof templateCopy.child.childA_2_1).not.to.equal 'undefined'
+			expect(Object.keys(templateMain.child).length).to.equal(6)
+			expect(Object.keys(templateCopy.child).length).to.equal(7)
+			expect(templateCopy.children.length).to.equal(2)
+			expect(templateCopy.child.divA).to.equal templateCopy
+			expect(templateCopy.child.childA).to.equal templateCopy.children[0]
+			expect(templateCopy.child.childA.type).to.equal 'form'
+			expect(templateCopy.child.childA_1).to.equal templateCopy.children[0].children[0]
+			expect(templateCopy.child.childA_2).to.equal undefined
+			expect(templateCopy.child.CHILDa_2).to.equal templateCopy.children[0].children[1]
+			expect(templateCopy.child.childA_2_1).to.equal templateCopy.children[0].children[1].children[0]
+			expect(templateCopy.child.childA_2_1.options.text).to.equal 'New Text'
+			expect(templateCopy.child.childB_1).to.equal templateCopy.children[1].children[0]
+			expect(templateCopy.child.childB_2).to.equal templateCopy.children[1].children[1]
+			expect(templateCopy.child.childC).to.equal undefined
+			expect(templateCopy.child.childD).to.equal undefined
+
+			rendered = templateCopy.spawn()
+			expect(Object.keys(rendered.child).length).to.equal(7)
+			expect(rendered.child.childB_2).to.equal rendered.children[1].children[1]
+			expect(rendered.child.childA.raw.style.display).to.equal 'inline-block'
+			expect(rendered.child.CHILDa_2.prop('href')).to.contain 'http://google.com'
+			expect(rendered.child.childB_1.prop('value')).to.equal('theValue')
 
 
 
