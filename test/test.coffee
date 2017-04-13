@@ -2262,30 +2262,30 @@ suite "QuickDom", ()->
 
 
 
-		test ".html() - innerHTML getter/setter", ()->
+		test ".html - innerHTML getter/setter", ()->
 			div = Dom.div(null, Dom.div(), 'Some text', Dom.span(), Dom.div())
 
 			expect(div.children.length).to.equal(4)
-			expect(div.html()).to.equal(div.el.innerHTML)
+			expect(div.html).to.equal(div.el.innerHTML)
 			expect(div.children.length).to.equal(4)
 
-			div.html('<section id="test"></section>')
-			expect(div.html()).to.equal('<section id="test"></section>')
+			div.html = '<section ID="test"></section>'
+			expect(div.html).to.equal('<section id="test"></section>')
 			expect(div.children.length).to.equal(1)
 			expect(div.children[0].el.id).to.equal('test')
 			expect(div.children[0].el.nodeName.toLowerCase()).to.equal('section')
 
 
-		test ".text() - textContent getter/setter", ()->
+		test ".text - textContent getter/setter", ()->
 			div = Dom.div(null, 'Some text', Dom.span(null, 'Inner Text'))
 
 			expect(div.children.length).to.equal(2)
-			expect(div.text()).to.equal(div.el.textContent)
-			expect(div.text()).to.equal('Some textInner Text')
+			expect(div.text).to.equal(div.el.textContent)
+			expect(div.text).to.equal('Some textInner Text')
 			expect(div.children.length).to.equal(2)
 
-			div.text('newText')
-			expect(div.text()).to.equal('newText')
+			div.text = 'newText'
+			expect(div.text).to.equal('newText')
 			expect(div.el.textContent).to.equal('newText')
 			expect(div.children.length).to.equal(1)
 			expect(div.children[0].el.nodeType).to.equal(3)
@@ -2293,20 +2293,20 @@ suite "QuickDom", ()->
 
 		test "Appending/prepending elements to a text node should do nothing", ()->
 			text = Dom.text('abc123')
-			expect(text.text()).to.equal('abc123')
+			expect(text.text).to.equal('abc123')
 			expect(text.raw.childNodes.length).to.equal(0)
 
 			text.append(Dom.text('def'))
-			expect(text.text()).to.equal('abc123')
+			expect(text.text).to.equal('abc123')
 			expect(text.raw.childNodes.length).to.equal(0)
 
 			text.prepend(Dom.div(null, 'def'))
-			expect(text.text()).to.equal('abc123')
+			expect(text.text).to.equal('abc123')
 			expect(text.raw.childNodes.length).to.equal(0)
 			
 			div = Dom.div(null, '456')
 			div.appendTo(text)
-			expect(text.text()).to.equal('abc123')
+			expect(text.text).to.equal('abc123')
 			expect(text.raw.childNodes.length).to.equal(0)
 			expect(div.parent).to.equal(undefined)
 
@@ -2447,7 +2447,7 @@ suite "QuickDom", ()->
 			expect(sectionTemplate).not.to.equal(section)
 			expect(templateSpawn.el).not.to.equal(section.el)
 			expect(templateSpawn.el.className).to.equal('singleSection')
-			expect(templateSpawn.text()).to.equal('Some Inner Text')
+			expect(templateSpawn.text).to.equal('Some Inner Text')
 			expect(section.state 'happy').to.be.true
 			expect(templateSpawn.state 'happy').to.be.false
 
@@ -2461,7 +2461,7 @@ suite "QuickDom", ()->
 
 			expect(templateSpawn.el).not.to.equal(sectionEl)
 			expect(templateSpawn.el.className).to.equal('singleSection')
-			expect(templateSpawn.text()).to.equal('Some Inner Text')
+			expect(templateSpawn.text).to.equal('Some Inner Text')
 
 
 		test "Templates are immutable", ()->
@@ -2493,17 +2493,17 @@ suite "QuickDom", ()->
 			expect(spawn.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawn.el.className).to.equal('some-div')
 			expect(spawn.el.id).to.equal('')
-			expect(spawn.text()).to.equal('Some Inner Text')
+			expect(spawn.text).to.equal('Some Inner Text')
 
 			expect(spawnA.el.nodeName.toLowerCase()).to.equal('span')
 			expect(spawnA.el.className).to.equal('some-span')
 			expect(spawnA.el.id).to.equal('')
-			expect(spawnA.text()).to.equal('Some Inner Text')
+			expect(spawnA.text).to.equal('Some Inner Text')
 
 			expect(spawnB.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawnB.el.className).to.equal('some-div')
 			expect(spawnB.el.id).to.equal('theMainDiv')
-			expect(spawnB.text()).to.equal('The Other Inner Text')
+			expect(spawnB.text).to.equal('The Other Inner Text')
 
 
 		test "Templates can be spawned via extended config by passing a new config object to template.spawn()", ()->
@@ -2547,7 +2547,7 @@ suite "QuickDom", ()->
 			expect(spawnRaw.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawnRaw.el.className).to.equal('some-div')
 			expect(spawnRaw.el.id).to.equal('')
-			expect(spawnRaw.text()).to.equal('Some Inner Text - Bolded Text')
+			expect(spawnRaw.text).to.equal('Some Inner Text - Bolded Text')
 			expect(spawnRaw.el.style.opacity).to.equal('')
 			expect(spawnRaw.el.childNodes.length).to.equal(2)
 			expect(spawnRaw.el.childNodes[0].nodeName).to.equal('#text')
@@ -2558,7 +2558,7 @@ suite "QuickDom", ()->
 			expect(spawnA.el.nodeName.toLowerCase()).to.equal('section')
 			expect(spawnA.el.className).to.equal('some-section')
 			expect(spawnA.el.id).to.equal('')
-			expect(spawnA.text()).to.equal('Some Inner Text - Bolded Text')
+			expect(spawnA.text).to.equal('Some Inner Text - Bolded Text')
 			expect(spawnA.el.style.opacity).to.equal('0.7')
 			expect(spawnA.el.childNodes.length).to.equal(2)
 			expect(spawnA.el.childNodes[0].nodeName).to.equal('#text')
@@ -2569,7 +2569,7 @@ suite "QuickDom", ()->
 			expect(spawnB.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawnB.el.className).to.equal('main-div')
 			expect(spawnB.el.id).to.equal('theMainDiv')
-			expect(spawnB.text()).to.equal('Main Inner Text - Very Bolded Text + Other Text')
+			expect(spawnB.text).to.equal('Main Inner Text - Very Bolded Text + Other Text')
 			expect(spawnB.el.style.opacity).to.equal('0.5')
 			expect(spawnB.el.childNodes.length).to.equal(3)
 			expect(spawnB.el.childNodes[0].nodeName.toLowerCase()).to.equal('span')
@@ -2651,7 +2651,7 @@ suite "QuickDom", ()->
 			expect(spawnedA.children[0].raw.style.opacity).to.equal('0.5')
 			expect(spawnedA.children[0].raw.style.fontFamily).to.equal('')
 			expect(spawnedA.children[1].type).to.equal('text')
-			expect(spawnedA.text()).to.equal('original text')
+			expect(spawnedA.text).to.equal('original text')
 
 			expect(spawnedB.type).to.equal('span')
 			expect(spawnedB.children.length).to.equal(3)
@@ -2659,7 +2659,7 @@ suite "QuickDom", ()->
 			expect(spawnedB.children[0].raw.style.opacity).to.equal('')
 			expect(spawnedB.children[0].raw.style.fontFamily).to.equal('pink')
 			expect(spawnedB.children[1].type).to.equal('text')
-			expect(spawnedB.text()).to.equal('replaced text')
+			expect(spawnedB.text).to.equal('replaced text')
 			expect(spawnedB.children[2].type).to.equal('section')
 			expect(spawnedB.raw.style.fontSize).to.equal('77px')
 
@@ -2669,7 +2669,7 @@ suite "QuickDom", ()->
 			expect(spawnedC.children[0].raw.style.opacity).to.equal('')
 			expect(spawnedC.children[0].raw.style.fontFamily).to.equal('pink')
 			expect(spawnedC.children[1].type).to.equal('text')
-			expect(spawnedC.text()).to.equal('replaced text')
+			expect(spawnedC.text).to.equal('replaced text')
 			expect(spawnedC.children[2].type).to.equal('section')
 			expect(spawnedC.raw.style.fontSize).to.equal('77px')
 
@@ -2691,7 +2691,7 @@ suite "QuickDom", ()->
 			expect(section.children.length).to.equal(1)
 			expect(section.children[0].type).to.equal('header')
 			expect(section.children[0].children.length).to.equal(2)
-			expect(section.text()).to.equal('This is bolded text while this is not')
+			expect(section.text).to.equal('This is bolded text while this is not')
 			expect(section.children[0].children[0].style('textAlign')).to.equal('center')
 
 
@@ -2715,7 +2715,7 @@ suite "QuickDom", ()->
 			expect(section.children.length).to.equal(1)
 			expect(section.children[0].type).to.equal('header')
 			expect(section.children[0].children.length).to.equal(2)
-			expect(section.text()).to.equal('This is bolded text while this is not')
+			expect(section.text).to.equal('This is bolded text while this is not')
 
 
 		test "Template children can be navigated by ref using the .child property", ()->
@@ -2743,7 +2743,7 @@ suite "QuickDom", ()->
 
 			rendered = template.spawn()
 			expect(rendered.child.childB_2).to.equal rendered.children[1].children[1]
-			expect(rendered.text()).to.equal('The Text')
+			expect(rendered.text).to.equal('The Text')
 
 
 		test "Template's children can be extend/spawned with a {ref:newChild} map instead of a positional array", ()->
@@ -2820,8 +2820,6 @@ suite "QuickDom", ()->
 				.after()
 				.insertBefore()
 				.insertAfter()
-				.html('<span></span>')
-				.text('some text')
 				.detach()
 				.wrap(Dom.section())
 				.unwrap()

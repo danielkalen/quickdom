@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1c9ad, _sim_20cd7, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1b39d, _sim_24bd0, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_1c9ad = (function(exports){
+  _sim_24bd0 = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_1c9ad;
+  CSS = _sim_24bd0;
 
   /* istanbul ignore next */
-  _sim_20cd7 = (function(exports){
+  _sim_1b39d = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_20cd7;
+  extend = _sim_1b39d;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -1134,20 +1134,6 @@ var slice = [].slice;
     }
     return this;
   };
-  QuickElement.prototype.html = function(newValue) {
-    if (!IS.defined(newValue)) {
-      return this.el.innerHTML;
-    }
-    this.el.innerHTML = newValue;
-    return this;
-  };
-  QuickElement.prototype.text = function(newValue) {
-    if (!IS.defined(newValue)) {
-      return this.el.textContent;
-    }
-    this.el.textContent = newValue;
-    return this;
-  };
   QuickElement.prototype.after = function(targetEl) {
     var myIndex;
     if (targetEl && this.parent) {
@@ -1276,6 +1262,24 @@ var slice = [].slice;
     }
     return this;
   };
+  Object.defineProperties(QuickElement.prototype, {
+    'html': {
+      get: function() {
+        return this.el.innerHTML;
+      },
+      set: function(newValue) {
+        return this.el.innerHTML = newValue;
+      }
+    },
+    'text': {
+      get: function() {
+        return this.el.textContent;
+      },
+      set: function(newValue) {
+        return this.el.textContent = newValue;
+      }
+    }
+  });
   QuickWindow = {
     type: 'window',
     el: window,
@@ -1493,8 +1497,8 @@ var slice = [].slice;
       return this.lastResults;
     }
   };
-  Object.keys(QuickElement.prototype).concat('css', 'replaceWith').forEach(function(method) {
-    return QuickBatch.prototype[method] = function() {
+  Object.keys(QuickElement.prototype).concat('css', 'replaceWith', 'html', 'text').forEach(function(method) {
+    return QuickBatch.prototype[method] = function(newValue) {
       var element, results;
       results = this.lastResults = (function() {
         var i, len, ref1, results1;
@@ -1502,7 +1506,15 @@ var slice = [].slice;
         results1 = [];
         for (i = 0, len = ref1.length; i < len; i++) {
           element = ref1[i];
-          results1.push(element[method].apply(element, arguments));
+          if (method === 'html' || method === 'text') {
+            if (newValue) {
+              results1.push(element[method] = newValue);
+            } else {
+              results1.push(element[method]);
+            }
+          } else {
+            results1.push(element[method].apply(element, arguments));
+          }
         }
         return results1;
       }).apply(this, arguments);

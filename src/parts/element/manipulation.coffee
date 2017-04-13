@@ -63,22 +63,6 @@ QuickElement::prependTo = (targetEl)->
 	return @
 
 
-QuickElement::html = (newValue)->
-	if not IS.defined(newValue)
-		return @el.innerHTML
-
-	@el.innerHTML = newValue
-	return @
-
-
-QuickElement::text = (newValue)->
-	if not IS.defined(newValue)
-		return @el.textContent
-
-	@el.textContent = newValue
-	return @
-
-
 QuickElement::after = (targetEl)->
 	if targetEl and @parent
 		targetEl = helpers.normalizeGivenEl(targetEl)
@@ -196,6 +180,16 @@ QuickElement::_removeChild = (targetChild, replacementChild)->
 		
 
 	return @
+
+
+Object.defineProperties QuickElement::,
+	'html':
+		get: ()-> @el.innerHTML
+		set: (newValue)-> @el.innerHTML = newValue
+	
+	'text':
+		get: ()-> @el.textContent
+		set: (newValue)-> @el.textContent = newValue
 
 
 

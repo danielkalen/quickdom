@@ -14,11 +14,15 @@ QuickBatch::return = (returnNext)->
 		return @lastResults
 
 
-Object.keys(QuickElement::).concat('css', 'replaceWith').forEach (method)->
-	QuickBatch::[method] = ()->
-		results = @lastResults = (element[method].apply(element, arguments) for element in @elements)
+Object.keys(QuickElement::).concat('css', 'replaceWith', 'html', 'text').forEach (method)->
+	QuickBatch::[method] = (newValue)->
+		results = @lastResults = for element in @elements
+			if method is 'html' or method is 'text'
+				if newValue then element[method] = newValue else element[method]
+			else
+				element[method](arguments...)
+		
 		return if @returnResults then results else @
-
 
 
 QuickDom.batch = (elements, returnResults)->
