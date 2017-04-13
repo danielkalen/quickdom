@@ -24,6 +24,7 @@ QuickElement::_normalizeStyle = ()->
 	@_providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
 
 	if not helpers.includes(states, '$base') and keys.length
+		@options = extend.clone(@options)
 		if states.length # Indicates other states were provided but the $base state has no styling
 			nonStateProps = keys.filter (property)-> not helpers.isStateStyle(property)
 			@options.style.$base = extend.clone.keys(nonStateProps)(@options.style)

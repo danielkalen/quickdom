@@ -3209,6 +3209,7 @@ var slice = [].slice;
           expect(templateCopy.children.length).to.equal(2);
           expect(templateCopy.child.divA).to.equal(templateCopy);
           expect(templateCopy.child.childA).to.equal(templateCopy.children[0]);
+          expect(templateCopy.child.childA.type).to.equal('form');
           expect(templateCopy.child.childA_1).to.equal(templateCopy.children[0].children[0]);
           expect(templateCopy.child.childA_2).to.equal(void 0);
           expect(templateCopy.child.CHILDa_2).to.equal(templateCopy.children[0].children[1]);

@@ -20,7 +20,7 @@ Object.defineProperty QuickTemplate::, 'child', get: ()->
 
 
 QuickTemplate::spawn = (newValues, globalOpts)->
-	opts = extendTemplate(@_config, newValues, globalOpts)
+	opts = if newValues or globalOpts then extendTemplate(@_config, newValues, globalOpts) else @_config
 	return QuickDom(opts.type, opts.options, opts.children...)
 
 
