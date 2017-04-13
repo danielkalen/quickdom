@@ -3,7 +3,7 @@ var slice = [].slice;
 
 (function(_this) {
   return (function(global) {
-    var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox, sandbox$, should;
+    var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox, sandbox$;
     _this.dimensions = (function() {
       var dimensions, origDescriptors;
       origDescriptors = {
@@ -73,7 +73,6 @@ var slice = [].slice;
       mocha.bail();
     }
     expect = chai.expect;
-    should = chai.should();
     sandbox$ = sandbox = null;
     restartSandbox = function() {
       if (sandbox$ != null) {
@@ -3049,7 +3048,7 @@ var slice = [].slice;
           expect(section.text()).to.equal('This is bolded text while this is not');
           return expect(section.children[0].children[0].style('textAlign')).to.equal('center');
         });
-        return test("A global options object can be passed as the 2nd arg to template.extend/spawn() which will be applied to all templates, spawns, & their children", function() {
+        test("A global options object can be passed as the 2nd arg to template.extend/spawn() which will be applied to all templates, spawns, & their children", function() {
           var dynamicHeightStyle, headerTemplate, obj, section, sectionTemplate;
           obj = {
             myHeight: '150px'
@@ -3098,6 +3097,48 @@ var slice = [].slice;
           expect(section.children[0].type).to.equal('header');
           expect(section.children[0].children.length).to.equal(2);
           return expect(section.text()).to.equal('This is bolded text while this is not');
+        });
+        return test("Template children can be navigated by ref using the .child property", function() {
+          var rendered, template;
+          template = Dom.template([
+            'div', {
+              id: 'divA'
+            }, [
+              'div', {
+                id: 'childA'
+              }, [
+                'span', {
+                  ref: 'childA_1'
+                }
+              ], [
+                'div', {
+                  ref: 'childA_2',
+                  id: 'childA_2'
+                }
+              ]
+            ], [
+              'div', null, [
+                'span', {
+                  ref: 'childB_1'
+                }
+              ], [
+                'text', {
+                  id: 'childB_2'
+                }, 'The Text'
+              ]
+            ]
+          ]);
+          expect(typeof template.child).to.equal('object');
+          expect(Object.keys(template.child).length).to.equal(6);
+          expect(template.child.divA).to.equal(template);
+          expect(template.child.childA.type).to.equal('div');
+          expect(template.child.childA).to.equal(template.children[0]);
+          expect(template.child.childA_1).to.equal(template.children[0].children[0]);
+          expect(template.child.childA_2).to.equal(template.children[0].children[1]);
+          expect(template.child.childB_1).to.equal(template.children[1].children[0]);
+          expect(template.child.childB_2).to.equal(template.children[1].children[1]);
+          rendered = template.spawn();
+          return expect(rendered.child.childB_2).to.equal(rendered.children[1].children[1]);
         });
       });
       return suite("Misc", function() {

@@ -4,7 +4,6 @@ mocha.slow(400)
 mocha.timeout(12000)
 mocha.bail() unless window.location.hostname
 expect = chai.expect
-should = chai.should()
 sandbox$ = sandbox = null
 restartSandbox = ()->
 	sandbox$?.remove()
@@ -2717,6 +2716,34 @@ suite "QuickDom", ()->
 			expect(section.children[0].type).to.equal('header')
 			expect(section.children[0].children.length).to.equal(2)
 			expect(section.text()).to.equal('This is bolded text while this is not')
+
+
+		test "Template children can be navigated by ref using the .child property", ()->
+			template = 
+				Dom.template ['div', {id:'divA'},
+					['div', {id:'childA'},
+						['span', {ref:'childA_1'}]
+						['div', {ref:'childA_2', id:'childA_2'}]
+					]
+					['div', null, 
+						['span', {ref:'childB_1'}]
+						['text', {id:'childB_2'}, 'The Text']
+					]
+				]
+
+			expect(typeof template.child).to.equal 'object'
+			expect(Object.keys(template.child).length).to.equal(6)
+			expect(template.child.divA).to.equal template
+			expect(template.child.childA.type).to.equal 'div'
+			expect(template.child.childA).to.equal template.children[0]
+			expect(template.child.childA_1).to.equal template.children[0].children[0]
+			expect(template.child.childA_2).to.equal template.children[0].children[1]
+			expect(template.child.childB_1).to.equal template.children[1].children[0]
+			expect(template.child.childB_2).to.equal template.children[1].children[1]
+
+			rendered = template.spawn()
+			expect(rendered.child.childB_2).to.equal rendered.children[1].children[1]
+
 
 
 
