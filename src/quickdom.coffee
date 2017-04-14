@@ -12,6 +12,9 @@ do ()->
 	import parts/mediaQuery
 
 	QuickDom = (args...)-> switch
+		when IS.array(args[0])
+			return QuickDom(args[0]...)
+		
 		when IS.template(args[0])
 			return args[0].spawn()
 		
@@ -43,6 +46,7 @@ do ()->
 			for child in children
 				child = QuickDom.text(child) if IS.string(child)
 				child = QuickDom(child) if IS.template(child)
+				child = QuickDom(child...) if IS.array(child)
 				child.appendTo(element) if IS.quickDomEl(child)
 
 			return element
