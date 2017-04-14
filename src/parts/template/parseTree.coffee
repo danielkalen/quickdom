@@ -15,7 +15,7 @@ module.exports = (tree, parseChildren)-> switch
 
 		output.children = tree.slice(2)
 		if parseChildren is false
-			output.children = tree[2] if tree.length is 3 and IS.objectPlain(tree[2])
+			output.children = tree[2] if tree.length is 3 and IS.objectPlain(tree[2]) and not IS.template(tree[2])
 		else
 			output.children = output.children.map(QuickDom.template)
 		return output
