@@ -2410,6 +2410,23 @@ suite "QuickDom", ()->
 			expect(Dom.batch(arr,1).reverse().reverse().text()).to.eql ['AAA','BBB','CCC']
 
 
+		test "Batch.text/.html are methods instead of getters/setters", ()->
+			divA = Dom.div(null, 'The divA')
+			divB = Dom.div(null, 'The divB')
+			batch = Dom.batch([divA, divB], true)
+
+			expect(batch.html()).to.eql ['The divA', 'The divB']
+			expect(batch.text()).to.eql ['The divA', 'The divB']
+			
+			batch.html('<span>The div</span>')
+			expect(batch.html()).to.eql ['<span>The div</span>', '<span>The div</span>']
+			expect(batch.text()).to.eql ['The div', 'The div']
+
+			batch.text('THE DIV')
+			expect(batch.html()).to.eql ['THE DIV', 'THE DIV']
+			expect(batch.text()).to.eql ['THE DIV', 'THE DIV']
+
+
 
 	suite "Templates", ()->
 		test "A reusable template can be generated via QuickDom.template()", ()->

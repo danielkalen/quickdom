@@ -3,7 +3,7 @@ module.exports = (currentOpts, newOpts, globalOpts)->
 	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
 
 	output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts)
-	currentChildren = currentOpts.children or []
+	currentChildren = currentOpts.children
 	newChildren = newOpts?.children or []
 	output.children = []
 	

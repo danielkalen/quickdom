@@ -129,7 +129,8 @@ var slice = [].slice;
 				    "watch": "npm run watch:js & npm run watch:test",
 				    "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
 				    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
-				    "coverage:badge": "badge-gen -d ./.config/badges/coverage"
+				    "coverage:badge": "badge-gen -d ./.config/badges/coverage",
+				    "coverage:show": "open coverage/lcov-report/index.html"
 				  },
 				  "repository": {
 				    "type": "git",
@@ -2627,7 +2628,7 @@ var slice = [].slice;
           expect(result).to.eql(['0.5', '0.5', '0.5']);
           return expect(Dom.batch([A, B, C]).css('width', '38px').css('height', '28px')["return"](true).css('width')).to.eql(['38px', '38px', '38px']);
         });
-        return test("Invoking the .reverse() method on the batch instance will reverse the elements array in the batch and thus the execution order", function() {
+        test("Invoking the .reverse() method on the batch instance will reverse the elements array in the batch and thus the execution order", function() {
           var A, B, C, arr;
           A = Dom.div(null, 'AAA').appendTo(sandbox);
           B = Dom.div(null, 'BBB').appendTo(sandbox);
@@ -2640,6 +2641,20 @@ var slice = [].slice;
           expect(Dom.batch(arr, 1).reverse().text()).to.eql(['CCC', 'BBB', 'AAA']);
           expect(Dom.batch(arr, 1).reverse().text()).to.eql(['CCC', 'BBB', 'AAA']);
           return expect(Dom.batch(arr, 1).reverse().reverse().text()).to.eql(['AAA', 'BBB', 'CCC']);
+        });
+        return test("Batch.text/.html are methods instead of getters/setters", function() {
+          var batch, divA, divB;
+          divA = Dom.div(null, 'The divA');
+          divB = Dom.div(null, 'The divB');
+          batch = Dom.batch([divA, divB], true);
+          expect(batch.html()).to.eql(['The divA', 'The divB']);
+          expect(batch.text()).to.eql(['The divA', 'The divB']);
+          batch.html('<span>The div</span>');
+          expect(batch.html()).to.eql(['<span>The div</span>', '<span>The div</span>']);
+          expect(batch.text()).to.eql(['The div', 'The div']);
+          batch.text('THE DIV');
+          expect(batch.html()).to.eql(['THE DIV', 'THE DIV']);
+          return expect(batch.text()).to.eql(['THE DIV', 'THE DIV']);
         });
       });
       suite("Templates", function() {
