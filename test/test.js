@@ -284,6 +284,29 @@ var slice = [].slice;
           expect(B.el.childNodes[2].nodeName.toLowerCase()).to.equal('span');
           return expect(B.children.length).to.equal(3);
         });
+        test("Array syntax", function() {
+          var section;
+          section = Dom([
+            'section', {
+              style: {
+                display: 'inline'
+              }
+            }, ['div', null, 'childA'], ['span', null, ['strong', null, 'childB']], ['div', null, 'childC', ['span', null, 'childC_1'], ['span', null, 'childC_2']]
+          ]);
+          expect(section).not.to.equal(void 0);
+          expect(section.raw.style.display).to.equal('inline');
+          expect(section.children.length).to.equal(3);
+          expect(section.children[0].children.length).to.equal(1);
+          expect(section.children[1].children.length).to.equal(1);
+          expect(section.children[2].children.length).to.equal(3);
+          expect(section.children[2].children[1].children.length).to.equal(1);
+          expect(section.children[2].children[2].children.length).to.equal(1);
+          expect(section.children[0].text).to.equal('childA');
+          expect(section.children[1].text).to.equal('childB');
+          expect(section.children[2].text).to.equal('childCchildC_1childC_2');
+          expect(section.children[2].children[1].text).to.equal('childC_1');
+          return expect(section.children[2].children[2].text).to.equal('childC_2');
+        });
         test("Existing Element", function() {
           var A, B, C, divRaw;
           divRaw = document.createElement('div');
