@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1da38, _sim_21052, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1ffac, _sim_236dd, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_21052 = (function(exports){
+  _sim_236dd = (function(exports){
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_21052;
+  CSS = _sim_236dd;
 
   /* istanbul ignore next */
-  _sim_1da38 = (function(exports){
+  _sim_1ffac = (function(exports){
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_1da38;
+  extend = _sim_1ffac;
   allowedTemplateOptions = ['className', 'href', 'selected', 'type', 'name', 'id', 'checked'];
   helpers = {};
   helpers.includes = function(target, item) {
@@ -1538,7 +1538,7 @@ var slice = [].slice;
       var module = {exports:exports};
       var extendByRef;
       module.exports = function(currentOpts, newOpts, globalOpts) {
-        var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, noChanges, output, ref1;
+        var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, noChanges, output, ref, ref1, remainingNewChildren;
         if (globalOpts) {
           globalOptsTransform = {
             options: function(opts) {
@@ -1588,6 +1588,13 @@ var slice = [].slice;
           }
         } else if (IS.object(newChildren)) {
           output.children = extendByRef(newChildren, currentChildren, globalOpts);
+          remainingNewChildren = newChildren;
+          for (ref in remainingNewChildren) {
+            newChild = remainingNewChildren[ref];
+            newChildProcessed = IS.objectPlain(newChildProcessed) ? newChild : parseTree(newChild);
+            output.children.push(new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed)));
+            delete remainingNewChildren[ref];
+          }
         }
         return output;
       };
@@ -1601,6 +1608,7 @@ var slice = [].slice;
             currentChild = currentChildren[i];
             if (newChild = newChildrenRefs[currentChild.ref]) {
               newChildProcessed = currentChild.extend(newChild, globalOpts);
+              delete newChildrenRefs[currentChild.ref];
             } else {
               newChildProcessed = globalOpts ? currentChild.extend(null, globalOpts) : currentChild;
             }

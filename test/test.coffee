@@ -2790,8 +2790,8 @@ suite "QuickDom", ()->
 
 			expect(typeof templateCopy.child.childA_2_1).not.to.equal 'undefined'
 			expect(Object.keys(templateMain.child).length).to.equal(6)
-			expect(Object.keys(templateCopy.child).length).to.equal(7)
-			expect(templateCopy.children.length).to.equal(2)
+			expect(Object.keys(templateCopy.child).length).to.equal(8)
+			expect(templateCopy.children.length).to.equal(3)
 			expect(templateCopy.child.divA).to.equal templateCopy
 			expect(templateCopy.child.childA).to.equal templateCopy.children[0]
 			expect(templateCopy.child.childA.type).to.equal 'form'
@@ -2803,14 +2803,16 @@ suite "QuickDom", ()->
 			expect(templateCopy.child.childB_1).to.equal templateCopy.children[1].children[0]
 			expect(templateCopy.child.childB_2).to.equal templateCopy.children[1].children[1]
 			expect(templateCopy.child.childC).to.equal undefined
-			expect(templateCopy.child.childD).to.equal undefined
+			expect(templateCopy.child.childD).to.equal templateCopy.children[2]
+			# debugger
 
 			rendered = templateCopy.spawn()
-			expect(Object.keys(rendered.child).length).to.equal(7)
+			expect(Object.keys(rendered.child).length).to.equal(8)
 			expect(rendered.child.childB_2).to.equal rendered.children[1].children[1]
 			expect(rendered.child.childA.raw.style.display).to.equal 'inline-block'
 			expect(rendered.child.CHILDa_2.prop('href')).to.contain 'http://google.com'
 			expect(rendered.child.childB_1.prop('value')).to.equal('theValue')
+			expect(rendered.child.childD.attr('data-ref')).to.equal('childD')
 
 
 

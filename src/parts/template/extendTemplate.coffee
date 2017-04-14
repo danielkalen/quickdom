@@ -36,6 +36,12 @@ module.exports = (currentOpts, newOpts, globalOpts)->
 	
 	else if IS.object(newChildren)
 		output.children = extendByRef(newChildren, currentChildren, globalOpts)
+		remainingNewChildren = newChildren
+		
+		for ref,newChild of remainingNewChildren
+			newChildProcessed = if IS.objectPlain(newChildProcessed) then newChild else parseTree(newChild)
+			output.children.push new QuickTemplate extend.deep.clone(configSchema, newChildProcessed)
+			delete remainingNewChildren[ref]
 		
 
 	return output
@@ -47,6 +53,7 @@ extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChi
 	for currentChild in currentChildren
 		if newChild=newChildrenRefs[currentChild.ref]
 			newChildProcessed = currentChild.extend(newChild, globalOpts)
+			delete newChildrenRefs[currentChild.ref]
 		else
 			newChildProcessed = if globalOpts then currentChild.extend(null, globalOpts) else currentChild
 
