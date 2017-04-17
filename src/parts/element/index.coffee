@@ -20,6 +20,13 @@ QuickElement = (@type, @options)->
 	return @el._quickElement = @
 
 
+QuickElement::toJSON = ()->
+	output = [@type, extend.clone.keys(allowedOptions)(@options)]
+	children = @children
+	output.push(child.toJSON()) for child in children
+	return output
+
+
 import ./aliases
 import ./traversing
 import ./init
