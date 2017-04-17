@@ -98,7 +98,7 @@ var slice = [].slice;
       setup(restartSandbox);
       test("Version Property", function() {
         var packageVersion;
-        packageVersion = (function(){
+        packageVersion = (function(){ // package.json
 				return {
 				  "name": "quickdom",
 				  "version": "1.0.26",
@@ -3267,6 +3267,70 @@ var slice = [].slice;
         });
       });
       return suite("Misc", function() {
+        test("Stringification", function() {
+          var section, sectionCopy;
+          section = Dom([
+            'section', {
+              id: 'theSection',
+              className: 'theSectionClass',
+              style: {
+                'position': 'relative',
+                'opacity': 0.5,
+                'fontSize': function() {
+                  return '29px';
+                },
+                $happy: {
+                  fontSize: '11px',
+                  $relaxed: {
+                    fontSize: '8px'
+                  }
+                }
+              }
+            }, [
+              'div', {
+                id: 'childA',
+                style: {
+                  position: 'relative'
+                }
+              }, 'childA-innertext'
+            ], 'section-innertext', [
+              'span', {
+                id: 'childB',
+                ref: 'childB-ref!',
+                style: {
+                  position: 'absolute'
+                }
+              }, 'childB-innertext', [
+                'text', {
+                  text: 'childB-innertext 2'
+                }
+              ], [
+                'a', {
+                  url: 'https://google.com'
+                }
+              ]
+            ]
+          ]);
+          window.stringified = JSON.stringify(section, null, 2);
+          sectionCopy = Dom(JSON.parse(stringified));
+          expect(sectionCopy.type).to.equal(section.type);
+          expect(sectionCopy.ref).to.equal(section.ref);
+          expect(sectionCopy.el.id).to.equal(section.el.id);
+          expect(sectionCopy.el.className).to.equal(section.el.className);
+          expect(sectionCopy.el.style.position).to.equal(section.el.style.position);
+          expect(sectionCopy.el.style.opacity).to.equal(section.el.style.opacity);
+          expect(sectionCopy.el.style.fontSize).not.to.equal(section.el.style.fontSize);
+          section.state('happy', true);
+          sectionCopy.state('happy', true);
+          expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize);
+          expect(sectionCopy.children.length).to.equal(section.children.length);
+          expect(Object.keys(sectionCopy.child).length).to.equal(Object.keys(section.child).length);
+          expect(sectionCopy.text).to.equal(section.text);
+          expect(sectionCopy.html).to.equal(section.html);
+          expect(sectionCopy.children[0].el.style.position).to.equal(section.children[0].el.style.position);
+          expect(sectionCopy.children[2].el.style.position).to.equal(section.children[2].el.style.position);
+          return expect(sectionCopy.children[2].ref).to.equal(section.children[2].ref);
+        });
         test("Chaining", function() {
           var chainResult, div, head;
           div = Dom.div();
