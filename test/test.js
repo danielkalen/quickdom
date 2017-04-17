@@ -169,7 +169,7 @@ var slice = [].slice;
 				    "karma-safari-launcher": "^1.0.0",
 				    "mocha": "^3.2.0",
 				    "simplyimport": "^3.5.0",
-				    "simplywatch": "^2.4.6"
+				    "simplywatch": "^2.5.2"
 				  }
 				}
 				
