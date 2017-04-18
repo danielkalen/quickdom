@@ -7,9 +7,18 @@ configSchema =
 	options: {}
 	children: []
 
-QuickTemplate = (config, isTree)->
-	@_config = if isTree then parseTree(config) else config
-	return @
+class QuickTemplate
+	constructor: (config, isTree)->
+		@_config = if isTree then parseTree(config) else config
+
+	spawn: (newValues, globalOpts)->
+		opts = if newValues or globalOpts then extendTemplate(@_config, newValues, globalOpts) else @_config
+		return QuickDom(opts.type, opts.options, opts.children...)
+	
+	extend: (newValues, globalOpts)->
+		new QuickTemplate extendTemplate(@_config, newValues, globalOpts)
+
+
 
 
 Object.keys(configSchema).forEach (key)->
@@ -17,16 +26,6 @@ Object.keys(configSchema).forEach (key)->
 
 Object.defineProperty QuickTemplate::, 'child', get: ()->
 	@_childRefs or _getChildRefs(@) # source in /src/parts/element/traversing.coffee
-
-
-QuickTemplate::spawn = (newValues, globalOpts)->
-	opts = if newValues or globalOpts then extendTemplate(@_config, newValues, globalOpts) else @_config
-	return QuickDom(opts.type, opts.options, opts.children...)
-
-
-QuickTemplate::extend = (newValues, globalOpts)->
-	new QuickTemplate extendTemplate(@_config, newValues, globalOpts)
-
 
 
 

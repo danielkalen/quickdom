@@ -1,11 +1,11 @@
 var slice = [].slice;
 
 (function() {
-  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_18f30, _sim_19893, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+  var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1dc77, _sim_29086, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendTemplate, fn, helpers, i, len, orientationGetter, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
   svgNamespace = 'http://www.w3.org/2000/svg';
 
   /* istanbul ignore next */
-  _sim_19893 = (function(exports){ // node_modules/quickcss/dist/quickcss.js
+  _sim_1dc77 = (function(exports){ // node_modules/quickcss/dist/quickcss.js
 		var module = {exports:exports};
 		(function(){var l,m,n,k,e,f,h,p;k=["webkit","moz","ms","o"];f="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b,c,d,e,g;
 		f.push(a);e=["Top","Bottom","Left","Right"];g=[];c=0;for(d=e.length;c<d;c++)b=e[c],g.push(f.push(a+b));return g});p=document.createElement("div").style;l=/^\d+(?:[a-z]|\%)+$/i;m=/\d+$/;n=/\s/;h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof p[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b,
@@ -14,10 +14,10 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  CSS = _sim_19893;
+  CSS = _sim_1dc77;
 
   /* istanbul ignore next */
-  _sim_18f30 = (function(exports){ // node_modules/smart-extend/browser.js
+  _sim_29086 = (function(exports){ // node_modules/smart-extend/browser.js
 		var module = {exports:exports};
 		var slice = [].slice;
 		
@@ -236,7 +236,7 @@ var slice = [].slice;
 		
 		return module.exports;
 	}).call(this, {});
-  extend = _sim_18f30;
+  extend = _sim_29086;
   allowedTemplateOptions = ['id', 'name', 'type', 'href', 'selected', 'checked', 'className'];
   allowedOptions = ['id', 'ref', 'type', 'name', 'text', 'style', 'class', 'className', 'url', 'href', 'selected', 'checked', 'props', 'attrs', 'passStateToChildren', 'stateTriggers'];
   helpers = {};
@@ -318,36 +318,42 @@ var slice = [].slice;
       return subject && subject.constructor.name === 'QuickTemplate';
     }
   });
-  QuickElement = function(type1, options1) {
-    this.type = type1;
-    this.options = options1;
-    this.el = this.options.existing || (this.type === 'text' ? document.createTextNode(this.options.text) : this.type[0] === '*' ? document.createElementNS(svgNamespace, this.type.slice(1)) : document.createElement(this.type));
-    if (this.type === 'text') {
-      this.append = this.prepend = this.attr = function() {};
+  QuickElement = (function() {
+    function QuickElement(type1, options1) {
+      this.type = type1;
+      this.options = options1;
+      this.el = this.options.existing || (this.type === 'text' ? document.createTextNode(this.options.text) : this.type[0] === '*' ? document.createElementNS(svgNamespace, this.type.slice(1)) : document.createElement(this.type));
+      if (this.type === 'text') {
+        this.append = this.prepend = this.attr = function() {};
+      }
+      this._parent = null;
+      this._state = [];
+      this._children = [];
+      this._insertedCallbacks = [];
+      this._eventCallbacks = {
+        __refs: {}
+      };
+      this._normalizeOptions();
+      this._applyOptions();
+      this._attachStateEvents();
+      this._proxyParent();
+      this.el._quickElement = this;
     }
-    this._parent = null;
-    this._state = [];
-    this._children = [];
-    this._insertedCallbacks = [];
-    this._eventCallbacks = {
-      __refs: {}
+
+    QuickElement.prototype.toJSON = function() {
+      var child, children, i, len, output;
+      output = [this.type, extend.clone.keys(allowedOptions)(this.options)];
+      children = this.children;
+      for (i = 0, len = children.length; i < len; i++) {
+        child = children[i];
+        output.push(child.toJSON());
+      }
+      return output;
     };
-    this._normalizeOptions();
-    this._applyOptions();
-    this._attachStateEvents();
-    this._proxyParent();
-    return this.el._quickElement = this;
-  };
-  QuickElement.prototype.toJSON = function() {
-    var child, children, i, len, output;
-    output = [this.type, extend.clone.keys(allowedOptions)(this.options)];
-    children = this.children;
-    for (i = 0, len = children.length; i < len; i++) {
-      child = children[i];
-      output.push(child.toJSON());
-    }
-    return output;
-  };
+
+    return QuickElement;
+
+  })();
   Object.defineProperties(QuickElement.prototype, {
     'raw': {
       get: function() {
@@ -1707,10 +1713,24 @@ var slice = [].slice;
     options: {},
     children: []
   };
-  QuickTemplate = function(config, isTree) {
-    this._config = isTree ? parseTree(config) : config;
-    return this;
-  };
+  QuickTemplate = (function() {
+    function QuickTemplate(config, isTree) {
+      this._config = isTree ? parseTree(config) : config;
+    }
+
+    QuickTemplate.prototype.spawn = function(newValues, globalOpts) {
+      var opts;
+      opts = newValues || globalOpts ? extendTemplate(this._config, newValues, globalOpts) : this._config;
+      return QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
+    };
+
+    QuickTemplate.prototype.extend = function(newValues, globalOpts) {
+      return new QuickTemplate(extendTemplate(this._config, newValues, globalOpts));
+    };
+
+    return QuickTemplate;
+
+  })();
   Object.keys(configSchema).forEach(function(key) {
     return Object.defineProperty(QuickTemplate.prototype, key, {
       get: function() {
@@ -1723,14 +1743,6 @@ var slice = [].slice;
       return this._childRefs || _getChildRefs(this);
     }
   });
-  QuickTemplate.prototype.spawn = function(newValues, globalOpts) {
-    var opts;
-    opts = newValues || globalOpts ? extendTemplate(this._config, newValues, globalOpts) : this._config;
-    return QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
-  };
-  QuickTemplate.prototype.extend = function(newValues, globalOpts) {
-    return new QuickTemplate(extendTemplate(this._config, newValues, globalOpts));
-  };
   shortcuts = ['link:a', 'anchor:a', 'a', 'text', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'section', 'button', 'br', 'ul', 'ol', 'li', 'fieldset', 'input', 'textarea', 'select', 'option', 'form', 'frame', 'hr', 'iframe', 'img', 'picture', 'main', 'nav', 'meta', 'object', 'pre', 'style', 'table', 'tbody', 'th', 'tr', 'td', 'tfoot', 'video'];
   fn = function(shortcut) {
     var prop, split, type;
