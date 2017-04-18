@@ -136,6 +136,10 @@ QuickElement::styleSafe = (property, skipComputed)->
 	return @
 
 
+QuickElement::styleParsed = (property)->
+	parseFloat @styleSafe(property)
+
+
 QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
 	plainStates = @_providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
 	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
