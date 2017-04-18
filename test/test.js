@@ -101,7 +101,7 @@ var slice = [].slice;
         packageVersion = (function(){ // package.json
 				return {
 				  "name": "quickdom",
-				  "version": "1.0.27",
+				  "version": "1.0.28",
 				  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
 				  "main": "dist/quickdom.js",
 				  "browser": {
