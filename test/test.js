@@ -714,7 +714,7 @@ var slice = [].slice;
           applyWidth(anotherObj);
           return expect(div.style('width')).to.equal('250px');
         });
-        return test(".styleSafe() can be used to obtain the value for a given property even for non-inserted elements or elements with options.styleAfterInsert", function() {
+        test(".styleSafe() can be used to obtain the value for a given property even for non-inserted elements or elements with options.styleAfterInsert", function() {
           var divA, divB, style, text;
           style = {
             width: '8px',
@@ -769,6 +769,70 @@ var slice = [].slice;
           text = Dom.text('abc123').appendTo(divA);
           expect(text.styleSafe('fakeProp')).to.equal(void 0);
           return expect(text.styleSafe(123)).to.equal(void 0);
+        });
+        return test(".styleParsed() is a shorthand for parseFloat(.styleSafe())", function() {
+          var divA, divB, style;
+          style = {
+            width: '8px',
+            height: '9px',
+            $happy: {
+              width: '18px'
+            },
+            $relaxed: {
+              height: '100%'
+            }
+          };
+          divA = Dom.div({
+            style: style
+          });
+          divB = Dom.div({
+            style: style,
+            styleAfterInsert: true
+          });
+          expect(divA.style('width')).to.equal('');
+          expect(divA.styleSafe('width')).to.equal('8px');
+          expect(divA.styleParsed('width')).to.equal(parseFloat(divA.styleSafe('width')));
+          expect(divA.style('height')).to.equal('');
+          expect(divA.styleSafe('height')).to.equal('9px');
+          expect(divA.styleParsed('height')).to.equal(parseFloat(divA.styleSafe('height')));
+          expect(divB.style('width')).to.equal('');
+          expect(divB.styleSafe('width')).to.equal('8px');
+          expect(divB.styleParsed('width')).to.equal(parseFloat(divB.styleSafe('width')));
+          divA.state('happy', true);
+          divB.state('happy', true);
+          expect(divA.style('width')).to.equal('');
+          expect(divA.styleSafe('width')).to.equal('18px');
+          expect(divA.styleParsed('width')).to.equal(parseFloat(divA.styleSafe('width')));
+          expect(divA.style('height')).to.equal('');
+          expect(divA.styleSafe('height')).to.equal('9px');
+          expect(divA.styleParsed('height')).to.equal(parseFloat(divA.styleSafe('height')));
+          expect(divB.style('width')).to.equal('');
+          expect(divB.styleSafe('width')).to.equal('18px');
+          expect(divB.styleParsed('width')).to.equal(parseFloat(divB.styleSafe('width')));
+          divA.state('relaxed', true);
+          divB.state('relaxed', true);
+          expect(divA.style('width')).to.equal('');
+          expect(divA.styleSafe('width')).to.equal('18px');
+          expect(divA.styleParsed('width')).to.equal(parseFloat(divA.styleSafe('width')));
+          expect(divA.style('height')).to.equal('');
+          expect(divA.styleSafe('height')).to.equal('100%');
+          expect(divA.styleParsed('height')).to.equal(parseFloat(divA.styleSafe('height')));
+          expect(divB.style('width')).to.equal('');
+          expect(divB.styleSafe('width')).to.equal('18px');
+          expect(divB.styleParsed('width')).to.equal(parseFloat(divB.styleSafe('width')));
+          divA.appendTo(sandbox);
+          divB.appendTo(sandbox);
+          divA.state('relaxed', false);
+          divB.state('relaxed', false);
+          expect(divA.style('width')).to.equal('18px');
+          expect(divA.styleSafe('width')).to.equal('18px');
+          expect(divA.styleParsed('width')).to.equal(parseFloat(divA.styleSafe('width')));
+          expect(divA.style('height')).to.equal('9px');
+          expect(divA.styleSafe('height')).to.equal('9px');
+          expect(divA.styleParsed('height')).to.equal(parseFloat(divA.styleSafe('height')));
+          expect(divB.style('width')).to.equal('18px');
+          expect(divB.styleSafe('width')).to.equal('18px');
+          return expect(divB.styleParsed('width')).to.equal(parseFloat(divB.styleSafe('width')));
         });
       });
       suite("State", function() {

@@ -565,6 +565,73 @@ suite "QuickDom", ()->
 			expect(text.styleSafe(123)).to.equal(undefined)
 
 
+		test ".styleParsed() is a shorthand for parseFloat(.styleSafe())", ()->
+			style =
+				width: '8px'
+				height: '9px'
+				$happy:
+					width: '18px'
+				$relaxed:
+					height: '100%'
+			divA = Dom.div {style}
+			divB = Dom.div {style, styleAfterInsert:true}
+
+			expect(divA.style('width')).to.equal('')
+			expect(divA.styleSafe('width')).to.equal('8px')
+			expect(divA.styleParsed('width')).to.equal(parseFloat divA.styleSafe('width'))
+
+			expect(divA.style('height')).to.equal('')
+			expect(divA.styleSafe('height')).to.equal('9px')
+			expect(divA.styleParsed('height')).to.equal(parseFloat divA.styleSafe('height'))
+
+			expect(divB.style('width')).to.equal('')
+			expect(divB.styleSafe('width')).to.equal('8px')
+			expect(divB.styleParsed('width')).to.equal(parseFloat divB.styleSafe('width'))
+
+			divA.state 'happy', on
+			divB.state 'happy', on
+			expect(divA.style('width')).to.equal('')
+			expect(divA.styleSafe('width')).to.equal('18px')
+			expect(divA.styleParsed('width')).to.equal(parseFloat divA.styleSafe('width'))
+			
+			expect(divA.style('height')).to.equal('')
+			expect(divA.styleSafe('height')).to.equal('9px')
+			expect(divA.styleParsed('height')).to.equal(parseFloat divA.styleSafe('height'))
+
+			expect(divB.style('width')).to.equal('')
+			expect(divB.styleSafe('width')).to.equal('18px')
+			expect(divB.styleParsed('width')).to.equal(parseFloat divB.styleSafe('width'))
+
+			divA.state 'relaxed', on
+			divB.state 'relaxed', on
+			expect(divA.style('width')).to.equal('')
+			expect(divA.styleSafe('width')).to.equal('18px')
+			expect(divA.styleParsed('width')).to.equal(parseFloat divA.styleSafe('width'))
+			
+			expect(divA.style('height')).to.equal('')
+			expect(divA.styleSafe('height')).to.equal('100%')
+			expect(divA.styleParsed('height')).to.equal(parseFloat divA.styleSafe('height'))
+
+			expect(divB.style('width')).to.equal('')
+			expect(divB.styleSafe('width')).to.equal('18px')
+			expect(divB.styleParsed('width')).to.equal(parseFloat divB.styleSafe('width'))
+
+			divA.appendTo(sandbox)
+			divB.appendTo(sandbox)
+			divA.state 'relaxed', off
+			divB.state 'relaxed', off
+			expect(divA.style('width')).to.equal('18px')
+			expect(divA.styleSafe('width')).to.equal('18px')
+			expect(divA.styleParsed('width')).to.equal(parseFloat divA.styleSafe('width'))
+			
+			expect(divA.style('height')).to.equal('9px')
+			expect(divA.styleSafe('height')).to.equal('9px')
+			expect(divA.styleParsed('height')).to.equal(parseFloat divA.styleSafe('height'))
+
+			expect(divB.style('width')).to.equal('18px')
+			expect(divB.styleSafe('width')).to.equal('18px')
+			expect(divB.styleParsed('width')).to.equal(parseFloat divB.styleSafe('width'))
+
 
 
 	suite "State", ()->
