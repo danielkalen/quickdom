@@ -145,7 +145,7 @@ var slice = [].slice;
 				  "dependencies": {
 				    "@danielkalen/is": "^1.0.0",
 				    "quickcss": "^1.0.5",
-				    "smart-extend": "^1.3.3"
+				    "smart-extend": "^1.3.4"
 				  },
 				  "devDependencies": {
 				    "bluebird": "^3.4.7",
