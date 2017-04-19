@@ -1,4 +1,4 @@
-module.exports = (tree, parseChildren)-> switch
+parseTree = (tree, parseChildren)-> switch
 	when IS.array(tree)
 		output = {}
 

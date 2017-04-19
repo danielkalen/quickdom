@@ -1,5 +1,5 @@
-extendTemplate = import './extendTemplate'
-parseTree = import './parseTree'
+import './extendTemplate'
+import './parseTree'
 pholderRegex = /\{\{.+?\}\}/g
 configSchema = 
 	type: 'div'

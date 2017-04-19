@@ -1,4 +1,4 @@
-module.exports = (currentOpts, newOpts, globalOpts)->
+extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
 	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
 
