@@ -66,16 +66,14 @@ var slice = [].slice;
     };
     _s$m = _s$m({}, {}, {});
     return (function() {
-      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, _sim_1d30e, _sim_22c87, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
       svgNamespace = 'http://www.w3.org/2000/svg';
 
       /* istanbul ignore next */
-      _sim_22c87 = _s$m(1);
-      CSS = _sim_22c87;
+      CSS = _s$m(1);
 
       /* istanbul ignore next */
-      _sim_1d30e = _s$m(2);
-      extend = _sim_1d30e;
+      extend = _s$m(2);
       allowedTemplateOptions = ['id', 'name', 'type', 'href', 'selected', 'checked', 'className'];
       allowedOptions = ['id', 'ref', 'type', 'name', 'text', 'style', 'class', 'className', 'url', 'href', 'selected', 'checked', 'props', 'attrs', 'passStateToChildren', 'stateTriggers'];
       helpers = {};
