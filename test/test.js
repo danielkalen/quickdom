@@ -118,7 +118,7 @@ var slice = [].slice;
 				    "test:electron": "karma start --single-run --browsers Electron .config/karma.conf.coffee",
 				    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
 				    "test:sauce": "coffee .config/sauce-launch.coffee && npm run test-serve",
-				    "test-serve": "http-server -p 9201 --cors ./",
+				    "test-serve": "http-server -p 9202 --cors ./",
 				    "sauce-connect": "sc -u quickdom -k 0c7a6cc2-ed14-4f08-b48d-e46c74905b6a",
 				    "build": "npm run compile && npm run super-minify && npm run manual-minify",
 				    "compile": "npm run compile:js && npm run compile:test",
@@ -1504,6 +1504,9 @@ var slice = [].slice;
           div.appendTo(parentB);
           return expect(invokeCount).to.equal(2);
         });
+        test.skip("QuickElement.replaceWith will trigger the onInserted event", function() {
+          throw new Error('Just write this test alraedy');
+        });
         test("QuickElement.pipeState can be used to redirect all state toggles to the provided target element", function() {
           var childA, childB, divA, divB, parentA, parentB;
           parentA = Dom.div();
@@ -1599,7 +1602,8 @@ var slice = [].slice;
         });
         return suite("Media Queries", function() {
           suiteSetup(function() {
-            if (!Object.getOwnPropertyDescriptor(window, 'innerWidth').configurable) {
+            var ref;
+            if (!((ref = Object.getOwnPropertyDescriptor(window, 'innerWidth')) != null ? ref.configurable : void 0)) {
               return this.skip();
             }
           });

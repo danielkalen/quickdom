@@ -1226,6 +1226,10 @@ suite "QuickDom", ()->
 			expect(invokeCount).to.equal(2)
 
 
+		test.skip "QuickElement.replaceWith will trigger the onInserted event", ()->
+			throw new Error 'Just write this test alraedy'
+
+
 		test "QuickElement.pipeState can be used to redirect all state toggles to the provided target element", ()->
 			parentA = Dom.div()
 			parentB = Dom.div(passStateToChildren:false)
@@ -1331,7 +1335,7 @@ suite "QuickDom", ()->
 
 		suite "Media Queries", ()->
 			suiteSetup ()->
-				@skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth').configurable
+				@skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth')?.configurable
 			
 			test "Window dimensions", ()->
 				dimensions.simulate(1000, 1000)

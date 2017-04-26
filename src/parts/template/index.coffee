@@ -18,7 +18,7 @@ class QuickTemplate
 	extend: (newValues, globalOpts)->
 		new QuickTemplate extendTemplate(@_config, newValues, globalOpts)
 
-
+QuickTemplate.name ?= 'QuickTemplate'
 
 
 Object.keys(configSchema).forEach (key)->

@@ -160,6 +160,9 @@ var slice = [].slice;
         return QuickElement;
 
       })();
+      if (QuickElement.name == null) {
+        QuickElement.name = 'QuickElement';
+      }
       Object.defineProperties(QuickElement.prototype, {
         'raw': {
           get: function() {
@@ -406,6 +409,9 @@ var slice = [].slice;
         }
         if (this.options.className) {
           this.el.className = this.options.className;
+        }
+        if (this.options.src) {
+          this.el.src = this.options.src;
         }
         if (this.options.href) {
           this.el.href = this.options.href;
@@ -1526,6 +1532,9 @@ var slice = [].slice;
         return QuickTemplate;
 
       })();
+      if (QuickTemplate.name == null) {
+        QuickTemplate.name = 'QuickTemplate';
+      }
       Object.keys(configSchema).forEach(function(key) {
         return Object.defineProperty(QuickTemplate.prototype, key, {
           get: function() {

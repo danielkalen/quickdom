@@ -27,6 +27,7 @@ class QuickElement
 		output.push(child.toJSON()) for child in children
 		return output
 
+QuickElement.name ?= 'QuickElement'
 
 import ./aliases
 import ./traversing
