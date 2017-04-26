@@ -59,6 +59,7 @@ QuickElement::_applyOptions = ()->
 	if ref=(@options.id or @options.ref) then @attr('data-ref', @ref=ref)
 	if @options.id then @el.id = @options.id
 	if @options.className then @el.className = @options.className
+	if @options.src then @el.src = @options.src
 	if @options.href then @el.href = @options.href
 	if @options.type then @el.type = @options.type
 	if @options.name then @el.name = @options.name
