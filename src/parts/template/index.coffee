@@ -12,7 +12,12 @@ class QuickTemplate
 		@_config = if isTree then parseTree(config) else config
 
 	spawn: (newValues, globalOpts)->
-		opts = if newValues or globalOpts then extendTemplate(@_config, newValues, globalOpts) else @_config
+		if newValues or globalOpts
+			opts = extendTemplate(@_config, newValues, globalOpts)
+		else
+			opts = extend.clone(@_config)
+			opts.options = extend.deepOnly('style').clone(opts.options)
+	
 		return QuickDom(opts.type, opts.options, opts.children...)
 	
 	extend: (newValues, globalOpts)->
