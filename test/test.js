@@ -98,10 +98,10 @@ var slice = [].slice;
       setup(restartSandbox);
       test("Version Property", function() {
         var packageVersion;
-        packageVersion = (function(){ // package.json
+        packageVersion = (function(){
 				return {
 				  "name": "quickdom",
-				  "version": "1.0.30",
+				  "version": "1.0.31",
 				  "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
 				  "main": "dist/quickdom.js",
 				  "browser": {
@@ -145,7 +145,7 @@ var slice = [].slice;
 				  "dependencies": {
 				    "@danielkalen/is": "^1.0.0",
 				    "quickcss": "^1.0.5",
-				    "smart-extend": "^1.3.4"
+				    "smart-extend": "^1.5.0"
 				  },
 				  "devDependencies": {
 				    "bluebird": "^3.4.7",
