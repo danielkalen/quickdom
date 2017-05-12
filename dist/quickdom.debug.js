@@ -67,7 +67,7 @@ var slice = [].slice;
     };
     _s$m = _s$m({}, {}, {});
     return (function() {
-      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getIndexByProp, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
       svgNamespace = 'http://www.w3.org/2000/svg';
 
       /* istanbul ignore next */
@@ -279,6 +279,26 @@ var slice = [].slice;
           get: function() {
             return _getChildRefs(this, true);
           }
+        },
+        'index': {
+          get: function() {
+            var parent;
+            if (!(parent = this.parent)) {
+              return null;
+            } else {
+              return parent.children.indexOf(this);
+            }
+          }
+        },
+        'indexType': {
+          get: function() {
+            return _getIndexByProp(this, 'type');
+          }
+        },
+        'indexRef': {
+          get: function() {
+            return _getIndexByProp(this, 'ref');
+          }
         }
       });
       _getParents = function(targetEl, filterFn) {
@@ -313,6 +333,16 @@ var slice = [].slice;
           }))));
         }
         return target._childRefs;
+      };
+      _getIndexByProp = function(main, prop) {
+        var parent;
+        if (!(parent = main.parent)) {
+          return null;
+        } else {
+          return parent.children.filter(function(child) {
+            return child[prop] === main[prop];
+          }).indexOf(main);
+        }
       };
       QuickElement.prototype._normalizeOptions = function() {
         var base, base1, base2, base3;

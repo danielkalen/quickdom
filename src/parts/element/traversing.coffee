@@ -61,6 +61,19 @@ Object.defineProperties QuickElement::,
 	'childf': get: ()->
 		_getChildRefs(@, true)
 
+	'index': get: ()->
+		if not parent=@parent
+			return null
+		else
+			parent.children.indexOf(@)
+
+	'indexType': get: ()->
+		_getIndexByProp(@, 'type')
+
+	'indexRef': get: ()->
+		_getIndexByProp(@, 'ref')
+
+
 
 _getParents = (targetEl, filterFn)->
 	filterFn = undefined if not IS.function(filterFn)
@@ -84,6 +97,15 @@ _getChildRefs = (target, freshCopy)->
 		extend target._childRefs, children.map((child)-> _getChildRefs(child, freshCopy))...
 
 	return target._childRefs
+
+
+_getIndexByProp = (main, prop)->
+	if not parent=main.parent
+		return null
+	else
+		parent.children
+			.filter (child)-> child[prop] is main[prop]
+			.indexOf(main)
 
 
 
