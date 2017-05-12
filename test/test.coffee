@@ -1926,6 +1926,92 @@ suite "QuickDom", ()->
 			expect(newParent.child.newChildChild).to.equal(newChildChild)
 
 
+		test "Index", ()->
+			section =
+				Dom.section(null,
+					childA = Dom.div()
+					childB = Dom.div()
+					childC = Dom.span()
+					childD = Dom.text()
+					childE = Dom.span()
+					childF = Dom.div()
+				)
+
+			expect(childB.index).to.equal 1
+			expect(childD.index).to.equal 3
+			expect(childF.index).to.equal 5
+
+			childC.detach()
+			expect(childB.index).to.equal 1
+			expect(childD.index).to.equal 2
+			expect(childF.index).to.equal 4
+			expect(childC.index).to.equal null
+
+
+		test "Index (by type)", ()->
+			section =
+				Dom.section(null,
+					childA = Dom.div()
+					childB = Dom.div()
+					childC = Dom.span()
+					childD = Dom.text()
+					childE = Dom.span()
+					childF = Dom.text()
+					childG = Dom.div()
+				)
+
+			expect(childB.indexType).to.equal 1
+			expect(childD.indexType).to.equal 0
+			expect(childF.indexType).to.equal 1
+			expect(childG.indexType).to.equal 2
+
+			childC.detach()
+			expect(childB.indexType).to.equal 1
+			expect(childD.indexType).to.equal 0
+			expect(childF.indexType).to.equal 1
+			expect(childG.indexType).to.equal 2
+
+			childA.detach()
+			expect(childB.indexType).to.equal 0
+			expect(childD.indexType).to.equal 0
+			expect(childF.indexType).to.equal 1
+			expect(childG.indexType).to.equal 1
+			expect(childA.indexType).to.equal null
+			expect(childC.indexType).to.equal null
+
+
+		test "Index (by ref)", ()->
+			section =
+				Dom.section(null,
+					childA = Dom.div(ref:'abc')
+					childB = Dom.div(ref:'abc')
+					childC = Dom.span(ref:'def')
+					childD = Dom.text(ref:'abc')
+					childE = Dom.span(ref:'abc')
+					childF = Dom.text(ref:'def')
+					childG = Dom.div(ref:'abc')
+				)
+
+			expect(childB.indexRef).to.equal 1
+			expect(childD.indexRef).to.equal 2
+			expect(childF.indexRef).to.equal 1
+			expect(childG.indexRef).to.equal 4
+
+			childC.detach()
+			expect(childB.indexRef).to.equal 1
+			expect(childD.indexRef).to.equal 2
+			expect(childF.indexRef).to.equal 0
+			expect(childG.indexRef).to.equal 4
+
+			childA.detach()
+			expect(childB.indexRef).to.equal 0
+			expect(childD.indexRef).to.equal 1
+			expect(childF.indexRef).to.equal 0
+			expect(childG.indexRef).to.equal 3
+			expect(childA.indexRef).to.equal null
+			expect(childC.indexRef).to.equal null
+
+
 
 
 

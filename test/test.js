@@ -2116,7 +2116,7 @@ var slice = [].slice;
           expect(C.siblings).to.eql(C.prevAll.reverse().concat(C.nextAll));
           return expect(C.siblings).to.eql([A, B, D, E]);
         });
-        return test("Child (by ref)", function() {
+        test("Child (by ref)", function() {
           var divA, divB, newChild, newChildChild, newParent, sandBox;
           divA = Dom.div({
             id: 'divA'
@@ -2214,6 +2214,72 @@ var slice = [].slice;
           });
           newChild.appendTo(newParent);
           return expect(newParent.child.newChildChild).to.equal(newChildChild);
+        });
+        test("Index", function() {
+          var childA, childB, childC, childD, childE, childF, section;
+          section = Dom.section(null, childA = Dom.div(), childB = Dom.div(), childC = Dom.span(), childD = Dom.text(), childE = Dom.span(), childF = Dom.div());
+          expect(childB.index).to.equal(1);
+          expect(childD.index).to.equal(3);
+          expect(childF.index).to.equal(5);
+          childC.detach();
+          expect(childB.index).to.equal(1);
+          expect(childD.index).to.equal(2);
+          expect(childF.index).to.equal(4);
+          return expect(childC.index).to.equal(null);
+        });
+        test("Index (by type)", function() {
+          var childA, childB, childC, childD, childE, childF, childG, section;
+          section = Dom.section(null, childA = Dom.div(), childB = Dom.div(), childC = Dom.span(), childD = Dom.text(), childE = Dom.span(), childF = Dom.text(), childG = Dom.div());
+          expect(childB.indexType).to.equal(1);
+          expect(childD.indexType).to.equal(0);
+          expect(childF.indexType).to.equal(1);
+          expect(childG.indexType).to.equal(2);
+          childC.detach();
+          expect(childB.indexType).to.equal(1);
+          expect(childD.indexType).to.equal(0);
+          expect(childF.indexType).to.equal(1);
+          expect(childG.indexType).to.equal(2);
+          childA.detach();
+          expect(childB.indexType).to.equal(0);
+          expect(childD.indexType).to.equal(0);
+          expect(childF.indexType).to.equal(1);
+          expect(childG.indexType).to.equal(1);
+          expect(childA.indexType).to.equal(null);
+          return expect(childC.indexType).to.equal(null);
+        });
+        return test("Index (by ref)", function() {
+          var childA, childB, childC, childD, childE, childF, childG, section;
+          section = Dom.section(null, childA = Dom.div({
+            ref: 'abc'
+          }), childB = Dom.div({
+            ref: 'abc'
+          }), childC = Dom.span({
+            ref: 'def'
+          }), childD = Dom.text({
+            ref: 'abc'
+          }), childE = Dom.span({
+            ref: 'abc'
+          }), childF = Dom.text({
+            ref: 'def'
+          }), childG = Dom.div({
+            ref: 'abc'
+          }));
+          expect(childB.indexRef).to.equal(1);
+          expect(childD.indexRef).to.equal(2);
+          expect(childF.indexRef).to.equal(1);
+          expect(childG.indexRef).to.equal(4);
+          childC.detach();
+          expect(childB.indexRef).to.equal(1);
+          expect(childD.indexRef).to.equal(2);
+          expect(childF.indexRef).to.equal(0);
+          expect(childG.indexRef).to.equal(4);
+          childA.detach();
+          expect(childB.indexRef).to.equal(0);
+          expect(childD.indexRef).to.equal(1);
+          expect(childF.indexRef).to.equal(0);
+          expect(childG.indexRef).to.equal(3);
+          expect(childA.indexRef).to.equal(null);
+          return expect(childC.indexRef).to.equal(null);
         });
       });
       suite("Manipulation", function() {
