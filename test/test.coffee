@@ -733,6 +733,30 @@ suite "QuickDom", ()->
 			expect(count).to.eql A:6,B:3,C:2,D:2,E:4,F:4,G:2
 
 
+		test "If options.recalcOnResize is set, .recalcStyle() will be invoked on each resize event", ()->
+			count = A:0,B:0,C:0,D:0
+			Dom.div
+				style:
+					width: ()-> ++count.A
+					opacity: 1
+					height: ()-> ++count.B
+			
+			Dom.div
+				recalcOnResize: true
+				style:
+					width: ()-> ++count.C
+					opacity: 1
+					height: ()-> ++count.D
+
+			expect(count).to.eql A:1,B:1,C:1,D:1
+			
+			Dom(window).emit 'resize'
+			expect(count).to.eql A:1,B:1,C:2,D:2
+			
+			Dom(window).emit 'resize'
+			expect(count).to.eql A:1,B:1,C:3,D:3
+
+
 
 	suite "State", ()->
 		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->

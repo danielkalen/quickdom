@@ -883,7 +883,7 @@ var slice = [].slice;
           expect(divB.styleSafe('width')).to.equal('18px');
           return expect(divB.styleParsed('width')).to.equal(parseFloat(divB.styleSafe('width')));
         });
-        return test(".recalcStyle() re-applies all function-value styles", function() {
+        test(".recalcStyle() re-applies all function-value styles", function() {
           var count, div;
           count = {
             A: 0,
@@ -1025,6 +1025,58 @@ var slice = [].slice;
             E: 4,
             F: 4,
             G: 2
+          });
+        });
+        return test("If options.recalcOnResize is set, .recalcStyle() will be invoked on each resize event", function() {
+          var count;
+          count = {
+            A: 0,
+            B: 0,
+            C: 0,
+            D: 0
+          };
+          Dom.div({
+            style: {
+              width: function() {
+                return ++count.A;
+              },
+              opacity: 1,
+              height: function() {
+                return ++count.B;
+              }
+            }
+          });
+          Dom.div({
+            recalcOnResize: true,
+            style: {
+              width: function() {
+                return ++count.C;
+              },
+              opacity: 1,
+              height: function() {
+                return ++count.D;
+              }
+            }
+          });
+          expect(count).to.eql({
+            A: 1,
+            B: 1,
+            C: 1,
+            D: 1
+          });
+          Dom(window).emit('resize');
+          expect(count).to.eql({
+            A: 1,
+            B: 1,
+            C: 2,
+            D: 2
+          });
+          Dom(window).emit('resize');
+          return expect(count).to.eql({
+            A: 1,
+            B: 1,
+            C: 3,
+            D: 3
           });
         });
       });
