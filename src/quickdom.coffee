@@ -56,6 +56,13 @@ do ()->
 		new QuickTemplate(tree, true)
 
 
+	QuickDom.html = (innerHTML)->
+		container = document.createElement('div')
+		container.innerHTML = innerHTML
+		children = Array::slice.call container.childNodes
+
+		return QuickDom.batch(children)
+
 
 
 

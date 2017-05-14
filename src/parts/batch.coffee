@@ -1,17 +1,20 @@
-QuickBatch = (@elements, @returnResults)->
-	@elements = @elements.map (el)-> QuickDom(el)
-	return @
+class QuickBatch
+	constructor: (elements, @returnResults)->
+		@elements = elements.map (el)-> QuickDom(el)
 
-QuickBatch::reverse = ()->
-	@elements = @elements.reverse()
-	return @
-
-QuickBatch::return = (returnNext)->
-	if returnNext
-		@returnResults = true
+	reverse: ()->
+		@elements = @elements.reverse()
 		return @
-	else
-		return @lastResults
+
+	return: (returnNext)->
+		if returnNext
+			@returnResults = true
+			return @
+		else
+			return @lastResults
+
+QuickBatch.name ?= 'QuickBatch'
+
 
 
 Object.keys(QuickElement::).concat('css', 'replaceWith', 'html', 'text').forEach (method)->

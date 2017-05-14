@@ -13,6 +13,8 @@ IS = extend.clone IS,
 	
 	template: (subject)-> subject and subject.constructor.name is 'QuickTemplate'
 	
+	batch: (subject)-> subject and subject.constructor.name is 'QuickBatch'
+	
 	# domInput: (subject)->
 	# 	nodeName = subject.nodeName
 	# 	return nodeName is 'INPUT' or nodeName is 'TEXTAREA' or nodeName is 'SELECT'

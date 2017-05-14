@@ -123,6 +123,9 @@ var slice = [].slice;
         },
         template: function(subject) {
           return subject && subject.constructor.name === 'QuickTemplate';
+        },
+        batch: function(subject) {
+          return subject && subject.constructor.name === 'QuickBatch';
         }
       });
       QuickElement = (function() {
@@ -1361,26 +1364,41 @@ var slice = [].slice;
       QuickDom.template = function(tree) {
         return new QuickTemplate(tree, true);
       };
-      QuickBatch = function(elements1, returnResults1) {
-        this.elements = elements1;
-        this.returnResults = returnResults1;
-        this.elements = this.elements.map(function(el) {
-          return QuickDom(el);
-        });
-        return this;
+      QuickDom.html = function(innerHTML) {
+        var children, container;
+        container = document.createElement('div');
+        container.innerHTML = innerHTML;
+        children = Array.prototype.slice.call(container.childNodes);
+        return QuickDom.batch(children);
       };
-      QuickBatch.prototype.reverse = function() {
-        this.elements = this.elements.reverse();
-        return this;
-      };
-      QuickBatch.prototype["return"] = function(returnNext) {
-        if (returnNext) {
-          this.returnResults = true;
-          return this;
-        } else {
-          return this.lastResults;
+      QuickBatch = (function() {
+        function QuickBatch(elements, returnResults1) {
+          this.returnResults = returnResults1;
+          this.elements = elements.map(function(el) {
+            return QuickDom(el);
+          });
         }
-      };
+
+        QuickBatch.prototype.reverse = function() {
+          this.elements = this.elements.reverse();
+          return this;
+        };
+
+        QuickBatch.prototype["return"] = function(returnNext) {
+          if (returnNext) {
+            this.returnResults = true;
+            return this;
+          } else {
+            return this.lastResults;
+          }
+        };
+
+        return QuickBatch;
+
+      })();
+      if (QuickBatch.name == null) {
+        QuickBatch.name = 'QuickBatch';
+      }
       Object.keys(QuickElement.prototype).concat('css', 'replaceWith', 'html', 'text').forEach(function(method) {
         return QuickBatch.prototype[method] = function(newValue) {
           var element, results;
