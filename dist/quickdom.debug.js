@@ -503,6 +503,13 @@ var slice = [].slice;
             }
           };
         })(this));
+        if (this.options.recalcOnResize) {
+          window.addEventListener('resize', (function(_this) {
+            return function() {
+              return _this.recalcStyle();
+            };
+          })(this));
+        }
       };
       QuickElement.prototype._attachStateEvents = function() {
         var fn, ref1, state, trigger;

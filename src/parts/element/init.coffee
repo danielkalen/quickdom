@@ -83,6 +83,9 @@ QuickElement::_applyOptions = ()->
 			
 			return @
 
+	if @options.recalcOnResize
+		window.addEventListener 'resize', ()=> @recalcStyle()
+
 	return
 
 
