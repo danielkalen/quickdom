@@ -574,10 +574,10 @@ var slice = [].slice;
               if (!_this._eventCallbacks[eventName]) {
                 _this._eventCallbacks[eventName] = [];
                 _this._listenTo(eventName, function(event) {
-                  var cb, i, len, ref1;
-                  ref1 = _this._eventCallbacks[eventName];
-                  for (i = 0, len = ref1.length; i < len; i++) {
-                    cb = ref1[i];
+                  var callbacks, cb, i, len;
+                  callbacks = _this._eventCallbacks[eventName].slice();
+                  for (i = 0, len = callbacks.length; i < len; i++) {
+                    cb = callbacks[i];
                     cb.call(_this.el, event);
                   }
                 });
@@ -586,6 +586,18 @@ var slice = [].slice;
                 _this._eventCallbacks.__refs[callbackRef] = callback;
               }
               return _this._eventCallbacks[eventName].push(callback);
+            };
+          })(this));
+        }
+        return this;
+      };
+      QuickElement.prototype.once = function(eventNames, callback) {
+        var onceCallback;
+        if (IS.string(eventNames) && IS["function"](callback)) {
+          this.on(eventNames, onceCallback = (function(_this) {
+            return function(event) {
+              _this.off(eventNames, onceCallback);
+              return callback.call(_this.el, event);
             };
           })(this));
         }
