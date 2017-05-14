@@ -3365,7 +3365,7 @@ var slice = [].slice;
           expect(rendered.child.childB_2).to.equal(rendered.children[1].children[1]);
           return expect(rendered.text).to.equal('The Text');
         });
-        return test("Template's children can be extend/spawned with a {ref:newChild} map instead of a positional array", function() {
+        test("Template's children can be extend/spawned with a {ref:newChild} map instead of a positional array", function() {
           var rendered, templateCopy, templateMain;
           templateMain = Dom.template([
             'div', {
@@ -3449,6 +3449,35 @@ var slice = [].slice;
           expect(rendered.child.CHILDa_2.prop('href')).to.contain('http://google.com');
           expect(rendered.child.childB_1.prop('value')).to.equal('theValue');
           return expect(rendered.child.childD.attr('data-ref')).to.equal('childD');
+        });
+        return test("When spawning elements the options object passed to the spawns should be a clone of the template's options", function() {
+          var spawnA, spawnB, templateA, templateB;
+          templateA = Dom.template([
+            'div', {
+              style: {
+                display: 'block'
+              }
+            }
+          ]);
+          templateB = Dom.template([
+            'div', {
+              style: {
+                display: 'block'
+              }
+            }
+          ]);
+          spawnA = templateA.spawn({
+            ref: 'a'
+          });
+          spawnB = templateA.spawn();
+          expect(spawnA.options.style.$base.display).to.equal('block');
+          expect(spawnA.options).not.to.equal(templateA.options);
+          expect(spawnA.options.style).not.to.equal(templateA.options.style);
+          expect(templateA.options.style.$base).to.equal(void 0);
+          expect(spawnB.options.style.$base.display).to.equal('block');
+          expect(spawnB.options).not.to.equal(templateB.options);
+          expect(spawnB.options.style).not.to.equal(templateB.options.style);
+          return expect(templateB.options.style.$base).to.equal(void 0);
         });
       });
       return suite("Misc", function() {

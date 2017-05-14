@@ -3055,6 +3055,22 @@ suite "QuickDom", ()->
 			expect(rendered.child.childD.attr('data-ref')).to.equal('childD')
 
 
+		test "When spawning elements the options object passed to the spawns should be a clone of the template's options", ()->
+			templateA = Dom.template ['div', style:{display:'block'}]
+			templateB = Dom.template ['div', style:{display:'block'}]
+			spawnA = templateA.spawn(ref:'a') # Passed options to merge with orig
+			spawnB = templateA.spawn()
+
+			expect(spawnA.options.style.$base.display).to.equal 'block'
+			expect(spawnA.options).not.to.equal(templateA.options)
+			expect(spawnA.options.style).not.to.equal(templateA.options.style)
+			expect(templateA.options.style.$base).to.equal(undefined)
+
+			expect(spawnB.options.style.$base.display).to.equal 'block'
+			expect(spawnB.options).not.to.equal(templateB.options)
+			expect(spawnB.options.style).not.to.equal(templateB.options.style)
+			expect(templateB.options.style.$base).to.equal(undefined)
+
 
 
 	suite "Misc", ()->
