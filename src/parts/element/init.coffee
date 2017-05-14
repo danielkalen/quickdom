@@ -94,8 +94,8 @@ QuickElement::_attachStateEvents = ()->
 		enabler = if IS.string(trigger) then trigger else trigger.on
 		disabler = trigger.off if IS.object(trigger)
 
-		@_listenTo enabler, ()=> @state(state, on)
-		if disabler then @_listenTo disabler, ()=> @state(state, off)
+		@_listenTo enabler, ()=> @state(state, on, trigger.bubbles)
+		if disabler then @_listenTo disabler, ()=> @state(state, off, trigger.bubbles)
 	
 	return
 

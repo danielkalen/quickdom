@@ -65,7 +65,7 @@ QuickElement::state = (targetState, value, bubbles, source)->
 
 		if not helpers.includes(@options.unpassableStates, targetState)
 			if bubbles
-				@parent.state(targetState, value, true, source or @)
+				@_parent.state(targetState, value, true, source or @) if @parent
 			else if @options.passStateToChildren
 				child.state(targetState, value, false, source or @) for child in @_children
 		
