@@ -67,7 +67,7 @@ var slice = [].slice;
     };
     _s$m = _s$m({}, {}, {});
     return (function() {
-      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getIndexByProp, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getIndexByProp, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, baseStateTriggers, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
       svgNamespace = 'http://www.w3.org/2000/svg';
 
       /* istanbul ignore next */
@@ -347,6 +347,18 @@ var slice = [].slice;
           }).indexOf(main);
         }
       };
+      baseStateTriggers = {
+        'hover': {
+          on: 'mouseenter',
+          off: 'mouseleave',
+          bubbles: true
+        },
+        'focus': {
+          on: 'focus',
+          off: 'blur',
+          bubbles: true
+        }
+      };
       QuickElement.prototype._normalizeOptions = function() {
         var base, base1, base2, base3;
         if ((base = this.options).style == null) {
@@ -368,16 +380,7 @@ var slice = [].slice;
         if ((base3 = this.options).passStateToChildren == null) {
           base3.passStateToChildren = true;
         }
-        this.options.stateTriggers = extend.deep({
-          'hover': {
-            on: 'mouseenter',
-            off: 'mouseleave'
-          },
-          'focus': {
-            on: 'focus',
-            off: 'blur'
-          }
-        }, this.options.stateTriggers);
+        this.options.stateTriggers = this.options.stateTriggers ? extend.clone.deep(baseStateTriggers, this.options.stateTriggers) : baseStateTriggers;
         this._normalizeStyle();
       };
       QuickElement.prototype._normalizeStyle = function() {
@@ -685,12 +688,12 @@ var slice = [].slice;
         }
         return this;
       };
-      QuickElement.prototype.state = function(targetState, value, source) {
+      QuickElement.prototype.state = function(targetState, value, bubbles, source) {
         var activeStateStyles, activeStates, child, desiredValue, i, inferiorStateChains, isApplicable, j, len, len1, ref1, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
         if (arguments.length === 1) {
           return helpers.includes(this._state, targetState);
         } else if (this._statePipeTarget && source !== this) {
-          this._statePipeTarget.state(targetState, value, this);
+          this._statePipeTarget.state(targetState, value, bubbles, this);
           return this;
         } else if (IS.string(targetState)) {
           if (targetState[0] === '$') {
@@ -761,11 +764,15 @@ var slice = [].slice;
               }
             }
           }
-          if (this.options.passStateToChildren && !helpers.includes(this.options.unpassableStates, targetState)) {
-            ref1 = this._children;
-            for (j = 0, len1 = ref1.length; j < len1; j++) {
-              child = ref1[j];
-              child.state(targetState, value, source || this);
+          if (!helpers.includes(this.options.unpassableStates, targetState)) {
+            if (bubbles) {
+              this.parent.state(targetState, value, true, source || this);
+            } else if (this.options.passStateToChildren) {
+              ref1 = this._children;
+              for (j = 0, len1 = ref1.length; j < len1; j++) {
+                child = ref1[j];
+                child.state(targetState, value, false, source || this);
+              }
             }
           }
           return this;

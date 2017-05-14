@@ -7,12 +7,12 @@ QuickElement::updateOptions = (options)->
 	return @
 
 
-QuickElement::state = (targetState, value, source)->
+QuickElement::state = (targetState, value, bubbles, source)->
 	if arguments.length is 1
 		helpers.includes(@_state, targetState)
 
 	else if @_statePipeTarget and source isnt @
-		@_statePipeTarget.state(targetState, value, @)
+		@_statePipeTarget.state(targetState, value, bubbles, @)
 		return @
 	
 	else if IS.string(targetState)
@@ -63,8 +63,11 @@ QuickElement::state = (targetState, value, source)->
 						@style extend(stylesToRemove, stylesToKeep)
 
 
-		if @options.passStateToChildren and not helpers.includes(@options.unpassableStates, targetState)
-			child.state(targetState, value, source or @) for child in @_children
+		if not helpers.includes(@options.unpassableStates, targetState)
+			if bubbles
+				@parent.state(targetState, value, true, source or @)
+			else if @options.passStateToChildren
+				child.state(targetState, value, false, source or @) for child in @_children
 		
 		return @
 
