@@ -858,6 +858,14 @@ var slice = [].slice;
       QuickElement.prototype.styleParsed = function(property) {
         return parseFloat(this.styleSafe(property));
       };
+      QuickElement.prototype.recalcStyle = function() {
+        var activeStateStyles, targetStyles;
+        activeStateStyles = this._getStateStyles(this._getActiveStates());
+        targetStyles = extend.clone.filter(function(value) {
+          return typeof value === 'function';
+        }).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
+        return this.style(targetStyles);
+      };
       QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
         var plainStates;
         if (includeSharedStates == null) {

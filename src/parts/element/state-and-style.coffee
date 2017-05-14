@@ -140,6 +140,15 @@ QuickElement::styleParsed = (property)->
 	parseFloat @styleSafe(property)
 
 
+QuickElement::recalcStyle = ()->
+	activeStateStyles = @_getStateStyles(@_getActiveStates())
+	targetStyles = extend.clone.filter(
+		(value)-> typeof value is 'function'
+	)(@options.style.$base, activeStateStyles...)
+
+	@style(targetStyles)
+
+
 QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
 	plainStates = @_providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
 	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
