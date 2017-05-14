@@ -217,6 +217,27 @@ suite "QuickDom", ()->
 			expect(svgDiv.constructor.name).to.equal('SVGElement')
 
 
+		test "QuickDom.html() accepts an html string which would be parsed and converted into a QuickBatch instance", ()->
+			htmlString = "
+				<div>firstChildText</div><span>secondChildText</span>
+				textNode
+				<strong>abc123</strong>
+			"
+			window.batch = Dom.html(htmlString)
+
+			expect(typeof batch).to.equal 'object'
+			expect(batch.constructor.name).to.equal 'QuickBatch'
+			expect(batch.elements.length).to.equal 4
+			expect(batch.elements[0].type).to.equal 'div'
+			expect(batch.elements[1].type).to.equal 'span'
+			expect(batch.elements[2].type).to.equal 'text'
+			expect(batch.elements[3].type).to.equal 'strong'
+			expect(batch.elements[0].text).to.equal 'firstChildText'
+			expect(batch.elements[1].text).to.equal 'secondChildText'
+			expect(batch.elements[2].text).to.include 'textNode'
+			expect(batch.elements[3].text).to.equal 'abc123'
+
+
 
 		test "Method/Property aliases", ()->
 			div = Dom('div')
