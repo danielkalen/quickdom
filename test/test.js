@@ -113,7 +113,8 @@ var slice = [].slice;
 				  },
 				  "scripts": {
 				    "postversion": "echo \\'$(json -f package.json version)\\' > .config/.version.coffee && npm run build",
-				    "test": "open test/testrunner.html",
+				    "test": "npm run test:electron",
+				    "test:local": "open test/testrunner.html",
 				    "test:karma": "karma start .config/karma.conf.coffee",
 				    "test:electron": "karma start --single-run --browsers Electron .config/karma.conf.coffee",
 				    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
