@@ -687,6 +687,52 @@ suite "QuickDom", ()->
 			expect(divB.styleParsed('width')).to.equal(parseFloat divB.styleSafe('width'))
 
 
+		test ".recalcStyle() re-applies all function-value styles", ()->
+			count = A:0,B:0,C:0,D:0,E:0,F:0,G:0
+			div = Dom.div style:
+				width: ()-> ++count.A
+				opacity: 1
+				height: ()-> ++count.B
+				fontSize: ()-> ++count.C
+				$happy:
+					opacity: 0.5
+					fontSize: ()-> ++count.D
+				$relaxed:
+					height: ()-> ++count.E
+					fontSize: ()-> ++count.F
+					$funny:
+						width: ()-> ++count.G
+
+			expect(count).to.eql A:1,B:1,C:1,D:0,E:0,F:0,G:0
+			
+			div.recalcStyle()
+			expect(count).to.eql A:2,B:2,C:2,D:0,E:0,F:0,G:0
+			
+			div.state 'happy', on
+			expect(count).to.eql A:2,B:2,C:2,D:1,E:0,F:0,G:0
+
+			div.recalcStyle()
+			expect(count).to.eql A:3,B:3,C:2,D:2,E:0,F:0,G:0
+
+			div.state 'relaxed', on
+			expect(count).to.eql A:3,B:3,C:2,D:2,E:1,F:1,G:0
+
+			div.recalcStyle()
+			expect(count).to.eql A:4,B:3,C:2,D:2,E:2,F:2,G:0
+
+			div.state 'funny', on
+			expect(count).to.eql A:4,B:3,C:2,D:2,E:2,F:2,G:1
+
+			div.recalcStyle()
+			expect(count).to.eql A:4,B:3,C:2,D:2,E:3,F:3,G:2
+			
+			div.state 'funny', off
+			expect(count).to.eql A:5,B:3,C:2,D:2,E:3,F:3,G:2
+			
+			div.recalcStyle()
+			expect(count).to.eql A:6,B:3,C:2,D:2,E:4,F:4,G:2
+
+
 
 	suite "State", ()->
 		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->

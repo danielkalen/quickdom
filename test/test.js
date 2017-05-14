@@ -819,7 +819,7 @@ var slice = [].slice;
           expect(text.styleSafe('fakeProp')).to.equal(void 0);
           return expect(text.styleSafe(123)).to.equal(void 0);
         });
-        return test(".styleParsed() is a shorthand for parseFloat(.styleSafe())", function() {
+        test(".styleParsed() is a shorthand for parseFloat(.styleSafe())", function() {
           var divA, divB, style;
           style = {
             width: '8px',
@@ -882,6 +882,150 @@ var slice = [].slice;
           expect(divB.style('width')).to.equal('18px');
           expect(divB.styleSafe('width')).to.equal('18px');
           return expect(divB.styleParsed('width')).to.equal(parseFloat(divB.styleSafe('width')));
+        });
+        return test(".recalcStyle() re-applies all function-value styles", function() {
+          var count, div;
+          count = {
+            A: 0,
+            B: 0,
+            C: 0,
+            D: 0,
+            E: 0,
+            F: 0,
+            G: 0
+          };
+          div = Dom.div({
+            style: {
+              width: function() {
+                return ++count.A;
+              },
+              opacity: 1,
+              height: function() {
+                return ++count.B;
+              },
+              fontSize: function() {
+                return ++count.C;
+              },
+              $happy: {
+                opacity: 0.5,
+                fontSize: function() {
+                  return ++count.D;
+                }
+              },
+              $relaxed: {
+                height: function() {
+                  return ++count.E;
+                },
+                fontSize: function() {
+                  return ++count.F;
+                },
+                $funny: {
+                  width: function() {
+                    return ++count.G;
+                  }
+                }
+              }
+            }
+          });
+          expect(count).to.eql({
+            A: 1,
+            B: 1,
+            C: 1,
+            D: 0,
+            E: 0,
+            F: 0,
+            G: 0
+          });
+          div.recalcStyle();
+          expect(count).to.eql({
+            A: 2,
+            B: 2,
+            C: 2,
+            D: 0,
+            E: 0,
+            F: 0,
+            G: 0
+          });
+          div.state('happy', true);
+          expect(count).to.eql({
+            A: 2,
+            B: 2,
+            C: 2,
+            D: 1,
+            E: 0,
+            F: 0,
+            G: 0
+          });
+          div.recalcStyle();
+          expect(count).to.eql({
+            A: 3,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 0,
+            F: 0,
+            G: 0
+          });
+          div.state('relaxed', true);
+          expect(count).to.eql({
+            A: 3,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 1,
+            F: 1,
+            G: 0
+          });
+          div.recalcStyle();
+          expect(count).to.eql({
+            A: 4,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 2,
+            F: 2,
+            G: 0
+          });
+          div.state('funny', true);
+          expect(count).to.eql({
+            A: 4,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 2,
+            F: 2,
+            G: 1
+          });
+          div.recalcStyle();
+          expect(count).to.eql({
+            A: 4,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 3,
+            F: 3,
+            G: 2
+          });
+          div.state('funny', false);
+          expect(count).to.eql({
+            A: 5,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 3,
+            F: 3,
+            G: 2
+          });
+          div.recalcStyle();
+          return expect(count).to.eql({
+            A: 6,
+            B: 3,
+            C: 2,
+            D: 2,
+            E: 4,
+            F: 4,
+            G: 2
+          });
         });
       });
       suite("State", function() {
