@@ -525,11 +525,11 @@ var slice = [].slice;
               disabler = trigger.off;
             }
             _this._listenTo(enabler, function() {
-              return _this.state(state, true);
+              return _this.state(state, true, trigger.bubbles);
             });
             if (disabler) {
               return _this._listenTo(disabler, function() {
-                return _this.state(state, false);
+                return _this.state(state, false, trigger.bubbles);
               });
             }
           };
@@ -766,7 +766,9 @@ var slice = [].slice;
           }
           if (!helpers.includes(this.options.unpassableStates, targetState)) {
             if (bubbles) {
-              this.parent.state(targetState, value, true, source || this);
+              if (this.parent) {
+                this._parent.state(targetState, value, true, source || this);
+              }
             } else if (this.options.passStateToChildren) {
               ref1 = this._children;
               for (j = 0, len1 = ref1.length; j < len1; j++) {

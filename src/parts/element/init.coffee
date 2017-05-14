@@ -1,3 +1,7 @@
+baseStateTriggers =
+	'hover': {on:'mouseenter', off:'mouseleave', bubbles:true}
+	'focus': {on:'focus', off:'blur', bubbles:true}
+
 QuickElement::_normalizeOptions = ()->
 	@options.style ?= {}
 	@options.styleShared = {}
@@ -6,11 +10,11 @@ QuickElement::_normalizeOptions = ()->
 	@options.relatedInstance ?= @
 	@options.unpassableStates ?= []
 	@options.passStateToChildren ?= true
-	@options.stateTriggers = extend.deep
-		'hover': {on:'mouseenter', off:'mouseleave'}
-		'focus': {on:'focus', off:'blur'}
-	,
-		@options.stateTriggers
+	@options.stateTriggers =
+		if @options.stateTriggers
+			extend.clone.deep(baseStateTriggers, @options.stateTriggers)
+		else
+			baseStateTriggers
 	
 	@_normalizeStyle()
 	return
