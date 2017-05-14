@@ -1226,8 +1226,30 @@ suite "QuickDom", ()->
 			expect(invokeCount).to.equal(2)
 
 
-		test.skip "QuickElement.replaceWith will trigger the onInserted event", ()->
-			throw new Error 'Just write this test alraedy'
+		test "QuickElement.replace will trigger the onInserted event", ()->
+			invokeCount = 0
+			parent = Dom.section().appendTo(sandbox)
+			A = Dom.div()
+			B = Dom.div()
+
+			B.onInserted (el)->
+				expect(el).to.equal(B)
+				expect(invokeCount++).to.equal(0)
+
+			expect(invokeCount).to.equal 0
+			expect(A.parent).to.equal(undefined)
+			expect(B.parent).to.equal(undefined)
+
+			parent.append(A)
+			expect(invokeCount).to.equal 0
+			expect(A.parent).to.equal(parent)
+			expect(B.parent).to.equal(undefined)
+
+			A.replace(B)
+			expect(invokeCount).to.equal 1
+			expect(A.parent).to.equal(undefined)
+			expect(B.parent).to.equal(parent)
+
 
 
 		test "QuickElement.pipeState can be used to redirect all state toggles to the provided target element", ()->

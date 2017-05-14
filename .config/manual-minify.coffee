@@ -34,6 +34,7 @@ replacements = [
 	[/_applyOptions/g, '_a']
 	[/_attachStateEvents/g, '_ae']
 	[/_listenTo/g, '_l']
+	[/_refreshParent/g, '_rP']
 	[/_removeChild/g, '_r']
 	[/_getActiveStates/g, '_as']
 	[/_getStateStyles/g, '_ss']

@@ -24,7 +24,7 @@ QuickElement::append = (targetEl)->
 			prevParent._removeChild(targetEl) if prevParent
 			@_children.push(targetEl)
 			@el.appendChild(targetEl.el)
-			targetEl.parent # Force re-fresh targetEl._parent value
+			targetEl._refreshParent() # Force re-fresh targetEl._parent value to trigger onInserted callback
 
 	return @
 
@@ -48,7 +48,7 @@ QuickElement::prepend = (targetEl)->
 			prevParent._removeChild(targetEl) if prevParent
 			@_children.unshift(targetEl)
 			@el.insertBefore(targetEl.el, @el.firstChild)
-			targetEl.parent # Force re-fresh targetEl._parent value
+			targetEl._refreshParent() # Force re-fresh targetEl._parent value to trigger onInserted callback
 	
 	return @
 
@@ -71,7 +71,7 @@ QuickElement::after = (targetEl)->
 			myIndex = @parent._children.indexOf(@)
 			@parent._children.splice(myIndex+1, 0, targetEl)
 			@el.parentNode.insertBefore(targetEl.el, @el.nextSibling)
-			targetEl.parent # Force re-fresh targetEl._parent value
+			targetEl._refreshParent() # Force re-fresh targetEl._parent value to trigger onInserted callback
 
 	return @
 
@@ -94,7 +94,7 @@ QuickElement::before = (targetEl)->
 			myIndex = @parent._children.indexOf(@)
 			@parent._children.splice(myIndex, 0, targetEl)
 			@el.parentNode.insertBefore(targetEl.el, @el)
-			targetEl.parent # Force re-fresh targetEl._parent value
+			targetEl._refreshParent() # Force re-fresh targetEl._parent value to trigger onInserted callback
 
 	return @
 
@@ -164,8 +164,13 @@ QuickElement::replace = (targetEl)->
 		if IS.quickDomEl(targetEl) and targetEl isnt @
 			targetEl.detach()
 			@parent?._removeChild(@, targetEl)
+			targetEl._refreshParent() # Force re-fresh targetEl._parent value to trigger onInserted callback
 	
 	return @
+
+
+QuickElement::_refreshParent = ()->
+	@parent
 
 
 QuickElement::_removeChild = (targetChild, replacementChild)->

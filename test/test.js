@@ -1504,8 +1504,27 @@ var slice = [].slice;
           div.appendTo(parentB);
           return expect(invokeCount).to.equal(2);
         });
-        test.skip("QuickElement.replaceWith will trigger the onInserted event", function() {
-          throw new Error('Just write this test alraedy');
+        test("QuickElement.replace will trigger the onInserted event", function() {
+          var A, B, invokeCount, parent;
+          invokeCount = 0;
+          parent = Dom.section().appendTo(sandbox);
+          A = Dom.div();
+          B = Dom.div();
+          B.onInserted(function(el) {
+            expect(el).to.equal(B);
+            return expect(invokeCount++).to.equal(0);
+          });
+          expect(invokeCount).to.equal(0);
+          expect(A.parent).to.equal(void 0);
+          expect(B.parent).to.equal(void 0);
+          parent.append(A);
+          expect(invokeCount).to.equal(0);
+          expect(A.parent).to.equal(parent);
+          expect(B.parent).to.equal(void 0);
+          A.replace(B);
+          expect(invokeCount).to.equal(1);
+          expect(A.parent).to.equal(void 0);
+          return expect(B.parent).to.equal(parent);
         });
         test("QuickElement.pipeState can be used to redirect all state toggles to the provided target element", function() {
           var childA, childB, divA, divB, parentA, parentB;

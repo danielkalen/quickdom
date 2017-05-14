@@ -958,7 +958,7 @@ var slice = [].slice;
             }
             this._children.push(targetEl);
             this.el.appendChild(targetEl.el);
-            targetEl.parent;
+            targetEl._refreshParent();
           }
         }
         return this;
@@ -983,7 +983,7 @@ var slice = [].slice;
             }
             this._children.unshift(targetEl);
             this.el.insertBefore(targetEl.el, this.el.firstChild);
-            targetEl.parent;
+            targetEl._refreshParent();
           }
         }
         return this;
@@ -1005,7 +1005,7 @@ var slice = [].slice;
             myIndex = this.parent._children.indexOf(this);
             this.parent._children.splice(myIndex + 1, 0, targetEl);
             this.el.parentNode.insertBefore(targetEl.el, this.el.nextSibling);
-            targetEl.parent;
+            targetEl._refreshParent();
           }
         }
         return this;
@@ -1027,7 +1027,7 @@ var slice = [].slice;
             myIndex = this.parent._children.indexOf(this);
             this.parent._children.splice(myIndex, 0, targetEl);
             this.el.parentNode.insertBefore(targetEl.el, this.el);
-            targetEl.parent;
+            targetEl._refreshParent();
           }
         }
         return this;
@@ -1107,9 +1107,13 @@ var slice = [].slice;
             if ((ref1 = this.parent) != null) {
               ref1._removeChild(this, targetEl);
             }
+            targetEl._refreshParent();
           }
         }
         return this;
+      };
+      QuickElement.prototype._refreshParent = function() {
+        return this.parent;
       };
       QuickElement.prototype._removeChild = function(targetChild, replacementChild) {
         var indexOfChild;
