@@ -566,7 +566,7 @@ var slice = [].slice;
           expect(emitCountA).to.equal(3);
           return expect(emitCountB).to.equal(4);
         });
-        return test("Multiple events can be registered/deregistered at once using whitespace separators", function() {
+        test("Multiple events can be registered/deregistered at once using whitespace separators", function() {
           var div, emitCount;
           emitCount = 0;
           div = Dom.div();
@@ -618,6 +618,38 @@ var slice = [].slice;
           expect(emitCount).to.equal(15);
           div.emit('three');
           return expect(emitCount).to.equal(15);
+        });
+        return test("Events can be listened for once via the .once method", function() {
+          var div, emitCountA, emitCountB;
+          emitCountA = emitCountB = 0;
+          div = Dom.div();
+          div.once('myClick', function(event) {
+            expect(typeof event).to.equal('object');
+            return expect(event.type).to.equal('myClick');
+          });
+          div.on('myClick', function() {
+            return emitCountA++;
+          });
+          div.once('myClick', function() {
+            return emitCountB++;
+          });
+          expect(emitCountA).to.equal(0);
+          expect(emitCountB).to.equal(0);
+          div.el.emitEvent('myClick');
+          expect(emitCountA).to.equal(1);
+          expect(emitCountB).to.equal(1);
+          div.el.emitEvent('myClick');
+          expect(emitCountA).to.equal(2);
+          expect(emitCountB).to.equal(1);
+          div.once('myClick', function(event) {
+            return emitCountB++;
+          });
+          div.el.emitEvent('myClick');
+          expect(emitCountA).to.equal(3);
+          expect(emitCountB).to.equal(2);
+          div.el.emitEvent('myClick');
+          expect(emitCountA).to.equal(4);
+          return expect(emitCountB).to.equal(2);
         });
       });
       suite("Style", function() {

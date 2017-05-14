@@ -430,6 +430,39 @@ suite "QuickDom", ()->
 			expect(emitCount).to.equal 15
 
 
+		test "Events can be listened for once via the .once method", ()->
+			emitCountA = emitCountB = 0
+			div = Dom.div()
+			div.once 'myClick', (event)->
+				expect(typeof event).to.equal 'object'
+				expect(event.type).to.equal 'myClick'
+
+			div.on 'myClick', ()-> emitCountA++
+			div.once 'myClick', ()-> emitCountB++
+			
+
+			expect(emitCountA).to.equal(0)
+			expect(emitCountB).to.equal(0)
+			
+			div.el.emitEvent('myClick')
+			expect(emitCountA).to.equal(1)
+			expect(emitCountB).to.equal(1)
+			
+			div.el.emitEvent('myClick')
+			expect(emitCountA).to.equal(2)
+			expect(emitCountB).to.equal(1)
+			
+			div.once 'myClick', (event)-> emitCountB++
+			
+			div.el.emitEvent('myClick')
+			expect(emitCountA).to.equal(3)
+			expect(emitCountB).to.equal(2)
+			
+			div.el.emitEvent('myClick')
+			expect(emitCountA).to.equal(4)
+			expect(emitCountB).to.equal(2)
+
+
 
 
 	suite "Style", ()->
