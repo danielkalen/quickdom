@@ -881,6 +881,64 @@ suite "QuickDom", ()->
 			expect(computedStyle.width).to.equal('15px')
 
 
+		test "options.stateTriggers won't be attached if they aren't being used in style object", ()->
+			divA = Dom.div(style:{$hover: display:'block'})
+			divB = Dom.div(style:{$focus: display:'block'})
+
+			expect(divA.state 'hover').to.equal off
+			expect(divB.state 'hover').to.equal off
+
+			divA.el.emitEvent 'mouseenter'
+			divB.el.emitEvent 'mouseenter'
+			expect(divA.state 'hover').to.equal on
+			expect(divB.state 'hover').to.equal off
+
+			divA.el.emitEvent 'mouseleave'
+			divB.el.emitEvent 'mouseleave'
+			expect(divA.state 'hover').to.equal off
+			expect(divB.state 'hover').to.equal off
+
+			divA.el.emitEvent 'focus'
+			divB.el.emitEvent 'focus'
+			expect(divA.state 'focus').to.equal off
+			expect(divB.state 'focus').to.equal on
+
+			divA.el.emitEvent 'blur'
+			divB.el.emitEvent 'blur'
+			expect(divA.state 'focus').to.equal off
+			expect(divB.state 'focus').to.equal off
+
+
+		test "options.stateTriggers can be forced to be attached even if they aren't being used in style object via ._attachStateEvents(true)", ()->
+			divA = Dom.div(style:{$hover: display:'block'})
+			divB = Dom.div(style:{$focus: display:'block'})
+			divA._attachStateEvents(true)
+			divB._attachStateEvents(true)
+
+			expect(divA.state 'hover').to.equal off
+			expect(divB.state 'hover').to.equal off
+
+			divA.el.emitEvent 'mouseenter'
+			divB.el.emitEvent 'mouseenter'
+			expect(divA.state 'hover').to.equal on
+			expect(divB.state 'hover').to.equal on
+
+			divA.el.emitEvent 'mouseleave'
+			divB.el.emitEvent 'mouseleave'
+			expect(divA.state 'hover').to.equal off
+			expect(divB.state 'hover').to.equal off
+
+			divA.el.emitEvent 'focus'
+			divB.el.emitEvent 'focus'
+			expect(divA.state 'focus').to.equal on
+			expect(divB.state 'focus').to.equal on
+
+			divA.el.emitEvent 'blur'
+			divB.el.emitEvent 'blur'
+			expect(divA.state 'focus').to.equal off
+			expect(divB.state 'focus').to.equal off
+
+
 		test "The hover and focus states will be listened for and toggled by default by their appropriate events", ()->
 			div = Dom.div style:
 				$base:

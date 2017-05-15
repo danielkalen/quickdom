@@ -1202,6 +1202,78 @@ var slice = [].slice;
           div.state('relaxed', false);
           return expect(computedStyle.width).to.equal('15px');
         });
+        test("options.stateTriggers won't be attached if they aren't being used in style object", function() {
+          var divA, divB;
+          divA = Dom.div({
+            style: {
+              $hover: {
+                display: 'block'
+              }
+            }
+          });
+          divB = Dom.div({
+            style: {
+              $focus: {
+                display: 'block'
+              }
+            }
+          });
+          expect(divA.state('hover')).to.equal(false);
+          expect(divB.state('hover')).to.equal(false);
+          divA.el.emitEvent('mouseenter');
+          divB.el.emitEvent('mouseenter');
+          expect(divA.state('hover')).to.equal(true);
+          expect(divB.state('hover')).to.equal(false);
+          divA.el.emitEvent('mouseleave');
+          divB.el.emitEvent('mouseleave');
+          expect(divA.state('hover')).to.equal(false);
+          expect(divB.state('hover')).to.equal(false);
+          divA.el.emitEvent('focus');
+          divB.el.emitEvent('focus');
+          expect(divA.state('focus')).to.equal(false);
+          expect(divB.state('focus')).to.equal(true);
+          divA.el.emitEvent('blur');
+          divB.el.emitEvent('blur');
+          expect(divA.state('focus')).to.equal(false);
+          return expect(divB.state('focus')).to.equal(false);
+        });
+        test("options.stateTriggers can be forced to be attached even if they aren't being used in style object via ._attachStateEvents(true)", function() {
+          var divA, divB;
+          divA = Dom.div({
+            style: {
+              $hover: {
+                display: 'block'
+              }
+            }
+          });
+          divB = Dom.div({
+            style: {
+              $focus: {
+                display: 'block'
+              }
+            }
+          });
+          divA._attachStateEvents(true);
+          divB._attachStateEvents(true);
+          expect(divA.state('hover')).to.equal(false);
+          expect(divB.state('hover')).to.equal(false);
+          divA.el.emitEvent('mouseenter');
+          divB.el.emitEvent('mouseenter');
+          expect(divA.state('hover')).to.equal(true);
+          expect(divB.state('hover')).to.equal(true);
+          divA.el.emitEvent('mouseleave');
+          divB.el.emitEvent('mouseleave');
+          expect(divA.state('hover')).to.equal(false);
+          expect(divB.state('hover')).to.equal(false);
+          divA.el.emitEvent('focus');
+          divB.el.emitEvent('focus');
+          expect(divA.state('focus')).to.equal(true);
+          expect(divB.state('focus')).to.equal(true);
+          divA.el.emitEvent('blur');
+          divB.el.emitEvent('blur');
+          expect(divA.state('focus')).to.equal(false);
+          return expect(divB.state('focus')).to.equal(false);
+        });
         test("The hover and focus states will be listened for and toggled by default by their appropriate events", function() {
           var computedStyle, div;
           div = Dom.div({
