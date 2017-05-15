@@ -514,13 +514,13 @@ var slice = [].slice;
           })(this));
         }
       };
-      QuickElement.prototype._attachStateEvents = function() {
+      QuickElement.prototype._attachStateEvents = function(force) {
         var fn, ref1, state, trigger;
         ref1 = this.options.stateTriggers;
         fn = (function(_this) {
           return function(state, trigger) {
             var disabler, enabler;
-            if (!helpers.includes(_this._providedStates, state)) {
+            if (!helpers.includes(_this._providedStates, state) && !force) {
               return;
             }
             enabler = IS.string(trigger) ? trigger : trigger.on;
