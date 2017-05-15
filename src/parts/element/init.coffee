@@ -95,7 +95,7 @@ QuickElement::_applyOptions = ()->
 
 QuickElement::_attachStateEvents = (force)->
 	for state,trigger of @options.stateTriggers then do (state,trigger)=>
-		return if not helpers.includes(@_providedStates, state) and not force
+		return if not helpers.includes(@_providedStates, state) and not force and not trigger.force
 		enabler = if IS.string(trigger) then trigger else trigger.on
 		disabler = trigger.off if IS.object(trigger)
 
