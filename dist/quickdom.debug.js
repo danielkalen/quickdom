@@ -520,7 +520,7 @@ var slice = [].slice;
         fn = (function(_this) {
           return function(state, trigger) {
             var disabler, enabler;
-            if (!helpers.includes(_this._providedStates, state) && !force) {
+            if (!helpers.includes(_this._providedStates, state) && !force && !trigger.force) {
               return;
             }
             enabler = IS.string(trigger) ? trigger : trigger.on;

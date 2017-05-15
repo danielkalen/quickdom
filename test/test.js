@@ -1936,384 +1936,498 @@ var slice = [].slice;
           expect(spanB.state('D')).to.equal(true);
           return expect(subSpan.state('D')).to.equal(true);
         });
-        return suite("Media Queries", function() {
-          suiteSetup(function() {
-            var ref;
-            if (!((ref = Object.getOwnPropertyDescriptor(window, 'innerWidth')) != null ? ref.configurable : void 0)) {
-              return this.skip();
+        test("When .state() receives a truthy value as the third argument the event will bubble up to parents instead of cascade to children", function() {
+          var childA, childB, parentA, parentB, subChildA, subChildB, subParentA, subParentB;
+          parentA = Dom.section(null, subParentA = Dom.div(null, childA = Dom.div(null, subChildA = Dom.div())));
+          parentB = Dom.section(null, subParentB = Dom.div(null, childB = Dom.div(null, subChildB = Dom.div())));
+          expect(parentA.state('happy')).to.equal(false);
+          expect(parentB.state('happy')).to.equal(false);
+          expect(subParentA.state('happy')).to.equal(false);
+          expect(subParentB.state('happy')).to.equal(false);
+          expect(childA.state('happy')).to.equal(false);
+          expect(childB.state('happy')).to.equal(false);
+          expect(subChildA.state('happy')).to.equal(false);
+          expect(subChildB.state('happy')).to.equal(false);
+          childA.state('happy', true, true);
+          childB.state('happy', true);
+          expect(parentA.state('happy')).to.equal(true);
+          expect(parentB.state('happy')).to.equal(false);
+          expect(subParentA.state('happy')).to.equal(true);
+          expect(subParentB.state('happy')).to.equal(false);
+          expect(childA.state('happy')).to.equal(true);
+          expect(childB.state('happy')).to.equal(true);
+          expect(subChildA.state('happy')).to.equal(false);
+          expect(subChildB.state('happy')).to.equal(true);
+          childA.state('relaxed', true, null);
+          childB.state('relaxed', true, 'on');
+          expect(parentA.state('relaxed')).to.equal(false);
+          expect(parentB.state('relaxed')).to.equal(true);
+          expect(subParentA.state('relaxed')).to.equal(false);
+          expect(subParentB.state('relaxed')).to.equal(true);
+          expect(childA.state('relaxed')).to.equal(true);
+          expect(childB.state('relaxed')).to.equal(true);
+          expect(subChildA.state('relaxed')).to.equal(true);
+          return expect(subChildB.state('relaxed')).to.equal(false);
+        });
+        test("options.stateTriggers config objects can specify a 'force' property which will make them get attached even if they aren't used", function() {
+          var divA, divB;
+          divA = Dom.div({
+            stateTriggers: {
+              'happy': {
+                on: 'happyON',
+                off: 'happyOFF',
+                force: true
+              }
             }
           });
-          test("Window dimensions", function() {
-            var div;
-            dimensions.simulate(1000, 1000);
-            div = Dom.div({
-              style: {
-                position: 'relative',
-                zIndex: 2,
-                width: '300px',
-                height: '300px',
-                fontSize: '30px',
-                lineHeight: '30px',
-                '@window(orientation:landscape)': {
-                  fontWeight: 600
-                },
-                '@window(orientation:portrait)': {
-                  fontWeight: 700
-                },
-                '@window(max-width:800)': {
-                  zIndex: 3,
-                  width: '280px'
-                },
-                '@window(max-width:700, max-height:1000)': {
-                  zIndex: 4,
-                  width: '250px',
-                  height: '250px'
-                },
-                '@window(max-height:1000)': {
-                  fontSize: '25px'
-                },
-                '@window(min-width:900px)': {
-                  fontSize: '23px'
-                },
-                '@window(aspect-ratio:0.5)': {
-                  fontSize: '21px',
-                  lineHeight: '12px'
-                },
-                '@window(min-height:1200)': {
-                  fontSize: '20px'
-                }
+          divB = Dom.div({
+            stateTriggers: {
+              'happy': {
+                on: 'happyON',
+                off: 'happyOFF'
               }
-            });
-            div.appendTo(sandbox);
-            expect(div.raw.style.zIndex).to.equal('2');
-            expect(div.raw.style.width).to.equal('300px');
-            expect(div.raw.style.height).to.equal('300px');
-            expect(div.raw.style.fontSize).to.equal('23px');
-            expect(div.raw.style.fontWeight).to.equal('700');
-            dimensions.simulate(900);
-            expect(div.raw.style.fontSize).to.equal('23px');
-            dimensions.simulate(899);
-            expect(div.raw.style.fontSize).to.equal('25px');
-            dimensions.simulate(899, 1100);
-            expect(div.raw.style.fontSize).to.equal('30px');
-            dimensions.simulate(950);
-            expect(div.raw.style.fontSize).to.equal('23px');
-            dimensions.simulate(950, 1900);
-            expect(div.raw.style.fontSize).to.equal('20px');
-            expect(div.raw.style.lineHeight).to.equal('12px');
-            dimensions.simulate(950, 1899);
-            expect(div.raw.style.fontSize).to.equal('20px');
-            expect(div.raw.style.lineHeight).to.equal('30px');
-            dimensions.simulate(790);
-            expect(div.raw.style.zIndex).to.equal('3');
-            expect(div.raw.style.width).to.equal('280px');
-            dimensions.simulate(810);
-            expect(div.raw.style.zIndex).to.equal('2');
-            expect(div.raw.style.width).to.equal('300px');
-            dimensions.simulate(791);
-            expect(div.raw.style.zIndex).to.equal('3');
-            expect(div.raw.style.width).to.equal('280px');
-            dimensions.simulate(701, 900);
-            expect(div.raw.style.zIndex).to.equal('3');
-            expect(div.raw.style.width).to.equal('280px');
-            expect(div.raw.style.height).to.equal('300px');
-            dimensions.simulate(700, 900);
-            expect(div.raw.style.zIndex).to.equal('4');
-            expect(div.raw.style.width).to.equal('250px');
-            expect(div.raw.style.height).to.equal('250px');
-            dimensions.simulate(700, 1001);
-            expect(div.raw.style.zIndex).to.equal('3');
-            expect(div.raw.style.width).to.equal('280px');
-            expect(div.raw.style.height).to.equal('300px');
-            dimensions.simulate(700, 1000);
-            expect(div.raw.style.zIndex).to.equal('4');
-            expect(div.raw.style.width).to.equal('250px');
-            expect(div.raw.style.height).to.equal('250px');
-            expect(div.raw.style.fontWeight).to.equal('700');
-            dimensions.simulate(1100, 1000);
-            expect(div.raw.style.fontWeight).to.equal('600');
-            dimensions.simulate(1100, 1101);
-            return expect(div.raw.style.fontWeight).to.equal('700');
+            }
           });
-          test("Self dimensions/styles", function() {
-            var div, parent, simulateParent;
-            parent = Dom.div().appendTo(sandbox);
-            simulateParent = function(width, height) {
-              if (width) {
-                parent.style('width', width);
+          expect(divA.state('happy')).to.equal(false);
+          expect(divB.state('happy')).to.equal(false);
+          divA.raw.emitEvent('happyON');
+          divB.raw.emitEvent('happyON');
+          expect(divA.state('happy')).to.equal(true);
+          expect(divB.state('happy')).to.equal(false);
+          divB.state('happy', true);
+          divA.raw.emitEvent('happyOFF');
+          divB.raw.emitEvent('happyOFF');
+          expect(divA.state('happy')).to.equal(false);
+          return expect(divB.state('happy')).to.equal(true);
+        });
+        return test("options.stateTriggers config objects can specify a 'bubbles' property which will cause the state to bubble to parents instead of cascade to children", function() {
+          var childA, childB, parentA, parentB, subChildA, subChildB, subParentA, subParentB;
+          parentA = Dom.section(null, subParentA = Dom.div(null, childA = Dom.div({
+            stateTriggers: {
+              'happy': {
+                on: 'happyON',
+                off: 'happyOFF',
+                bubbles: true,
+                force: true
               }
-              if (height) {
-                parent.style('height', height);
+            }
+          }, subChildA = Dom.div())));
+          parentB = Dom.section(null, subParentB = Dom.div(null, childB = Dom.div({
+            stateTriggers: {
+              'happy': {
+                on: 'happyON',
+                off: 'happyOFF',
+                force: true
               }
-              return dimensions.simulate();
-            };
-            div = Dom.div({
-              style: {
-                position: 'relative',
-                zIndex: 2,
-                top: '30px',
-                width: '100%',
-                height: '100%',
-                fontSize: '30px',
-                lineHeight: '30px',
-                '@self(orientation:landscape)': {
-                  fontWeight: 600
-                },
-                '@self(orientation:portrait)': {
-                  fontWeight: 700
-                },
-                '@self(position:relative)': {
-                  top: '20px'
-                },
-                '@self(max-width:350)': {
-                  zIndex: 3,
-                  fontSize: '33px'
-                },
-                '@self(max-width:500, min-height:400)': {
-                  zIndex: 4,
-                  fontSize: '27px',
-                  lineHeight: '37px'
-                },
-                '@self(zIndex:4)': {
-                  lineHeight: '15px'
-                },
-                '@self(min-zIndex:6)': {
-                  opacity: '0'
-                },
-                '@self(max-fontSize:20)': {
-                  lineHeight: '19px'
-                },
-                '@self(min-width:600px)': {
-                  fontSize: '19px'
-                },
-                '@self(aspect-ratio:2.25)': {
-                  fontSize: '21px',
-                  lineHeight: '12px'
-                },
-                '@self(min-height:700)': {
-                  fontSize: '40px'
-                }
+            }
+          }, subChildB = Dom.div())));
+          expect(parentA.state('happy')).to.equal(false);
+          expect(parentB.state('happy')).to.equal(false);
+          expect(subParentA.state('happy')).to.equal(false);
+          expect(subParentB.state('happy')).to.equal(false);
+          expect(childA.state('happy')).to.equal(false);
+          expect(childB.state('happy')).to.equal(false);
+          expect(subChildA.state('happy')).to.equal(false);
+          expect(subChildB.state('happy')).to.equal(false);
+          childA.raw.emitEvent('happyON');
+          childB.raw.emitEvent('happyON');
+          expect(parentA.state('happy')).to.equal(true);
+          expect(parentB.state('happy')).to.equal(false);
+          expect(subParentA.state('happy')).to.equal(true);
+          expect(subParentB.state('happy')).to.equal(false);
+          expect(childA.state('happy')).to.equal(true);
+          expect(childB.state('happy')).to.equal(true);
+          expect(subChildA.state('happy')).to.equal(false);
+          expect(subChildB.state('happy')).to.equal(true);
+          childA.raw.emitEvent('happyOFF');
+          childB.raw.emitEvent('happyOFF');
+          expect(parentA.state('happy')).to.equal(false);
+          expect(parentB.state('happy')).to.equal(false);
+          expect(subParentA.state('happy')).to.equal(false);
+          expect(subParentB.state('happy')).to.equal(false);
+          expect(childA.state('happy')).to.equal(false);
+          expect(childB.state('happy')).to.equal(false);
+          expect(subChildA.state('happy')).to.equal(false);
+          return expect(subChildB.state('happy')).to.equal(false);
+        });
+      });
+      suite("Media Queries", function() {
+        suiteSetup(function() {
+          var ref;
+          if (!((ref = Object.getOwnPropertyDescriptor(window, 'innerWidth')) != null ? ref.configurable : void 0)) {
+            return this.skip();
+          }
+        });
+        test("Window dimensions", function() {
+          var div;
+          dimensions.simulate(1000, 1000);
+          div = Dom.div({
+            style: {
+              position: 'relative',
+              zIndex: 2,
+              width: '300px',
+              height: '300px',
+              fontSize: '30px',
+              lineHeight: '30px',
+              '@window(orientation:landscape)': {
+                fontWeight: 600
+              },
+              '@window(orientation:portrait)': {
+                fontWeight: 700
+              },
+              '@window(max-width:800)': {
+                zIndex: 3,
+                width: '280px'
+              },
+              '@window(max-width:700, max-height:1000)': {
+                zIndex: 4,
+                width: '250px',
+                height: '250px'
+              },
+              '@window(max-height:1000)': {
+                fontSize: '25px'
+              },
+              '@window(min-width:900px)': {
+                fontSize: '23px'
+              },
+              '@window(aspect-ratio:0.5)': {
+                fontSize: '21px',
+                lineHeight: '12px'
+              },
+              '@window(min-height:1200)': {
+                fontSize: '20px'
               }
-            });
-            simulateParent(400, 300);
-            div.appendTo(parent);
-            expect(div.style('zIndex')).to.equal('2');
-            expect(div.style('width')).to.equal('400px');
-            expect(div.style('height')).to.equal('300px');
-            expect(div.style('fontSize')).to.equal('30px');
-            expect(div.style('lineHeight')).to.equal('30px');
-            expect(div.style('fontWeight')).to.equal('600');
-            expect(div.style('top')).to.equal('20px');
-            simulateParent(349, 420);
-            expect(div.style('zIndex')).to.equal('4');
-            expect(div.style('fontSize')).to.equal('27px');
-            expect(div.style('lineHeight')).to.equal('15px');
-            simulateParent(349, 399);
-            expect(div.style('zIndex')).to.equal('3');
-            expect(div.style('fontSize')).to.equal('33px');
-            simulateParent(349, 401);
-            expect(div.style('zIndex')).to.equal('4');
-            expect(div.style('fontSize')).to.equal('27px');
-            expect(div.style('lineHeight')).to.equal('15px');
-            expect(div.style('opacity')).to.equal('1');
-            div.style('zIndex', 5);
-            dimensions.simulate();
-            expect(div.style('opacity')).to.equal('1');
-            expect(div.style('lineHeight')).to.equal('37px');
-            div.style('zIndex', 17);
-            expect(div.style('opacity')).to.equal('1');
-            dimensions.simulate();
-            expect(div.style('opacity')).to.equal('0');
-            simulateParent(900);
-            expect(div.style('fontSize')).to.equal('19px');
-            expect(div.style('lineHeight')).to.equal('30px');
-            simulateParent(900);
-            expect(div.style('lineHeight')).to.equal('19px');
-            simulateParent(900, 400);
-            expect(div.style('fontSize')).to.equal('21px');
-            expect(div.style('lineHeight')).to.equal('12px');
-            simulateParent(2025, 900);
-            expect(div.style('fontSize')).to.equal('40px');
-            expect(div.style('lineHeight')).to.equal('12px');
-            expect(div.raw.style.fontWeight).to.equal('600');
-            simulateParent(2025, 2026);
-            return expect(div.raw.style.fontWeight).to.equal('700');
+            }
           });
-          test("Parent dimensions/styles", function() {
-            var div, parent, simulateParent;
-            parent = Dom.div({
-              style: {
-                position: 'absolute'
+          div.appendTo(sandbox);
+          expect(div.raw.style.zIndex).to.equal('2');
+          expect(div.raw.style.width).to.equal('300px');
+          expect(div.raw.style.height).to.equal('300px');
+          expect(div.raw.style.fontSize).to.equal('23px');
+          expect(div.raw.style.fontWeight).to.equal('700');
+          dimensions.simulate(900);
+          expect(div.raw.style.fontSize).to.equal('23px');
+          dimensions.simulate(899);
+          expect(div.raw.style.fontSize).to.equal('25px');
+          dimensions.simulate(899, 1100);
+          expect(div.raw.style.fontSize).to.equal('30px');
+          dimensions.simulate(950);
+          expect(div.raw.style.fontSize).to.equal('23px');
+          dimensions.simulate(950, 1900);
+          expect(div.raw.style.fontSize).to.equal('20px');
+          expect(div.raw.style.lineHeight).to.equal('12px');
+          dimensions.simulate(950, 1899);
+          expect(div.raw.style.fontSize).to.equal('20px');
+          expect(div.raw.style.lineHeight).to.equal('30px');
+          dimensions.simulate(790);
+          expect(div.raw.style.zIndex).to.equal('3');
+          expect(div.raw.style.width).to.equal('280px');
+          dimensions.simulate(810);
+          expect(div.raw.style.zIndex).to.equal('2');
+          expect(div.raw.style.width).to.equal('300px');
+          dimensions.simulate(791);
+          expect(div.raw.style.zIndex).to.equal('3');
+          expect(div.raw.style.width).to.equal('280px');
+          dimensions.simulate(701, 900);
+          expect(div.raw.style.zIndex).to.equal('3');
+          expect(div.raw.style.width).to.equal('280px');
+          expect(div.raw.style.height).to.equal('300px');
+          dimensions.simulate(700, 900);
+          expect(div.raw.style.zIndex).to.equal('4');
+          expect(div.raw.style.width).to.equal('250px');
+          expect(div.raw.style.height).to.equal('250px');
+          dimensions.simulate(700, 1001);
+          expect(div.raw.style.zIndex).to.equal('3');
+          expect(div.raw.style.width).to.equal('280px');
+          expect(div.raw.style.height).to.equal('300px');
+          dimensions.simulate(700, 1000);
+          expect(div.raw.style.zIndex).to.equal('4');
+          expect(div.raw.style.width).to.equal('250px');
+          expect(div.raw.style.height).to.equal('250px');
+          expect(div.raw.style.fontWeight).to.equal('700');
+          dimensions.simulate(1100, 1000);
+          expect(div.raw.style.fontWeight).to.equal('600');
+          dimensions.simulate(1100, 1101);
+          return expect(div.raw.style.fontWeight).to.equal('700');
+        });
+        test("Self dimensions/styles", function() {
+          var div, parent, simulateParent;
+          parent = Dom.div().appendTo(sandbox);
+          simulateParent = function(width, height) {
+            if (width) {
+              parent.style('width', width);
+            }
+            if (height) {
+              parent.style('height', height);
+            }
+            return dimensions.simulate();
+          };
+          div = Dom.div({
+            style: {
+              position: 'relative',
+              zIndex: 2,
+              top: '30px',
+              width: '100%',
+              height: '100%',
+              fontSize: '30px',
+              lineHeight: '30px',
+              '@self(orientation:landscape)': {
+                fontWeight: 600
+              },
+              '@self(orientation:portrait)': {
+                fontWeight: 700
+              },
+              '@self(position:relative)': {
+                top: '20px'
+              },
+              '@self(max-width:350)': {
+                zIndex: 3,
+                fontSize: '33px'
+              },
+              '@self(max-width:500, min-height:400)': {
+                zIndex: 4,
+                fontSize: '27px',
+                lineHeight: '37px'
+              },
+              '@self(zIndex:4)': {
+                lineHeight: '15px'
+              },
+              '@self(min-zIndex:6)': {
+                opacity: '0'
+              },
+              '@self(max-fontSize:20)': {
+                lineHeight: '19px'
+              },
+              '@self(min-width:600px)': {
+                fontSize: '19px'
+              },
+              '@self(aspect-ratio:2.25)': {
+                fontSize: '21px',
+                lineHeight: '12px'
+              },
+              '@self(min-height:700)': {
+                fontSize: '40px'
               }
-            }).appendTo(sandbox);
-            simulateParent = function(width, height) {
-              if (width) {
-                parent.style('width', width);
-              }
-              if (height) {
-                parent.style('height', height);
-              }
-              return dimensions.simulate();
-            };
-            div = Dom.div({
-              style: {
-                position: 'relative',
-                zIndex: 2,
-                top: '30px',
-                width: '400px',
-                height: '300px',
-                fontSize: '30px',
-                lineHeight: '30px',
-                '@parent(orientation:landscape)': {
-                  fontWeight: 600
-                },
-                '@parent(orientation:portrait)': {
-                  fontWeight: 700
-                },
-                '@parent(position:relative)': {
-                  top: '20px'
-                },
-                '@parent(max-width:350)': {
-                  zIndex: 3,
-                  fontSize: '33px'
-                },
-                '@parent(max-width:500, min-height:400)': {
-                  zIndex: 4,
-                  fontSize: '27px',
-                  lineHeight: '37px'
-                },
-                '@parent(zIndex:7)': {
-                  lineHeight: '15px'
-                }
-              }
-            });
-            simulateParent(400, 300);
-            div.appendTo(parent);
-            expect(div.style('zIndex')).to.equal('2');
-            expect(div.style('width')).to.equal('400px');
-            expect(div.style('height')).to.equal('300px');
-            expect(div.style('fontSize')).to.equal('30px');
-            expect(div.style('lineHeight')).to.equal('30px');
-            expect(div.style('fontWeight')).to.equal('600');
-            expect(div.style('top')).to.equal('30px');
-            parent.style('position', 'relative');
-            expect(div.style('top')).to.equal('30px');
-            simulateParent();
-            expect(div.style('top')).to.equal('20px');
-            simulateParent(349, 420);
-            expect(div.style('zIndex')).to.equal('4');
-            expect(div.style('fontSize')).to.equal('27px');
-            expect(div.style('lineHeight')).to.equal('37px');
-            simulateParent(349, 399);
-            expect(div.style('zIndex')).to.equal('3');
-            expect(div.style('fontSize')).to.equal('33px');
-            parent.style('zIndex', '7');
-            simulateParent(349, 401);
-            expect(div.style('zIndex')).to.equal('4');
-            expect(div.style('fontSize')).to.equal('27px');
-            expect(div.style('lineHeight')).to.equal('15px');
-            return expect(div.style('opacity')).to.equal('1');
+            }
           });
-          return test("Parent Ref dimensions/styles", function() {
-            var div, parent;
-            parent = Dom.div({
-              ref: 'abc'
-            }, Dom.div({
-              id: 'def'
-            }, Dom.div({
-              ref: 'ghi'
-            }))).appendTo(sandbox);
-            div = Dom.div({
-              style: {
-                position: 'relative',
-                zIndex: 2,
-                top: '30px',
-                width: '400px',
-                height: '300px',
-                fontSize: '30px',
-                lineHeight: '30px',
-                '@#abc(orientation:landscape)': {
-                  fontWeight: 600
-                },
-                '@#abc(orientation:portrait)': {
-                  fontWeight: 500
-                },
-                '@#def(position:relative)': {
-                  top: '20px'
-                },
-                '@#def(max-width:350)': {
-                  zIndex: 3,
-                  fontSize: '33px'
-                },
-                '@#ghi(max-width:500, min-height:400)': {
-                  zIndex: 4,
-                  fontSize: '27px',
-                  lineHeight: '37px'
-                },
-                '@#abc(zIndex:7)': {
-                  lineHeight: '15px'
-                }
+          simulateParent(400, 300);
+          div.appendTo(parent);
+          expect(div.style('zIndex')).to.equal('2');
+          expect(div.style('width')).to.equal('400px');
+          expect(div.style('height')).to.equal('300px');
+          expect(div.style('fontSize')).to.equal('30px');
+          expect(div.style('lineHeight')).to.equal('30px');
+          expect(div.style('fontWeight')).to.equal('600');
+          expect(div.style('top')).to.equal('20px');
+          simulateParent(349, 420);
+          expect(div.style('zIndex')).to.equal('4');
+          expect(div.style('fontSize')).to.equal('27px');
+          expect(div.style('lineHeight')).to.equal('15px');
+          simulateParent(349, 399);
+          expect(div.style('zIndex')).to.equal('3');
+          expect(div.style('fontSize')).to.equal('33px');
+          simulateParent(349, 401);
+          expect(div.style('zIndex')).to.equal('4');
+          expect(div.style('fontSize')).to.equal('27px');
+          expect(div.style('lineHeight')).to.equal('15px');
+          expect(div.style('opacity')).to.equal('1');
+          div.style('zIndex', 5);
+          dimensions.simulate();
+          expect(div.style('opacity')).to.equal('1');
+          expect(div.style('lineHeight')).to.equal('37px');
+          div.style('zIndex', 17);
+          expect(div.style('opacity')).to.equal('1');
+          dimensions.simulate();
+          expect(div.style('opacity')).to.equal('0');
+          simulateParent(900);
+          expect(div.style('fontSize')).to.equal('19px');
+          expect(div.style('lineHeight')).to.equal('30px');
+          simulateParent(900);
+          expect(div.style('lineHeight')).to.equal('19px');
+          simulateParent(900, 400);
+          expect(div.style('fontSize')).to.equal('21px');
+          expect(div.style('lineHeight')).to.equal('12px');
+          simulateParent(2025, 900);
+          expect(div.style('fontSize')).to.equal('40px');
+          expect(div.style('lineHeight')).to.equal('12px');
+          expect(div.raw.style.fontWeight).to.equal('600');
+          simulateParent(2025, 2026);
+          return expect(div.raw.style.fontWeight).to.equal('700');
+        });
+        test("Parent dimensions/styles", function() {
+          var div, parent, simulateParent;
+          parent = Dom.div({
+            style: {
+              position: 'absolute'
+            }
+          }).appendTo(sandbox);
+          simulateParent = function(width, height) {
+            if (width) {
+              parent.style('width', width);
+            }
+            if (height) {
+              parent.style('height', height);
+            }
+            return dimensions.simulate();
+          };
+          div = Dom.div({
+            style: {
+              position: 'relative',
+              zIndex: 2,
+              top: '30px',
+              width: '400px',
+              height: '300px',
+              fontSize: '30px',
+              lineHeight: '30px',
+              '@parent(orientation:landscape)': {
+                fontWeight: 600
+              },
+              '@parent(orientation:portrait)': {
+                fontWeight: 700
+              },
+              '@parent(position:relative)': {
+                top: '20px'
+              },
+              '@parent(max-width:350)': {
+                zIndex: 3,
+                fontSize: '33px'
+              },
+              '@parent(max-width:500, min-height:400)': {
+                zIndex: 4,
+                fontSize: '27px',
+                lineHeight: '37px'
+              },
+              '@parent(zIndex:7)': {
+                lineHeight: '15px'
               }
-            });
-            parent.style({
-              width: 400,
-              height: 300
-            });
-            parent.child.def.style({
-              width: 400,
-              height: 300
-            });
-            parent.child.ghi.style({
-              width: 400,
-              height: 300
-            });
-            div.appendTo(parent.child.ghi);
-            expect(div.style('zIndex')).to.equal('2');
-            expect(div.style('width')).to.equal('400px');
-            expect(div.style('height')).to.equal('300px');
-            expect(div.style('fontSize')).to.equal('30px');
-            expect(div.style('lineHeight')).to.equal('30px');
-            expect(div.style('fontWeight')).to.equal('600');
-            expect(div.style('top')).to.equal('30px');
-            parent.style({
-              width: 400,
-              height: 900,
-              position: 'relative'
-            });
-            dimensions.simulate();
-            expect(div.style('fontWeight')).to.equal('500');
-            expect(div.style('top')).to.equal('30px');
-            parent.child.def.style({
-              position: 'relative'
-            });
-            expect(div.style('top')).to.equal('30px');
-            dimensions.simulate();
-            expect(div.style('top')).to.equal('20px');
-            parent.child.def.style({
-              width: 349,
-              height: 420
-            });
-            dimensions.simulate();
-            expect(div.style('zIndex')).to.equal('3');
-            expect(div.style('fontSize')).to.equal('33px');
-            parent.child.ghi.style({
-              width: 450,
-              height: 420
-            });
-            dimensions.simulate();
-            expect(div.style('zIndex')).to.equal('4');
-            expect(div.style('fontSize')).to.equal('27px');
-            expect(div.style('lineHeight')).to.equal('37px');
-            parent.style({
-              zIndex: 7
-            });
-            dimensions.simulate();
-            expect(div.style('zIndex')).to.equal('4');
-            expect(div.style('fontSize')).to.equal('27px');
-            expect(div.style('lineHeight')).to.equal('15px');
-            expect(div.style('opacity')).to.equal('1');
-            return dimensions.restore();
+            }
           });
+          simulateParent(400, 300);
+          div.appendTo(parent);
+          expect(div.style('zIndex')).to.equal('2');
+          expect(div.style('width')).to.equal('400px');
+          expect(div.style('height')).to.equal('300px');
+          expect(div.style('fontSize')).to.equal('30px');
+          expect(div.style('lineHeight')).to.equal('30px');
+          expect(div.style('fontWeight')).to.equal('600');
+          expect(div.style('top')).to.equal('30px');
+          parent.style('position', 'relative');
+          expect(div.style('top')).to.equal('30px');
+          simulateParent();
+          expect(div.style('top')).to.equal('20px');
+          simulateParent(349, 420);
+          expect(div.style('zIndex')).to.equal('4');
+          expect(div.style('fontSize')).to.equal('27px');
+          expect(div.style('lineHeight')).to.equal('37px');
+          simulateParent(349, 399);
+          expect(div.style('zIndex')).to.equal('3');
+          expect(div.style('fontSize')).to.equal('33px');
+          parent.style('zIndex', '7');
+          simulateParent(349, 401);
+          expect(div.style('zIndex')).to.equal('4');
+          expect(div.style('fontSize')).to.equal('27px');
+          expect(div.style('lineHeight')).to.equal('15px');
+          return expect(div.style('opacity')).to.equal('1');
+        });
+        return test("Parent Ref dimensions/styles", function() {
+          var div, parent;
+          parent = Dom.div({
+            ref: 'abc'
+          }, Dom.div({
+            id: 'def'
+          }, Dom.div({
+            ref: 'ghi'
+          }))).appendTo(sandbox);
+          div = Dom.div({
+            style: {
+              position: 'relative',
+              zIndex: 2,
+              top: '30px',
+              width: '400px',
+              height: '300px',
+              fontSize: '30px',
+              lineHeight: '30px',
+              '@#abc(orientation:landscape)': {
+                fontWeight: 600
+              },
+              '@#abc(orientation:portrait)': {
+                fontWeight: 500
+              },
+              '@#def(position:relative)': {
+                top: '20px'
+              },
+              '@#def(max-width:350)': {
+                zIndex: 3,
+                fontSize: '33px'
+              },
+              '@#ghi(max-width:500, min-height:400)': {
+                zIndex: 4,
+                fontSize: '27px',
+                lineHeight: '37px'
+              },
+              '@#abc(zIndex:7)': {
+                lineHeight: '15px'
+              }
+            }
+          });
+          parent.style({
+            width: 400,
+            height: 300
+          });
+          parent.child.def.style({
+            width: 400,
+            height: 300
+          });
+          parent.child.ghi.style({
+            width: 400,
+            height: 300
+          });
+          div.appendTo(parent.child.ghi);
+          expect(div.style('zIndex')).to.equal('2');
+          expect(div.style('width')).to.equal('400px');
+          expect(div.style('height')).to.equal('300px');
+          expect(div.style('fontSize')).to.equal('30px');
+          expect(div.style('lineHeight')).to.equal('30px');
+          expect(div.style('fontWeight')).to.equal('600');
+          expect(div.style('top')).to.equal('30px');
+          parent.style({
+            width: 400,
+            height: 900,
+            position: 'relative'
+          });
+          dimensions.simulate();
+          expect(div.style('fontWeight')).to.equal('500');
+          expect(div.style('top')).to.equal('30px');
+          parent.child.def.style({
+            position: 'relative'
+          });
+          expect(div.style('top')).to.equal('30px');
+          dimensions.simulate();
+          expect(div.style('top')).to.equal('20px');
+          parent.child.def.style({
+            width: 349,
+            height: 420
+          });
+          dimensions.simulate();
+          expect(div.style('zIndex')).to.equal('3');
+          expect(div.style('fontSize')).to.equal('33px');
+          parent.child.ghi.style({
+            width: 450,
+            height: 420
+          });
+          dimensions.simulate();
+          expect(div.style('zIndex')).to.equal('4');
+          expect(div.style('fontSize')).to.equal('27px');
+          expect(div.style('lineHeight')).to.equal('37px');
+          parent.style({
+            zIndex: 7
+          });
+          dimensions.simulate();
+          expect(div.style('zIndex')).to.equal('4');
+          expect(div.style('fontSize')).to.equal('27px');
+          expect(div.style('lineHeight')).to.equal('15px');
+          expect(div.style('opacity')).to.equal('1');
+          return dimensions.restore();
         });
       });
       suite("Traversal", function() {
