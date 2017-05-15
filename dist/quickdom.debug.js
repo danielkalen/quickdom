@@ -381,9 +381,9 @@ var slice = [].slice;
           base3.passStateToChildren = true;
         }
         this.options.stateTriggers = this.options.stateTriggers ? extend.clone.deep(baseStateTriggers, this.options.stateTriggers) : baseStateTriggers;
-        this._normalizeStyle();
+        this._parseStyles();
       };
-      QuickElement.prototype._normalizeStyle = function() {
+      QuickElement.prototype._parseStyles = function() {
         var checkInnerStates, i, keys, len, nonStateProps, specialStates, state, states;
         keys = Object.keys(this.options.style);
         states = keys.filter(function(key) {
@@ -520,6 +520,9 @@ var slice = [].slice;
         fn = (function(_this) {
           return function(state, trigger) {
             var disabler, enabler;
+            if (!helpers.includes(_this._providedStates, state)) {
+              return;
+            }
             enabler = IS.string(trigger) ? trigger : trigger.on;
             if (IS.object(trigger)) {
               disabler = trigger.off;
