@@ -16,11 +16,11 @@ QuickElement::_normalizeOptions = ()->
 		else
 			baseStateTriggers
 	
-	@_normalizeStyle()
+	@_parseStyles()
 	return
 
 
-QuickElement::_normalizeStyle = ()->
+QuickElement::_parseStyles = ()->
 	keys = Object.keys(@options.style)
 	states = keys.filter (key)-> helpers.isStateStyle(key)
 	specialStates = helpers.removeItem(states.slice(), '$base')

@@ -30,7 +30,7 @@ replacements = [
 	[/_insertedCallbacks/g, '_i']
 	[/_inserted/g, '_I']
 	[/_normalizeOptions/g, '_n']
-	[/_normalizeStyle/g, '_ns']
+	[/_parseStyles/g, '_ns']
 	[/_applyOptions/g, '_a']
 	[/_attachStateEvents/g, '_ae']
 	[/_listenTo/g, '_l']
