@@ -23,6 +23,7 @@ class QuickTemplate
 	extend: (newValues, globalOpts)->
 		new QuickTemplate extendTemplate(@_config, newValues, globalOpts)
 
+### istanbul ignore next ###
 QuickTemplate.name ?= 'QuickTemplate'
 
 

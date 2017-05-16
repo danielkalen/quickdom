@@ -22,8 +22,9 @@ QuickElement::state = (targetState, value, bubbles, source)->
 		activeStates = @_getActiveStates(targetState, false)
 		activeStateStyles = @_getStateStyles(activeStates)
 		
+		# ==== Toggle styles for this state =================================================================================
 		if @state(targetState) isnt desiredValue
-			targetStyle = @options.style['$'+targetState] or @options.style['@'+targetState]
+			targetStyle = @_styles[targetState] or @_styles[targetState]
 			if targetStyle
 				targetStateIndex = @_providedStates.indexOf(targetState)
 				superiorStates = activeStates.filter (state)=> @_providedStates.indexOf(state) > targetStateIndex
@@ -38,31 +39,44 @@ QuickElement::state = (targetState, value, bubbles, source)->
 			else
 				helpers.removeItem(@_state, targetState)
 				if targetStyle
-					stylesToKeep = extend.clone.keys(targetStyle)(@options.style.$base, activeStateStyles...)
+					stylesToKeep = extend.clone.keys(targetStyle)(@_styles.base, activeStateStyles...)
 					stylesToRemove = extend.transform(-> null).clone(targetStyle)
 					@style extend(stylesToRemove, stylesToKeep)
 
 
-		if @hasSharedStateStyle
-			sharedStyles = Object.keys(@options.styleShared)
-			sharedStyles = sharedStyles.filter (stateChain)-> helpers.includes(stateChain, targetState)
+		# ==== Toggle shared styles =================================================================================
+		if @_hasSharedStateStyle
+			sharedStyles = @_stylesShared.filter (stateChain)-> helpers.includes(stateChain, targetState)
+			
 			for stateChain in sharedStyles
 				split = stateChain.split('+')
 				isApplicable = split.length is split.filter((state)=> state is targetState or @state(state)).length
 				
 				if isApplicable
-					targetStyle = @options.styleShared[stateChain]
-					if desiredValue
+					targetStyle = @_styles[stateChain]
+				
+					if desiredValue #is on
 						@_stateShared.push(stateChain) unless helpers.includes(@_stateShared, stateChain)
-						inferiorStateChains = @options.styleShared[helpers.removeItem(split, targetState).join('+')]
-						@style extend.clone(inferiorStateChains, targetStyle)
+						if split.length > 2
+							inferiorStateChains = @_styles[helpers.removeItem(split, targetState).join('+')]
+							targetStyle = extend.clone(inferiorStateChains, targetStyle)
+						
+						@style targetStyle
 					else
 						helpers.removeItem(@_stateShared, stateChain)
-						stylesToKeep = extend.clone.keys(targetStyle)(@options.style.$base, activeStateStyles...)
+						if @_stateShared.length
+							activeStateStyles.push (
+								@_stateShared
+									.filter (state)-> not helpers.includes(state, targetState)
+									.map (state)=> @_styles[state]
+							)...
+
+						stylesToKeep = extend.clone.keys(targetStyle)(@_styles.base, activeStateStyles...)
 						stylesToRemove = extend.transform(-> null).clone(targetStyle)
 						@style extend(stylesToRemove, stylesToKeep)
 
 
+		# ==== Pass state to parent/children =================================================================================
 		if not helpers.includes(@options.unpassableStates, targetState)
 			if bubbles
 				@_parent.state(targetState, value, true, source or @) if @parent
@@ -134,7 +148,7 @@ QuickElement::styleSafe = (property, skipComputed)->
 
 	if IS.string(computedResult)
 		computedResult = 0 if skipComputed
-		return computedResult or @el.style[args[0]] or @options.style.$base[args[0]] or ''
+		return computedResult or @el.style[args[0]] or @_styles.base[args[0]] or ''
 
 	return @
 
@@ -144,20 +158,20 @@ QuickElement::styleParsed = (property)->
 
 
 QuickElement::recalcStyle = ()->
-	activeStateStyles = @_getStateStyles(@_getActiveStates())
+	activeStateStyles = @_getStateStyles @_getActiveStates()
 	targetStyles = extend.clone.filter(
 		(value)-> typeof value is 'function'
-	)(@options.style.$base, activeStateStyles...)
+	)(@_styles.base, activeStateStyles...)
 
 	@style(targetStyles)
 
 
 QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
 	plainStates = @_providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
-	return if not includeSharedStates or not @hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
+	return if not includeSharedStates or not @_hasSharedStateStyle then plainStates else plainStates.concat(@_stateShared)
 
 QuickElement::_getStateStyles = (states)->
-	states.map (state)=> @options.style['$'+state] or @options.style['@'+state]
+	states.map (state)=> @_styles[state] or @_styles[state]
 
 
 

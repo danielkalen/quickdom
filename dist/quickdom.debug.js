@@ -123,9 +123,6 @@ var slice = [].slice;
         },
         template: function(subject) {
           return subject && subject.constructor.name === 'QuickTemplate';
-        },
-        batch: function(subject) {
-          return subject && subject.constructor.name === 'QuickBatch';
         }
       });
       QuickElement = (function() {
@@ -137,6 +134,8 @@ var slice = [].slice;
             this.append = this.prepend = this.attr = function() {};
           }
           this._parent = null;
+          this._styles = {};
+          this._stylesShared = [];
           this._state = [];
           this._children = [];
           this._insertedCallbacks = [];
@@ -164,6 +163,8 @@ var slice = [].slice;
         return QuickElement;
 
       })();
+
+      /* istanbul ignore next */
       if (QuickElement.name == null) {
         QuickElement.name = 'QuickElement';
       }
@@ -360,31 +361,30 @@ var slice = [].slice;
         }
       };
       QuickElement.prototype._normalizeOptions = function() {
-        var base, base1, base2, base3;
-        if ((base = this.options).style == null) {
-          base.style = {};
-        }
-        this.options.styleShared = {};
+        var base, base1, base2;
         if (this.options["class"]) {
           this.options.className = this.options["class"];
         }
         if (this.options.url) {
           this.options.href = this.options.url;
         }
-        if ((base1 = this.options).relatedInstance == null) {
-          base1.relatedInstance = this;
+        if ((base = this.options).relatedInstance == null) {
+          base.relatedInstance = this;
         }
-        if ((base2 = this.options).unpassableStates == null) {
-          base2.unpassableStates = [];
+        if ((base1 = this.options).unpassableStates == null) {
+          base1.unpassableStates = [];
         }
-        if ((base3 = this.options).passStateToChildren == null) {
-          base3.passStateToChildren = true;
+        if ((base2 = this.options).passStateToChildren == null) {
+          base2.passStateToChildren = true;
         }
         this.options.stateTriggers = this.options.stateTriggers ? extend.clone.deep(baseStateTriggers, this.options.stateTriggers) : baseStateTriggers;
         this._parseStyles();
       };
       QuickElement.prototype._parseStyles = function() {
-        var checkInnerStates, i, keys, len, nonStateProps, specialStates, state, states;
+        var flattenNestedStates, i, keys, len, specialStates, state, stateStyles, state_, states;
+        if (!IS.objectPlain(this.options.style)) {
+          return this._providedStates = [];
+        }
         keys = Object.keys(this.options.style);
         states = keys.filter(function(key) {
           return helpers.isStateStyle(key);
@@ -392,48 +392,59 @@ var slice = [].slice;
         specialStates = helpers.removeItem(states.slice(), '$base');
         this._mediaStates = states.filter(function(key) {
           return key[0] === '@';
+        }).map(function(state) {
+          return state.slice(1);
         });
         this._providedStates = states.map(function(state) {
           return state.slice(1);
         });
-        if (!helpers.includes(states, '$base') && keys.length) {
-          this.options = extend.clone(this.options);
+        if (!helpers.includes(states, '$base')) {
           if (states.length) {
-            nonStateProps = keys.filter(function(property) {
-              return !helpers.isStateStyle(property);
-            });
-            this.options.style.$base = extend.clone.keys(nonStateProps)(this.options.style);
+            this._styles.base = extend.clone.notKeys(states)(this.options.style);
           } else {
-            this.options.style = {
-              $base: this.options.style
-            };
+            this._styles.base = this.options.style;
           }
+        } else {
+          this._styles.base = this.options.style.$base;
         }
-        checkInnerStates = (function(_this) {
-          return function(styleObject, parentStates) {
-            var i, innerState, innerStates, len, stateChain, stateChainString;
-            innerStates = Object.keys(styleObject).filter(function(key) {
-              return helpers.isStateStyle(key);
-            });
-            if (innerStates.length) {
-              _this.hasSharedStateStyle = true;
-              if (_this._stateShared == null) {
-                _this._stateShared = [];
-              }
-              for (i = 0, len = innerStates.length; i < len; i++) {
-                innerState = innerStates[i];
-                stateChain = parentStates.concat(innerState.slice(1));
+        flattenNestedStates = (function(_this) {
+          return function(styleObject, stateChain) {
+            var hasNonStateProps, i, len, output, state, stateChainString, state_, styleKeys;
+            styleKeys = Object.keys(styleObject);
+            output = {};
+            hasNonStateProps = false;
+            for (i = 0, len = styleKeys.length; i < len; i++) {
+              state = styleKeys[i];
+              if (!helpers.isStateStyle(state)) {
+                hasNonStateProps = true;
+                output[state] = styleObject[state];
+              } else {
+                state_ = state.slice(1);
+                stateChain.push(state_);
                 stateChainString = stateChain.join('+');
-                _this.options.styleShared[stateChainString] = _this.options.style['$' + stateChainString] = styleObject[innerState];
-                checkInnerStates(styleObject[innerState], stateChain);
-                delete styleObject[innerState];
+                _this._hasSharedStateStyle = true;
+                if (_this._stateShared == null) {
+                  _this._stateShared = [];
+                }
+                _this._stylesShared.push(stateChainString);
+                if (state[0] === '@') {
+                  _this._mediaStates.push(state_);
+                }
+                _this._styles[stateChainString] = flattenNestedStates(styleObject[state], stateChain);
               }
+            }
+            if (hasNonStateProps) {
+              return output;
             }
           };
         })(this);
         for (i = 0, len = specialStates.length; i < len; i++) {
           state = specialStates[i];
-          checkInnerStates(this.options.style[state], [state.slice(1)]);
+          state_ = state.slice(1);
+          stateStyles = flattenNestedStates(this.options.style[state], [state_]);
+          if (stateStyles) {
+            this._styles[state_] = stateStyles;
+          }
         }
       };
       QuickElement.prototype._applyOptions = function() {
@@ -483,22 +494,20 @@ var slice = [].slice;
           }
         }
         if (!this.options.styleAfterInsert) {
-          this.style(this.options.style.$base);
+          this.style(this._styles.base);
         }
         this.onInserted((function(_this) {
           return function() {
             var _, mediaStates;
             if (_this.options.styleAfterInsert) {
-              _this.style(extend.clone.apply(extend, [_this.options.style.$base].concat(slice.call(_this._getStateStyles(_this._getActiveStates())))));
+              _this.style(extend.clone.apply(extend, [_this._styles.base].concat(slice.call(_this._getStateStyles(_this._getActiveStates())))));
             }
             _ = _this._inserted = _this;
-            mediaStates = _this._mediaStates;
-            if (mediaStates.length) {
+            if ((mediaStates = _this._mediaStates) && _this._mediaStates.length) {
               return _this._mediaStates = new function() {
                 var i, len, queryString;
                 for (i = 0, len = mediaStates.length; i < len; i++) {
                   queryString = mediaStates[i];
-                  queryString = queryString.slice(1);
                   this[queryString] = MediaQuery.register(_, queryString);
                 }
                 return this;
@@ -709,7 +718,7 @@ var slice = [].slice;
           activeStates = this._getActiveStates(targetState, false);
           activeStateStyles = this._getStateStyles(activeStates);
           if (this.state(targetState) !== desiredValue) {
-            targetStyle = this.options.style['$' + targetState] || this.options.style['@' + targetState];
+            targetStyle = this._styles[targetState] || this._styles[targetState];
             if (targetStyle) {
               targetStateIndex = this._providedStates.indexOf(targetState);
               superiorStates = activeStates.filter((function(_this) {
@@ -727,7 +736,7 @@ var slice = [].slice;
             } else {
               helpers.removeItem(this._state, targetState);
               if (targetStyle) {
-                stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
+                stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this._styles.base].concat(slice.call(activeStateStyles)));
                 stylesToRemove = extend.transform(function() {
                   return null;
                 }).clone(targetStyle);
@@ -735,9 +744,8 @@ var slice = [].slice;
               }
             }
           }
-          if (this.hasSharedStateStyle) {
-            sharedStyles = Object.keys(this.options.styleShared);
-            sharedStyles = sharedStyles.filter(function(stateChain) {
+          if (this._hasSharedStateStyle) {
+            sharedStyles = this._stylesShared.filter(function(stateChain) {
               return helpers.includes(stateChain, targetState);
             });
             for (i = 0, len = sharedStyles.length; i < len; i++) {
@@ -749,16 +757,28 @@ var slice = [].slice;
                 };
               })(this)).length;
               if (isApplicable) {
-                targetStyle = this.options.styleShared[stateChain];
+                targetStyle = this._styles[stateChain];
                 if (desiredValue) {
                   if (!helpers.includes(this._stateShared, stateChain)) {
                     this._stateShared.push(stateChain);
                   }
-                  inferiorStateChains = this.options.styleShared[helpers.removeItem(split, targetState).join('+')];
-                  this.style(extend.clone(inferiorStateChains, targetStyle));
+                  if (split.length > 2) {
+                    inferiorStateChains = this._styles[helpers.removeItem(split, targetState).join('+')];
+                    targetStyle = extend.clone(inferiorStateChains, targetStyle);
+                  }
+                  this.style(targetStyle);
                 } else {
                   helpers.removeItem(this._stateShared, stateChain);
-                  stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
+                  if (this._stateShared.length) {
+                    activeStateStyles.push.apply(activeStateStyles, this._stateShared.filter(function(state) {
+                      return !helpers.includes(state, targetState);
+                    }).map((function(_this) {
+                      return function(state) {
+                        return _this._styles[state];
+                      };
+                    })(this)));
+                  }
+                  stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this._styles.base].concat(slice.call(activeStateStyles)));
                   stylesToRemove = extend.transform(function() {
                     return null;
                   }).clone(targetStyle);
@@ -870,7 +890,7 @@ var slice = [].slice;
           if (skipComputed) {
             computedResult = 0;
           }
-          return computedResult || this.el.style[args[0]] || this.options.style.$base[args[0]] || '';
+          return computedResult || this.el.style[args[0]] || this._styles.base[args[0]] || '';
         }
         return this;
       };
@@ -882,7 +902,7 @@ var slice = [].slice;
         activeStateStyles = this._getStateStyles(this._getActiveStates());
         targetStyles = extend.clone.filter(function(value) {
           return typeof value === 'function';
-        }).apply(null, [this.options.style.$base].concat(slice.call(activeStateStyles)));
+        }).apply(null, [this._styles.base].concat(slice.call(activeStateStyles)));
         return this.style(targetStyles);
       };
       QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
@@ -895,7 +915,7 @@ var slice = [].slice;
             return helpers.includes(_this._state, state) && state !== stateToExclude;
           };
         })(this));
-        if (!includeSharedStates || !this.hasSharedStateStyle) {
+        if (!includeSharedStates || !this._hasSharedStateStyle) {
           return plainStates;
         } else {
           return plainStates.concat(this._stateShared);
@@ -904,7 +924,7 @@ var slice = [].slice;
       QuickElement.prototype._getStateStyles = function(states) {
         return states.map((function(_this) {
           return function(state) {
-            return _this.options.style['$' + state] || _this.options.style['@' + state];
+            return _this._styles[state] || _this._styles[state];
           };
         })(this));
       };
@@ -1423,6 +1443,8 @@ var slice = [].slice;
         return QuickBatch;
 
       })();
+
+      /* istanbul ignore next */
       if (QuickBatch.name == null) {
         QuickBatch.name = 'QuickBatch';
       }
@@ -1629,6 +1651,8 @@ var slice = [].slice;
         return QuickTemplate;
 
       })();
+
+      /* istanbul ignore next */
       if (QuickTemplate.name == null) {
         QuickTemplate.name = 'QuickTemplate';
       }

@@ -13,6 +13,7 @@ class QuickBatch
 		else
 			return @lastResults
 
+### istanbul ignore next ###
 QuickBatch.name ?= 'QuickBatch'
 
 

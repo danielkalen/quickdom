@@ -3,8 +3,6 @@ baseStateTriggers =
 	'focus': {on:'focus', off:'blur', bubbles:true}
 
 QuickElement::_normalizeOptions = ()->
-	@options.style ?= {}
-	@options.styleShared = {}
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
 	@options.relatedInstance ?= @
@@ -21,38 +19,49 @@ QuickElement::_normalizeOptions = ()->
 
 
 QuickElement::_parseStyles = ()->
+	return @_providedStates = [] if not IS.objectPlain(@options.style)
 	keys = Object.keys(@options.style)
 	states = keys.filter (key)-> helpers.isStateStyle(key)
 	specialStates = helpers.removeItem(states.slice(), '$base')
-	@_mediaStates = states.filter (key)-> key[0] is '@'
+	@_mediaStates = states.filter((key)-> key[0] is '@').map (state)-> state.slice(1)
 	@_providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
 
-	if not helpers.includes(states, '$base') and keys.length
-		@options = extend.clone(@options)
+	if not helpers.includes(states, '$base')
 		if states.length # Indicates other states were provided but the $base state has no styling
-			nonStateProps = keys.filter (property)-> not helpers.isStateStyle(property)
-			@options.style.$base = extend.clone.keys(nonStateProps)(@options.style)
+			@_styles.base = extend.clone.notKeys(states)(@options.style)
 		else
-			@options.style = $base: @options.style
+			@_styles.base = @options.style
+	else
+		@_styles.base = @options.style.$base
 
-	checkInnerStates = (styleObject, parentStates)=>
-		innerStates = Object.keys(styleObject).filter (key)-> helpers.isStateStyle(key)
-		if innerStates.length
-			@hasSharedStateStyle = true
-			@_stateShared ?= []
-			
-			for innerState in innerStates
-				stateChain = parentStates.concat(innerState.slice(1))
+
+	flattenNestedStates = (styleObject, stateChain)=>
+		styleKeys = Object.keys(styleObject)
+		output = {}
+		hasNonStateProps = false
+		
+		for state in styleKeys
+			if not helpers.isStateStyle(state)
+				hasNonStateProps = true
+				output[state] = styleObject[state]
+			else
+				state_ = state.slice(1)
+				stateChain.push(state_)
 				stateChainString = stateChain.join('+')
-				@options.styleShared[stateChainString] = @options.style['$'+stateChainString] = styleObject[innerState]
-			
-				checkInnerStates(styleObject[innerState], stateChain)
-				delete styleObject[innerState]
-			return
+				@_hasSharedStateStyle = true
+				@_stateShared ?= []
+				@_stylesShared.push(stateChainString)
+				@_mediaStates.push(state_) if state[0] is '@'
+				@_styles[stateChainString] = flattenNestedStates(styleObject[state], stateChain)
+		
+		return if hasNonStateProps then output
 
 
 	for state in specialStates
-		checkInnerStates(@options.style[state], [state.slice(1)])
+		state_ = state.slice(1)
+		
+		stateStyles = flattenNestedStates(@options.style[state], [state_])
+		@_styles[state_] = stateStyles if stateStyles
 
 	return
 
@@ -72,20 +81,20 @@ QuickElement::_applyOptions = ()->
 	if @options.checked then @el.checked = @options.checked
 	if @options.props then @prop(key,value) for key,value of @options.props
 	if @options.attrs then @attr(key,value) for key,value of @options.attrs
-	@style(@options.style.$base) if not @options.styleAfterInsert
+	@style(@_styles.base) if not @options.styleAfterInsert
 
 	@onInserted ()=>
 		if @options.styleAfterInsert
-			@style(extend.clone @options.style.$base, @_getStateStyles(@_getActiveStates())...)
+			@style(extend.clone @_styles.base, @_getStateStyles(@_getActiveStates())...)
 
 		_ = @_inserted = @
-		mediaStates = @_mediaStates
-		if mediaStates.length then @_mediaStates = new ()->
-			for queryString in mediaStates
-				queryString = queryString.slice(1)
-				@[queryString] = MediaQuery.register(_, queryString)
-			
-			return @
+
+		if (mediaStates=@_mediaStates) and @_mediaStates.length
+			@_mediaStates = new ()->
+				for queryString in mediaStates
+					@[queryString] = MediaQuery.register(_, queryString)
+				
+				return @
 
 	if @options.recalcOnResize
 		window.addEventListener 'resize', ()=> @recalcStyle()

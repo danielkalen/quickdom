@@ -121,12 +121,14 @@ var slice = [].slice;
 				    "test:sauce": "coffee .config/sauce-launch.coffee && npm run test-serve",
 				    "test-serve": "http-server -p 9202 --cors ./",
 				    "sauce-connect": "sc -u quickdom -k 0c7a6cc2-ed14-4f08-b48d-e46c74905b6a",
-				    "build": "npm run compile && npm run super-minify && npm run manual-minify",
+				    "build": "npm run compile && npm run minify",
 				    "compile": "npm run compile:js && npm run compile:test",
-				    "compile:js": "foreach -g 'src/*.coffee' -x 'simplyimport -i {{path}} | coffee -cbs --no-header > dist/{{name}}.debug.js && uglifyjs dist/{{name}}.debug.js -m -c keep_fargs,unused=false -o dist/{{name}}.js'",
+				    "compile:js": "simplyimport -i src/quickdom.coffee | coffee -cbs --no-header > dist/quickdom.debug.js",
 				    "compile:test": "simplyimport -i test/test.coffee | coffee -cbs > test/test.js",
-				    "super-minify": "closure-service dist/quickdom.debug.js > dist/quickdom.js",
-				    "manual-minify": "coffee .config/manual-minify.coffee",
+				    "minify": "npm run minify:super && npm run minify:manual && npm run minify:simple",
+				    "minify:simple": "uglifyjs dist/quickdom.debug.js -m -c keep_fargs,unused=false -o dist/quickdom.js",
+				    "minify:super": "closure-service dist/quickdom.debug.js > dist/quickdom.js",
+				    "minify:manual": "coffee .config/manual-minify.coffee",
 				    "watch": "npm run watch:js & npm run watch:test",
 				    "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
 				    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
@@ -208,7 +210,7 @@ var slice = [].slice;
           }
         });
         test("Basic options", function() {
-          var A, B, C, D, E, F, G, H;
+          var A, B, C, D, E, F, G, H, I;
           A = Dom.div({
             "class": 'abc-123',
             props: {
@@ -245,6 +247,9 @@ var slice = [].slice;
             url: 'https://google.com/'
           });
           H = Dom.text('Some text');
+          I = Dom.img({
+            src: 'https://google.com/'
+          });
           expect(A.el.className).to.equal('abc-123');
           expect(A.el.abc).to.equal(123);
           expect(A.el.def).to.equal(456);
@@ -264,7 +269,8 @@ var slice = [].slice;
           expect(F.el.href).to.equal('https://google.com/');
           expect(G.el.href).to.equal('https://google.com/');
           expect(H.el.nodeType).to.equal(3);
-          return expect(H.el.textContent).to.equal('Some text');
+          expect(H.el.textContent).to.equal('Some text');
+          return expect(I.el.src).to.equal('https://google.com/');
         });
         test("Creation w/ children", function() {
           var A, B;
@@ -1498,7 +1504,9 @@ var slice = [].slice;
           expect(div.style('height')).to.equal('12px');
           expect(div.style('fontSize')).to.equal('10px');
           div.state('happy', true);
-          window.shouldLog = true;
+          expect(div.style('width')).to.equal('17px');
+          expect(div.style('height')).to.equal('11px');
+          expect(div.style('fontSize')).to.equal('17px');
           div.state('funny', true);
           expect(div.style('width')).to.equal('10px');
           expect(div.style('height')).to.equal('14px');
@@ -2052,6 +2060,9 @@ var slice = [].slice;
         });
       });
       suite("Media Queries", function() {
+        suiteTeardown(function() {
+          return dimensions.restore();
+        });
         suiteSetup(function() {
           var ref;
           if (!((ref = Object.getOwnPropertyDescriptor(window, 'innerWidth')) != null ? ref.configurable : void 0)) {
@@ -2329,7 +2340,7 @@ var slice = [].slice;
           expect(div.style('lineHeight')).to.equal('15px');
           return expect(div.style('opacity')).to.equal('1');
         });
-        return test("Parent Ref dimensions/styles", function() {
+        test("Parent Ref dimensions/styles", function() {
           var div, parent;
           parent = Dom.div({
             ref: 'abc'
@@ -2426,8 +2437,41 @@ var slice = [].slice;
           expect(div.style('zIndex')).to.equal('4');
           expect(div.style('fontSize')).to.equal('27px');
           expect(div.style('lineHeight')).to.equal('15px');
-          expect(div.style('opacity')).to.equal('1');
-          return dimensions.restore();
+          return expect(div.style('opacity')).to.equal('1');
+        });
+        return test("Nested media queries", function() {
+          var div;
+          dimensions.simulate(1000, 900);
+          div = Dom.div({
+            style: {
+              zIndex: 2,
+              $happy: {
+                fontWeight: 500,
+                '@window(orientation:landscape)': {
+                  fontWeight: 600
+                }
+              },
+              '@window(orientation:portrait)': {
+                $relaxed: {
+                  fontWeight: 700
+                }
+              }
+            }
+          });
+          div.appendTo(sandbox);
+          expect(div.raw.style.fontWeight).to.equal('');
+          div.state('happy', true);
+          expect(div.raw.style.fontWeight).to.equal('600');
+          dimensions.simulate(900, 1000);
+          expect(div.raw.style.fontWeight).to.equal('500');
+          dimensions.simulate(1000, 900);
+          expect(div.raw.style.fontWeight).to.equal('600');
+          div.state('relaxed', true);
+          expect(div.raw.style.fontWeight).to.equal('600');
+          dimensions.simulate(900, 1000);
+          expect(div.raw.style.fontWeight).to.equal('700');
+          dimensions.simulate(1000, 900);
+          return expect(div.raw.style.fontWeight).to.equal('600');
         });
       });
       suite("Traversal", function() {
@@ -3869,11 +3913,9 @@ var slice = [].slice;
             ref: 'a'
           });
           spawnB = templateA.spawn();
-          expect(spawnA.options.style.$base.display).to.equal('block');
           expect(spawnA.options).not.to.equal(templateA.options);
           expect(spawnA.options.style).not.to.equal(templateA.options.style);
           expect(templateA.options.style.$base).to.equal(void 0);
-          expect(spawnB.options.style.$base.display).to.equal('block');
           expect(spawnB.options).not.to.equal(templateB.options);
           expect(spawnB.options.style).not.to.equal(templateB.options.style);
           return expect(templateB.options.style.$base).to.equal(void 0);
@@ -3936,6 +3978,9 @@ var slice = [].slice;
           section.state('happy', true);
           sectionCopy.state('happy', true);
           expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize);
+          section.state('relaxed', true);
+          sectionCopy.state('relaxed', true);
+          expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize);
           expect(sectionCopy.children.length).to.equal(section.children.length);
           expect(Object.keys(sectionCopy.child).length).to.equal(Object.keys(section.child).length);
           expect(sectionCopy.text).to.equal(section.text);
@@ -3970,6 +4015,7 @@ var slice = [].slice;
           expect(div.on()).to.equal(div);
           expect(div.on('abc')).to.equal(div);
           expect(div.on('abc', {})).to.equal(div);
+          expect(div.once('abc')).to.equal(div);
           expect(div.off('somethingFake')).to.equal(div);
           emitCount = 0;
           div.on('something', cb = function() {

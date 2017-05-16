@@ -66,6 +66,7 @@ suite "QuickDom", ()->
 			F = Dom.link(href:'https://google.com/')
 			G = Dom.anchor(url:'https://google.com/')
 			H = Dom.text('Some text')
+			I = Dom.img(src:'https://google.com/')
 
 			expect(A.el.className).to.equal('abc-123')
 			expect(A.el.abc).to.equal(123)
@@ -85,6 +86,7 @@ suite "QuickDom", ()->
 			expect(G.el.href).to.equal('https://google.com/')
 			expect(H.el.nodeType).to.equal(3)
 			expect(H.el.textContent).to.equal('Some text')
+			expect(I.el.src).to.equal('https://google.com/')
 
 
 		test "Creation w/ children", ()->
@@ -1161,7 +1163,10 @@ suite "QuickDom", ()->
 			expect(div.style 'fontSize').to.equal('10px')
 
 			div.state 'happy', on
-			window.shouldLog = true
+			expect(div.style 'width').to.equal('17px')
+			expect(div.style 'height').to.equal('11px')
+			expect(div.style 'fontSize').to.equal('17px')
+			
 			div.state 'funny', on
 			expect(div.style 'width').to.equal('10px')
 			expect(div.style 'height').to.equal('14px')
@@ -1256,7 +1261,6 @@ suite "QuickDom", ()->
 			div.style width:300, height:900
 			expect(div.aspectRatio).to.equal(0.33333333333333333333333333)
 			
-
 
 		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
 			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
@@ -1602,7 +1606,6 @@ suite "QuickDom", ()->
 			expect(divB.state 'happy').to.equal on
 
 
-
 		test "options.stateTriggers config objects can specify a 'bubbles' property which will cause the state to bubble to parents instead of cascade to children", ()->
 			parentA = Dom.section null,
 				subParentA = Dom.div null,
@@ -1648,10 +1651,16 @@ suite "QuickDom", ()->
 			expect(subChildB.state 'happy').to.equal off
 
 
+
+
+
+
 	suite "Media Queries", ()->
+		suiteTeardown ()-> dimensions.restore()
 		suiteSetup ()->
 			@skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth')?.configurable
 		
+
 		test "Window dimensions", ()->
 			dimensions.simulate(1000, 1000)
 			div = Dom.div style:
@@ -2016,7 +2025,46 @@ suite "QuickDom", ()->
 			expect(div.style 'fontSize').to.equal '27px'
 			expect(div.style 'lineHeight').to.equal '15px'
 			expect(div.style 'opacity').to.equal '1'
-			dimensions.restore()
+		
+		
+		test "Nested media queries", ()->
+			dimensions.simulate(1000, 900)
+			div = Dom.div style:
+				zIndex: 2
+
+				$happy:
+					fontWeight: 500
+					'@window(orientation:landscape)':
+						fontWeight: 600
+
+				'@window(orientation:portrait)':
+					$relaxed:
+						fontWeight: 700
+
+
+			div.appendTo(sandbox)
+			
+			expect(div.raw.style.fontWeight).to.equal ''
+			
+			div.state 'happy', on
+			expect(div.raw.style.fontWeight).to.equal '600'
+			
+			dimensions.simulate(900, 1000)
+			expect(div.raw.style.fontWeight).to.equal '500'
+			
+			dimensions.simulate(1000, 900)
+			expect(div.raw.style.fontWeight).to.equal '600'
+
+
+			div.state 'relaxed', on
+			expect(div.raw.style.fontWeight).to.equal '600'
+			
+			dimensions.simulate(900, 1000)
+			expect(div.raw.style.fontWeight).to.equal '700'
+			
+			dimensions.simulate(1000, 900)
+			expect(div.raw.style.fontWeight).to.equal '600'
+			
 			
 
 
@@ -3321,12 +3369,10 @@ suite "QuickDom", ()->
 			spawnA = templateA.spawn(ref:'a') # Passed options to merge with orig
 			spawnB = templateA.spawn()
 
-			expect(spawnA.options.style.$base.display).to.equal 'block'
 			expect(spawnA.options).not.to.equal(templateA.options)
 			expect(spawnA.options.style).not.to.equal(templateA.options.style)
 			expect(templateA.options.style.$base).to.equal(undefined)
 
-			expect(spawnB.options.style.$base.display).to.equal 'block'
 			expect(spawnB.options).not.to.equal(templateB.options)
 			expect(spawnB.options.style).not.to.equal(templateB.options.style)
 			expect(templateB.options.style.$base).to.equal(undefined)
@@ -3370,9 +3416,9 @@ suite "QuickDom", ()->
 			sectionCopy.state 'happy', on
 			expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize)
 			
-			# section.state 'relaxed', on
-			# sectionCopy.state 'relaxed', on
-			# expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize)
+			section.state 'relaxed', on
+			sectionCopy.state 'relaxed', on
+			expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize)
 			
 			expect(sectionCopy.children.length).to.equal(section.children.length)
 			expect(Object.keys(sectionCopy.child).length).to.equal(Object.keys(section.child).length)
@@ -3435,6 +3481,7 @@ suite "QuickDom", ()->
 			expect(div.on()).to.equal div
 			expect(div.on('abc')).to.equal div
 			expect(div.on('abc', {})).to.equal div
+			expect(div.once('abc')).to.equal div
 			expect(div.off('somethingFake')).to.equal div
 
 			emitCount = 0; div.on 'something', cb=()-> emitCount++

@@ -9,6 +9,8 @@ class QuickElement
 			@append = @prepend = @attr = ()->
 
 		@_parent = null
+		@_styles = {}
+		@_stylesShared = []
 		@_state = []
 		@_children = []
 		@_insertedCallbacks = []
@@ -27,6 +29,7 @@ class QuickElement
 		output.push(child.toJSON()) for child in children
 		return output
 
+### istanbul ignore next ###
 QuickElement.name ?= 'QuickElement'
 
 import ./aliases
