@@ -13,7 +13,7 @@ IS = extend.clone IS,
 	
 	template: (subject)-> subject and subject.constructor.name is 'QuickTemplate'
 	
-	batch: (subject)-> subject and subject.constructor.name is 'QuickBatch'
+	# batch: (subject)-> subject and subject.constructor.name is 'QuickBatch'
 	
 	# domInput: (subject)->
 	# 	nodeName = subject.nodeName
