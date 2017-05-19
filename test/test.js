@@ -1033,7 +1033,7 @@ var slice = [].slice;
             G: 2
           });
         });
-        return test("If options.recalcOnResize is set, .recalcStyle() will be invoked on each resize event", function() {
+        test("If options.recalcOnResize is set, .recalcStyle() will be invoked on each resize event", function() {
           var count;
           count = {
             A: 0,
@@ -1084,6 +1084,33 @@ var slice = [].slice;
             C: 3,
             D: 3
           });
+        });
+        test(".show()/.hide() will toggle the element's visibility", function() {
+          var div;
+          div = Dom.div().appendTo(sandbox);
+          expect(div.style('display')).to.equal('block');
+          div.hide();
+          expect(div.style('display')).to.equal('none');
+          div.show();
+          expect(div.style('display')).to.equal('block');
+          div.show();
+          return expect(div.style('display')).to.equal('block');
+        });
+        return test(".show() will set the element's display style to the provided argument, or to the value provided in the style object", function() {
+          var div;
+          div = Dom.div({
+            style: {
+              display: 'inline'
+            }
+          }).appendTo(sandbox);
+          expect(div.style('display')).to.equal('inline');
+          div.hide();
+          expect(div.style('display')).to.equal('none');
+          div.show();
+          expect(div.style('display')).to.equal('inline');
+          div.hide();
+          div.show('inline-block');
+          return expect(div.style('display')).to.equal('inline-block');
         });
       });
       suite("State", function() {

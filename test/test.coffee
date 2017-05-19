@@ -759,6 +759,35 @@ suite "QuickDom", ()->
 			expect(count).to.eql A:1,B:1,C:3,D:3
 
 
+		test ".show()/.hide() will toggle the element's visibility", ()->
+			div = Dom.div().appendTo sandbox
+			expect(div.style('display')).to.equal 'block'
+
+			div.hide()
+			expect(div.style('display')).to.equal 'none'
+
+			div.show()
+			expect(div.style('display')).to.equal 'block'
+
+			div.show()
+			expect(div.style('display')).to.equal 'block'
+
+
+		test ".show() will set the element's display style to the provided argument, or to the value provided in the style object", ()->
+			div = Dom.div(style:display:'inline').appendTo sandbox
+			expect(div.style('display')).to.equal 'inline'
+
+			div.hide()
+			expect(div.style('display')).to.equal 'none'
+
+			div.show()
+			expect(div.style('display')).to.equal 'inline'
+
+			div.hide()
+			div.show('inline-block')
+			expect(div.style('display')).to.equal 'inline-block'
+
+
 
 	suite "State", ()->
 		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->
