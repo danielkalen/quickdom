@@ -700,6 +700,16 @@ var slice = [].slice;
         }
         return this;
       };
+      QuickElement.prototype.show = function(display) {
+        var ref1;
+        if (display == null) {
+          display = ((ref1 = this._styles.base) != null ? ref1.display : void 0) || 'block';
+        }
+        return this.style('display', display);
+      };
+      QuickElement.prototype.hide = function() {
+        return this.style('display', 'none');
+      };
       QuickElement.prototype.state = function(targetState, value, bubbles, source) {
         var activeStateStyles, activeStates, child, desiredValue, inferiorStateChains, isApplicable, j, k, len, len1, ref1, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
         if (arguments.length === 1) {

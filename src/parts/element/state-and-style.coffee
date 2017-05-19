@@ -7,6 +7,14 @@ QuickElement::updateOptions = (options)->
 	return @
 
 
+QuickElement::show = (display)->
+	display ?= @_styles.base?.display or 'block'
+	@style 'display', display
+
+QuickElement::hide = ()->
+	@style 'display', 'none'
+
+
 QuickElement::state = (targetState, value, bubbles, source)->
 	if arguments.length is 1
 		helpers.includes(@_state, targetState)
