@@ -11,7 +11,7 @@ do ()->
 	import parts/window
 	import parts/mediaQuery
 
-	QuickDom = (args...)-> switch
+	QuickDom = ()-> args=arguments; switch
 		when IS.array(args[0])
 			return QuickDom(args[0]...)
 		
@@ -40,14 +40,16 @@ do ()->
 			else
 				options = if IS.object(args[1]) then args[1] else {}
 			
-			children = args.slice(2)
 			element = new QuickElement(type, options)
+			if args.length > 2
+				children = []; i = 1; argsLength = args.length; children.push(args[i]) while ++i < argsLength
+				# children = args.slice(2)
 
-			for child in children
-				child = QuickDom.text(child) if IS.string(child)
-				child = QuickDom(child) if IS.template(child)
-				child = QuickDom(child...) if IS.array(child)
-				child.appendTo(element) if IS.quickDomEl(child)
+				for child in children
+					child = QuickDom.text(child) if IS.string(child)
+					child = QuickDom(child) if IS.template(child)
+					child = QuickDom(child...) if IS.array(child)
+					child.appendTo(element) if IS.quickDomEl(child)
 
 			return element
 

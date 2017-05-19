@@ -67,7 +67,7 @@ var slice = [].slice;
     };
     _s$m = _s$m({}, {}, {});
     return (function() {
-      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getIndexByProp, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, baseStateTriggers, configSchema, extend, extendByRef, extendTemplate, fn, helpers, i, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
+      var CSS, IS, MediaQuery, QuickBatch, QuickDom, QuickElement, QuickTemplate, QuickWindow, _getChildRefs, _getIndexByProp, _getParents, allowedOptions, allowedTemplateOptions, aspectRatioGetter, baseStateTriggers, configSchema, extend, extendByRef, extendTemplate, fn, helpers, j, len, orientationGetter, parseErrorPrefix, parseTree, pholderRegex, regexWhitespace, ruleDelimiter, shortcut, shortcuts, svgNamespace;
       svgNamespace = 'http://www.w3.org/2000/svg';
 
       /* istanbul ignore next */
@@ -150,11 +150,11 @@ var slice = [].slice;
         }
 
         QuickElement.prototype.toJSON = function() {
-          var child, children, i, len, output;
+          var child, children, j, len, output;
           output = [this.type, extend.clone.keys(allowedOptions)(this.options)];
           children = this.children;
-          for (i = 0, len = children.length; i < len; i++) {
-            child = children[i];
+          for (j = 0, len = children.length; j < len; j++) {
+            child = children[j];
             output.push(child.toJSON());
           }
           return output;
@@ -208,12 +208,12 @@ var slice = [].slice;
       Object.defineProperties(QuickElement.prototype, {
         'children': {
           get: function() {
-            var child, i, len, ref1;
+            var child, j, len, ref1;
             if (this.el.childNodes.length !== this._children.length) {
               this._children.length = 0;
               ref1 = this.el.childNodes;
-              for (i = 0, len = ref1.length; i < len; i++) {
-                child = ref1[i];
+              for (j = 0, len = ref1.length; j < len; j++) {
+                child = ref1[j];
                 if (child.nodeType < 4) {
                   this._children.push(QuickDom(child));
                 }
@@ -381,7 +381,7 @@ var slice = [].slice;
         this._parseStyles();
       };
       QuickElement.prototype._parseStyles = function() {
-        var flattenNestedStates, i, keys, len, specialStates, state, stateStyles, state_, states;
+        var flattenNestedStates, j, keys, len, specialStates, state, stateStyles, state_, states;
         if (!IS.objectPlain(this.options.style)) {
           return this._providedStates = [];
         }
@@ -409,12 +409,12 @@ var slice = [].slice;
         }
         flattenNestedStates = (function(_this) {
           return function(styleObject, stateChain) {
-            var hasNonStateProps, i, len, output, state, stateChainString, state_, styleKeys;
+            var hasNonStateProps, j, len, output, state, stateChainString, state_, styleKeys;
             styleKeys = Object.keys(styleObject);
             output = {};
             hasNonStateProps = false;
-            for (i = 0, len = styleKeys.length; i < len; i++) {
-              state = styleKeys[i];
+            for (j = 0, len = styleKeys.length; j < len; j++) {
+              state = styleKeys[j];
               if (!helpers.isStateStyle(state)) {
                 hasNonStateProps = true;
                 output[state] = styleObject[state];
@@ -438,8 +438,8 @@ var slice = [].slice;
             }
           };
         })(this);
-        for (i = 0, len = specialStates.length; i < len; i++) {
-          state = specialStates[i];
+        for (j = 0, len = specialStates.length; j < len; j++) {
+          state = specialStates[j];
           state_ = state.slice(1);
           stateStyles = flattenNestedStates(this.options.style[state], [state_]);
           if (stateStyles) {
@@ -505,9 +505,9 @@ var slice = [].slice;
             _ = _this._inserted = _this;
             if ((mediaStates = _this._mediaStates) && _this._mediaStates.length) {
               return _this._mediaStates = new function() {
-                var i, len, queryString;
-                for (i = 0, len = mediaStates.length; i < len; i++) {
-                  queryString = mediaStates[i];
+                var j, len, queryString;
+                for (j = 0, len = mediaStates.length; j < len; j++) {
+                  queryString = mediaStates[j];
                   this[queryString] = MediaQuery.register(_, queryString);
                 }
                 return this;
@@ -578,12 +578,12 @@ var slice = [].slice;
         });
       };
       QuickElement.prototype._unproxyParent = function(newParent) {
-        var callback, i, len, ref1;
+        var callback, j, len, ref1;
         delete this._parent;
         this._parent = newParent;
         ref1 = this._insertedCallbacks;
-        for (i = 0, len = ref1.length; i < len; i++) {
-          callback = ref1[i];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          callback = ref1[j];
           callback(this);
         }
       };
@@ -599,10 +599,10 @@ var slice = [].slice;
               if (!_this._eventCallbacks[eventName]) {
                 _this._eventCallbacks[eventName] = [];
                 _this._listenTo(eventName, function(event) {
-                  var callbacks, cb, i, len;
+                  var callbacks, cb, j, len;
                   callbacks = _this._eventCallbacks[eventName].slice();
-                  for (i = 0, len = callbacks.length; i < len; i++) {
-                    cb = callbacks[i];
+                  for (j = 0, len = callbacks.length; j < len; j++) {
+                    cb = callbacks[j];
                     cb.call(_this.el, event);
                   }
                 });
@@ -701,7 +701,7 @@ var slice = [].slice;
         return this;
       };
       QuickElement.prototype.state = function(targetState, value, bubbles, source) {
-        var activeStateStyles, activeStates, child, desiredValue, i, inferiorStateChains, isApplicable, j, len, len1, ref1, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
+        var activeStateStyles, activeStates, child, desiredValue, inferiorStateChains, isApplicable, j, k, len, len1, ref1, sharedStyles, split, stateChain, stylesToKeep, stylesToRemove, superiorStateStyles, superiorStates, targetStateIndex, targetStyle;
         if (arguments.length === 1) {
           return helpers.includes(this._state, targetState);
         } else if (this._statePipeTarget && source !== this) {
@@ -748,8 +748,8 @@ var slice = [].slice;
             sharedStyles = this._stylesShared.filter(function(stateChain) {
               return helpers.includes(stateChain, targetState);
             });
-            for (i = 0, len = sharedStyles.length; i < len; i++) {
-              stateChain = sharedStyles[i];
+            for (j = 0, len = sharedStyles.length; j < len; j++) {
+              stateChain = sharedStyles[j];
               split = stateChain.split('+');
               isApplicable = split.length === split.filter((function(_this) {
                 return function(state) {
@@ -794,8 +794,8 @@ var slice = [].slice;
               }
             } else if (this.options.passStateToChildren) {
               ref1 = this._children;
-              for (j = 0, len1 = ref1.length; j < len1; j++) {
-                child = ref1[j];
+              for (k = 0, len1 = ref1.length; k < len1; k++) {
+                child = ref1[k];
                 child.state(targetState, value, false, source || this);
               }
             }
@@ -804,23 +804,23 @@ var slice = [].slice;
         }
       };
       QuickElement.prototype.resetState = function() {
-        var activeState, i, len, ref1;
+        var activeState, j, len, ref1;
         ref1 = this._state.slice();
-        for (i = 0, len = ref1.length; i < len; i++) {
-          activeState = ref1[i];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          activeState = ref1[j];
           this.state(activeState, false);
         }
         return this;
       };
       QuickElement.prototype.pipeState = function(targetEl) {
-        var activeState, i, len, ref1;
+        var activeState, j, len, ref1;
         if (targetEl) {
           targetEl = helpers.normalizeGivenEl(targetEl);
           if (IS.quickDomEl(targetEl) && targetEl !== this) {
             this._statePipeTarget = targetEl;
             ref1 = this._state;
-            for (i = 0, len = ref1.length; i < len; i++) {
-              activeState = ref1[i];
+            for (j = 0, len = ref1.length; j < len; j++) {
+              activeState = ref1[j];
               targetEl.state(activeState, true);
             }
           }
@@ -983,27 +983,27 @@ var slice = [].slice;
         return QuickDom.template(this);
       };
       QuickElement.prototype.clone = function() {
-        var activeState, callback, callbacks, child, elClone, eventName, i, j, k, len, len1, len2, newEl, options, ref1, ref2, ref3;
+        var activeState, callback, callbacks, child, elClone, eventName, j, k, len, len1, len2, n, newEl, options, ref1, ref2, ref3;
         elClone = this.el.cloneNode(false);
         options = extend.clone(this.options, {
           existing: elClone
         });
         newEl = new QuickElement(this.type, options);
         ref1 = this._state;
-        for (i = 0, len = ref1.length; i < len; i++) {
-          activeState = ref1[i];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          activeState = ref1[j];
           newEl.state(activeState, true);
         }
         ref2 = this.children;
-        for (j = 0, len1 = ref2.length; j < len1; j++) {
-          child = ref2[j];
+        for (k = 0, len1 = ref2.length; k < len1; k++) {
+          child = ref2[k];
           newEl.append(child.clone());
         }
         ref3 = this._eventCallbacks;
         for (eventName in ref3) {
           callbacks = ref3[eventName];
-          for (k = 0, len2 = callbacks.length; k < len2; k++) {
-            callback = callbacks[k];
+          for (n = 0, len2 = callbacks.length; n < len2; n++) {
+            callback = callbacks[n];
             newEl.on(eventName, callback);
           }
         }
@@ -1120,10 +1120,10 @@ var slice = [].slice;
         return this;
       };
       QuickElement.prototype.empty = function() {
-        var child, i, len, ref1;
+        var child, j, len, ref1;
         ref1 = this.children.slice();
-        for (i = 0, len = ref1.length; i < len; i++) {
-          child = ref1[i];
+        for (j = 0, len = ref1.length; j < len; j++) {
+          child = ref1[j];
           this._removeChild(child);
         }
         return this;
@@ -1239,9 +1239,9 @@ var slice = [].slice;
         var callbacks, testRule;
         callbacks = [];
         window.addEventListener('resize', function() {
-          var callback, i, len;
-          for (i = 0, len = callbacks.length; i < len; i++) {
-            callback = callbacks[i];
+          var callback, j, len;
+          for (j = 0, len = callbacks.length; j < len; j++) {
+            callback = callbacks[j];
             callback();
           }
         });
@@ -1330,11 +1330,11 @@ var slice = [].slice;
           return query;
         };
         testRule = function(target, query, queryString) {
-          var currentValue, i, len, passed, ref1, rule;
+          var currentValue, j, len, passed, ref1, rule;
           passed = true;
           ref1 = query.rules;
-          for (i = 0, len = ref1.length; i < len; i++) {
-            rule = ref1[i];
+          for (j = 0, len = ref1.length; j < len; j++) {
+            rule = ref1[j];
             currentValue = rule.getter();
             passed = (function() {
               switch (false) {
@@ -1356,8 +1356,8 @@ var slice = [].slice;
       };
       ruleDelimiter = /,\s*/;
       QuickDom = function() {
-        var args, child, children, element, i, len, options, type;
-        args = 1 <= arguments.length ? slice.call(arguments, 0) : [];
+        var args, argsLength, child, children, element, i, j, len, options, type;
+        args = arguments;
         switch (false) {
           case !IS.array(args[0]):
             return QuickDom.apply(null, args[0]);
@@ -1388,21 +1388,28 @@ var slice = [].slice;
             } else {
               options = IS.object(args[1]) ? args[1] : {};
             }
-            children = args.slice(2);
             element = new QuickElement(type, options);
-            for (i = 0, len = children.length; i < len; i++) {
-              child = children[i];
-              if (IS.string(child)) {
-                child = QuickDom.text(child);
+            if (args.length > 2) {
+              children = [];
+              i = 1;
+              argsLength = args.length;
+              while (++i < argsLength) {
+                children.push(args[i]);
               }
-              if (IS.template(child)) {
-                child = QuickDom(child);
-              }
-              if (IS.array(child)) {
-                child = QuickDom.apply(null, child);
-              }
-              if (IS.quickDomEl(child)) {
-                child.appendTo(element);
+              for (j = 0, len = children.length; j < len; j++) {
+                child = children[j];
+                if (IS.string(child)) {
+                  child = QuickDom.text(child);
+                }
+                if (IS.template(child)) {
+                  child = QuickDom(child);
+                }
+                if (IS.array(child)) {
+                  child = QuickDom.apply(null, child);
+                }
+                if (IS.quickDomEl(child)) {
+                  child.appendTo(element);
+                }
               }
             }
             return element;
@@ -1452,11 +1459,11 @@ var slice = [].slice;
         return QuickBatch.prototype[method] = function(newValue) {
           var element, results;
           results = this.lastResults = (function() {
-            var i, len, ref1, results1;
+            var j, len, ref1, results1;
             ref1 = this.elements;
             results1 = [];
-            for (i = 0, len = ref1.length; i < len; i++) {
-              element = ref1[i];
+            for (j = 0, len = ref1.length; j < len; j++) {
+              element = ref1[j];
               if (method === 'html' || method === 'text') {
                 if (newValue) {
                   results1.push(element[method] = newValue);
@@ -1485,7 +1492,7 @@ var slice = [].slice;
         return new QuickBatch(elements, returnResults);
       };
       extendTemplate = function(currentOpts, newOpts, globalOpts) {
-        var currentChild, currentChildren, globalOptsTransform, i, index, needsTemplateWrap, newChild, newChildProcessed, newChildren, noChanges, output, ref, ref1, remainingNewChildren;
+        var currentChild, currentChildren, globalOptsTransform, index, j, needsTemplateWrap, newChild, newChildProcessed, newChildren, noChanges, output, ref, ref1, remainingNewChildren;
         if (globalOpts) {
           globalOptsTransform = {
             options: function(opts) {
@@ -1503,7 +1510,7 @@ var slice = [].slice;
 
         /* istanbul ignore next */
         if (IS.array(newChildren)) {
-          for (index = i = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? i < ref1 : i > ref1; index = 0 <= ref1 ? ++i : --i) {
+          for (index = j = 0, ref1 = Math.max(currentChildren.length, newChildren.length); 0 <= ref1 ? j < ref1 : j > ref1; index = 0 <= ref1 ? ++j : --j) {
             needsTemplateWrap = noChanges = false;
             currentChild = currentChildren[index];
             newChild = newChildren[index];
@@ -1546,13 +1553,13 @@ var slice = [].slice;
         return output;
       };
       extendByRef = function(newChildrenRefs, currentChildren, globalOpts) {
-        var currentChild, i, len, newChild, newChildProcessed, output, theNewChildren;
+        var currentChild, j, len, newChild, newChildProcessed, output, theNewChildren;
         if (!currentChildren.length) {
           return currentChildren;
         } else {
           output = [];
-          for (i = 0, len = currentChildren.length; i < len; i++) {
-            currentChild = currentChildren[i];
+          for (j = 0, len = currentChildren.length; j < len; j++) {
+            currentChild = currentChildren[j];
             if (newChild = newChildrenRefs[currentChild.ref]) {
               newChildProcessed = currentChild.extend(newChild, globalOpts);
               delete newChildrenRefs[currentChild.ref];
@@ -1681,8 +1688,8 @@ var slice = [].slice;
           return QuickDom.apply(null, [type].concat(slice.call(arguments)));
         };
       };
-      for (i = 0, len = shortcuts.length; i < len; i++) {
-        shortcut = shortcuts[i];
+      for (j = 0, len = shortcuts.length; j < len; j++) {
+        shortcut = shortcuts[j];
         fn(shortcut);
       }
       QuickDom.version = '1.0.34';
