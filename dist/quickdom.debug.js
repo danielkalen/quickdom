@@ -119,10 +119,10 @@ var slice = [].slice;
           return IS.domEl(subject) || IS.domText(subject);
         },
         quickDomEl: function(subject) {
-          return subject && subject.constructor.name === 'QuickElement';
+          return subject && subject.constructor.name === QuickElement.name;
         },
         template: function(subject) {
-          return subject && subject.constructor.name === 'QuickTemplate';
+          return subject && subject.constructor.name === QuickTemplate.name;
         }
       });
       QuickElement = (function() {

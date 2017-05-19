@@ -9,9 +9,9 @@ IS = extend.clone IS,
 
 	domNode: (subject)-> IS.domEl(subject) or IS.domText(subject)
 	
-	quickDomEl: (subject)-> subject and subject.constructor.name is 'QuickElement'
+	quickDomEl: (subject)-> subject and subject.constructor.name is QuickElement.name
 	
-	template: (subject)-> subject and subject.constructor.name is 'QuickTemplate'
+	template: (subject)-> subject and subject.constructor.name is QuickTemplate.name
 	
 	# batch: (subject)-> subject and subject.constructor.name is 'QuickBatch'
 	
