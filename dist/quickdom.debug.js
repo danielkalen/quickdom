@@ -1702,7 +1702,7 @@ var slice = [].slice;
         shortcut = shortcuts[j];
         fn(shortcut);
       }
-      QuickDom.version = '1.0.34';
+      QuickDom.version = '1.0.35';
 
       /* istanbul ignore next */
       if ((typeof module !== "undefined" && module !== null ? module.exports : void 0) != null) {
