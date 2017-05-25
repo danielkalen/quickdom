@@ -146,6 +146,9 @@ var slice = [].slice;
           this._applyOptions();
           this._attachStateEvents();
           this._proxyParent();
+          if (this.options.existing) {
+            this._refreshParent();
+          }
           this.el._quickElement = this;
         }
 
@@ -890,7 +893,7 @@ var slice = [].slice;
       		 * (for non-inserted els; checking only $base since state styles will always be applied to the style object even for non-inserted)
        */
       QuickElement.prototype.styleSafe = function(property, skipComputed) {
-        var args, computedResult;
+        var args, computedResult, ref1;
         if (this.type === 'text') {
           return;
         }
@@ -900,7 +903,7 @@ var slice = [].slice;
           if (skipComputed) {
             computedResult = 0;
           }
-          return computedResult || this.el.style[args[0]] || this._styles.base[args[0]] || '';
+          return computedResult || this.el.style[args[0]] || ((ref1 = this._styles.base) != null ? ref1[args[0]] : void 0) || '';
         }
         return this;
       };

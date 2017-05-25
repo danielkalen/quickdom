@@ -1,10 +1,12 @@
+LIB_FILE = if process.env.minified then 'dist/quickdom.js' else 'dist/quickdom.debug.js'
+
 module.exports = (config)-> config.set
 	basePath: '../'
 	client: captureConsole: true
 	browserConsoleLogOptions: level:'log', terminal:true
 	frameworks: ['mocha', 'chai']
 	files: [
-		'dist/quickdom.debug.js'
+		LIB_FILE
 		'node_modules/bluebird/js/browser/bluebird.js'
 		'node_modules/jquery/dist/jquery.min.js'
 		'test/test.js'
@@ -13,17 +15,16 @@ module.exports = (config)-> config.set
 		'**/*.git'
 	]
 
-	preprocessors: 'dist/quickdom.debug.js': 'coverage'
-	
-	reporters: ['mocha', 'coverage']
-
-	mochaReporter: 
-		output: 'minimal'
+	preprocessors: {"#{LIB_FILE}":'coverage'} if process.env.coverage
+	reporters: ['progress', 'coverage'] if process.env.coverage
 
 	coverageReporter:
 		type: 'lcov'
 		dir: './coverage/'
 		subdir: '.'
+	
+	electronOpts:
+		show: false
 
 	port: 9876
 	colors: true

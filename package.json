@@ -12,8 +12,9 @@
   },
   "scripts": {
     "postversion": "echo \\'$(json -f package.json version)\\' > .config/.version.coffee && npm run build",
-    "test": "npm run test:electron",
+    "test": "npm run test:electron -s || true",
     "test:local": "open test/testrunner.html",
+    "test:minified": "minified=1 npm run test:electron -s || true",
     "test:karma": "karma start .config/karma.conf.coffee",
     "test:electron": "karma start --single-run --browsers Electron .config/karma.conf.coffee",
     "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
@@ -31,6 +32,8 @@
     "watch": "npm run watch:js & npm run watch:test",
     "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
     "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
+    "coverage": "npm run coverage:run; npm run coverage:badge",
+    "coverage:run": "coverage=true npm run test:electron",
     "coverage:badge": "badge-gen -d ./.config/badges/coverage",
     "coverage:show": "open coverage/lcov-report/index.html"
   },
