@@ -113,8 +113,9 @@ var slice = [].slice;
 				  },
 				  "scripts": {
 				    "postversion": "echo \\'$(json -f package.json version)\\' > .config/.version.coffee && npm run build",
-				    "test": "npm run test:electron",
+				    "test": "npm run test:electron -s || true",
 				    "test:local": "open test/testrunner.html",
+				    "test:minified": "minified=1 npm run test:electron -s || true",
 				    "test:karma": "karma start .config/karma.conf.coffee",
 				    "test:electron": "karma start --single-run --browsers Electron .config/karma.conf.coffee",
 				    "test:chrome": "karma start --browsers Chrome .config/karma.conf.coffee",
@@ -132,6 +133,8 @@ var slice = [].slice;
 				    "watch": "npm run watch:js & npm run watch:test",
 				    "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
 				    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
+				    "coverage": "npm run coverage:run; npm run coverage:badge",
+				    "coverage:run": "coverage=true npm run test:electron",
 				    "coverage:badge": "badge-gen -d ./.config/badges/coverage",
 				    "coverage:show": "open coverage/lcov-report/index.html"
 				  },
@@ -167,7 +170,6 @@ var slice = [].slice;
 				    "karma-electron": "^5.1.1",
 				    "karma-firefox-launcher": "^1.0.0",
 				    "karma-mocha": "^1.3.0",
-				    "karma-mocha-reporter": "^2.2.1",
 				    "karma-opera-launcher": "^1.0.0",
 				    "karma-safari-launcher": "^1.0.0",
 				    "mocha": "^3.2.0",
@@ -824,6 +826,17 @@ var slice = [].slice;
           text = Dom.text('abc123').appendTo(divA);
           expect(text.styleSafe('fakeProp')).to.equal(void 0);
           return expect(text.styleSafe(123)).to.equal(void 0);
+        });
+        test(".styleSafe() will work with instances with no given base styles", function() {
+          var divA, divB;
+          divA = Dom.div();
+          divB = Dom(document.createElement('div'));
+          expect(function() {
+            divA.styleSafe('height');
+            return divB.styleSafe('height');
+          }).not.to["throw"]();
+          expect(divA.styleSafe('height')).to.equal('');
+          return expect(divB.styleSafe('height')).to.equal('');
         });
         test(".styleParsed() is a shorthand for parseFloat(.styleSafe())", function() {
           var divA, divB, style;
@@ -2035,7 +2048,7 @@ var slice = [].slice;
           expect(divA.state('happy')).to.equal(false);
           return expect(divB.state('happy')).to.equal(true);
         });
-        return test("options.stateTriggers config objects can specify a 'bubbles' property which will cause the state to bubble to parents instead of cascade to children", function() {
+        test("options.stateTriggers config objects can specify a 'bubbles' property which will cause the state to bubble to parents instead of cascade to children", function() {
           var childA, childB, parentA, parentB, subChildA, subChildB, subParentA, subParentB;
           parentA = Dom.section(null, subParentA = Dom.div(null, childA = Dom.div({
             stateTriggers: {
@@ -2084,6 +2097,21 @@ var slice = [].slice;
           expect(childB.state('happy')).to.equal(false);
           expect(subChildA.state('happy')).to.equal(false);
           return expect(subChildB.state('happy')).to.equal(false);
+        });
+        return test("wrappers created for existing elements should attempt to resolve if its inserted into the DOM on init", function() {
+          var divA, divA_, divB, divB_;
+          divA_ = document.createElement('div');
+          divB_ = document.createElement('div');
+          sandbox.appendChild(divB_);
+          divA = Dom(divA_);
+          divB = Dom(divB_);
+          divA_.style.height = '100px';
+          divB_.style.height = '100px';
+          expect(typeof divA.height).to.equal('number');
+          expect(typeof divB.height).to.equal('number');
+          expect(isNaN(divA.height)).to.be["true"];
+          expect(isNaN(divB.height)).to.be["false"];
+          return expect(divA.styleSafe('height')).to.equal('100px');
         });
       });
       suite("Media Queries", function() {

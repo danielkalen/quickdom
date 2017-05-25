@@ -1695,6 +1695,23 @@ suite "QuickDom", ()->
 			expect(subChildB.state 'happy').to.equal off
 
 
+		test "wrappers created for existing elements should attempt to resolve if its inserted into the DOM on init", ()->
+			divA_ = document.createElement('div')
+			divB_ = document.createElement('div')
+			sandbox.appendChild(divB_)
+			divA = Dom(divA_)
+			divB = Dom(divB_)
+
+			divA_.style.height = '100px'
+			divB_.style.height = '100px'
+
+			expect(typeof divA.height).to.equal('number')
+			expect(typeof divB.height).to.equal('number')
+			expect(isNaN divA.height).to.be.true
+			expect(isNaN divB.height).to.be.false
+			expect(divA.styleSafe 'height').to.equal '100px'
+
+
 
 
 
