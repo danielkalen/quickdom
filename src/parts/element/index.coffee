@@ -20,6 +20,7 @@ class QuickElement
 		@_applyOptions()
 		@_attachStateEvents()
 		@_proxyParent()
+		@_refreshParent() if @options.existing
 		@el._quickElement = @
 
 
