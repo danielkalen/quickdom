@@ -26,7 +26,7 @@ suite "QuickDom", ()->
 		packageVersion = require('../package').version
 		expect(Dom.version).to.equal(packageVersion)
 
-	
+
 	suite "Element Creation", ()->
 		test "Basic Creation", ()->
 			div = Dom('div')
@@ -502,7 +502,7 @@ suite "QuickDom", ()->
 			div.style 'width', '5vh'
 			expect(div.el.style.width).to.equal('5vh')
 			expect(computedStyle.width).to.contain('px')
-		
+
 
 		test "Multiple Styles can be set via the .style/.css method by passing a style object", ()->
 			div = Dom.div(style:{width:'15px'}).appendTo(sandbox)
@@ -619,6 +619,19 @@ suite "QuickDom", ()->
 			text = Dom.text('abc123').appendTo(divA)
 			expect(text.styleSafe('fakeProp')).to.equal(undefined)
 			expect(text.styleSafe(123)).to.equal(undefined)
+
+
+		test ".styleSafe() will work with instances with no given base styles", ()->
+			divA = Dom.div()
+			divB = Dom(document.createElement 'div')
+
+			expect ()->
+				divA.styleSafe('height')
+				divB.styleSafe('height')
+			.not.to.throw()
+			
+			expect(divA.styleSafe 'height').to.equal ''
+			expect(divB.styleSafe 'height').to.equal ''
 
 
 		test ".styleParsed() is a shorthand for parseFloat(.styleSafe())", ()->
@@ -789,6 +802,8 @@ suite "QuickDom", ()->
 
 
 
+
+
 	suite "State", ()->
 		test "States can be polled for a value by passing only the target state's name to .state & can be toggled on/off by passing a second argument", ()->
 			div = Dom.div()
@@ -814,7 +829,7 @@ suite "QuickDom", ()->
 			expect(div.state 'funny').to.be.true
 			expect(div.state 'base').to.be.false
 
-		
+
 
 		test "All states can be cleared/toggled off via .resetState", ()->
 			div = Dom.div()
@@ -830,7 +845,7 @@ suite "QuickDom", ()->
 			expect(div.state 'funny').to.be.false
 			expect(div.state 'happy').to.be.false
 			expect(div.state 'relaxed').to.be.false
-			
+
 
 		test "Styles can be passed under specific states using a '$' prefix before the state name", ()->
 			div = Dom.div style:
@@ -875,7 +890,7 @@ suite "QuickDom", ()->
 			expect(computedStyle.height).to.equal('15px')
 			expect(computedStyle.marginTop).to.equal('0px')
 			expect(computedStyle.marginLeft).to.equal('12px')
-			
+
 
 		test "A state:eventName (or state:eventOpts) map can be passed set for options.stateTriggers", ()->
 			div = Dom.div(
@@ -1289,7 +1304,7 @@ suite "QuickDom", ()->
 			
 			div.style width:300, height:900
 			expect(div.aspectRatio).to.equal(0.33333333333333333333333333)
-			
+
 
 		test "If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", ()->
 			parentOpacityGetter = ()-> if @parent then @parent.style('opacity') else '0.5'
@@ -1688,7 +1703,7 @@ suite "QuickDom", ()->
 		suiteTeardown ()-> dimensions.restore()
 		suiteSetup ()->
 			@skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth')?.configurable
-		
+
 
 		test "Window dimensions", ()->
 			dimensions.simulate(1000, 1000)
@@ -1974,7 +1989,7 @@ suite "QuickDom", ()->
 			expect(div.style 'fontSize').to.equal '27px'
 			expect(div.style 'lineHeight').to.equal '15px'
 			expect(div.style 'opacity').to.equal '1'
-			
+
 
 		test "Parent Ref dimensions/styles", ()->
 			parent =
@@ -2054,8 +2069,8 @@ suite "QuickDom", ()->
 			expect(div.style 'fontSize').to.equal '27px'
 			expect(div.style 'lineHeight').to.equal '15px'
 			expect(div.style 'opacity').to.equal '1'
-		
-		
+
+
 		test "Nested media queries", ()->
 			dimensions.simulate(1000, 900)
 			div = Dom.div style:
@@ -2093,8 +2108,8 @@ suite "QuickDom", ()->
 			
 			dimensions.simulate(1000, 900)
 			expect(div.raw.style.fontWeight).to.equal '600'
-			
-			
+
+
 
 
 
@@ -2133,7 +2148,7 @@ suite "QuickDom", ()->
 				expect(div$.children[0].raw).to.equal(spanA)
 				expect(div$.children[1].raw).to.equal(spanB)
 				expect(div$.children[2].raw).to.equal(text)
-		
+
 
 		test "Parent", ()->
 			A = Dom.div(null, Dom.div(), 'Some Text')
@@ -2244,7 +2259,7 @@ suite "QuickDom", ()->
 					Dom.div {},
 						Dom.span {ref:'childB_1'}
 						Dom.text {id:'childB_2'}, 'The Text'
-			
+
 
 			divB = 
 				Dom.template(['div', {id:'divB'},
@@ -2427,7 +2442,7 @@ suite "QuickDom", ()->
 			checkChildStructure(MainA)(B, D)
 			checkChildStructure(MainB)(A, C)
 
-		
+
 
 		test ".prepend()", ()->
 			A = Dom.div()
@@ -3015,7 +3030,7 @@ suite "QuickDom", ()->
 			expect(template.options).to.eql(id:'theSpan')
 			expect(template.children).to.eql([])
 
-		
+
 		test "Templates can be turned into QuickDom instances via template.spawn() or by passing as arg to QuickDom", ()->
 			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
 			spawnA = template.spawn()
