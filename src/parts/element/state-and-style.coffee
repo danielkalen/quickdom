@@ -156,7 +156,7 @@ QuickElement::styleSafe = (property, skipComputed)->
 
 	if IS.string(computedResult)
 		computedResult = 0 if skipComputed
-		return computedResult or @el.style[args[0]] or @_styles.base[args[0]] or ''
+		return computedResult or @el.style[args[0]] or @_styles.base?[args[0]] or ''
 
 	return @
 
