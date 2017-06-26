@@ -33,10 +33,10 @@ class QuickElement
 ### istanbul ignore next ###
 QuickElement.name ?= 'QuickElement'
 
-import ./aliases
-import ./traversing
-import ./init
-import ./events
-import ./state-and-style
-import ./attributes-and-properties
-import ./manipulation
+import './aliases'
+import './traversing'
+import './init'
+import './events'
+import './state-and-style'
+import './attributes-and-properties'
+import './manipulation'

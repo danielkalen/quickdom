@@ -2,7 +2,7 @@ origDescriptors =
 	'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth')
 	'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
 
-dimensions = new ()->
+module.exports = new ()->
 	overwritten = false
 	current = width:window.innerWidth, height:window.innerHeight
 	

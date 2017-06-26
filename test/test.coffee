@@ -1,4 +1,5 @@
 @dimensions = import './simulate'
+@Dom = window.quickdom
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
