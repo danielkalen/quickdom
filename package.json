@@ -5,13 +5,25 @@
   "main": "dist/quickdom.js",
   "browser": {
     "./debug": "dist/quickdom.debug.js",
-    "./src": "src/quickdom.coffee"
+    "./dist/quickdom.js": "src/quickdom.coffee"
+  },
+  "browserify": {
+    "transform": [
+      "simplyimport/compat"
+    ]
+  },
+  "simplyimport": {
+    "finalTransform": [
+      ".config/transforms/minify-super",
+      ".config/transforms/minify-rename",
+      ".config/transforms/minify-simple"
+    ]
   },
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "postversion": "echo \\'$(json -f package.json version)\\' > .config/.version.coffee && npm run build",
+    "postversion": "npm run build",
     "test": "npm run test:electron -s || true",
     "test:local": "open test/testrunner.html",
     "test:minified": "minified=1 npm run test:electron -s || true",
@@ -21,17 +33,9 @@
     "test:sauce": "coffee .config/sauce-launch.coffee && npm run test-serve",
     "test-serve": "http-server -p 9202 --cors ./",
     "sauce-connect": "sc -u quickdom -k 0c7a6cc2-ed14-4f08-b48d-e46c74905b6a",
-    "build": "npm run compile && npm run minify",
-    "compile": "npm run compile:js && npm run compile:test",
-    "compile:js": "simplyimport -i src/quickdom.coffee | coffee -cbs --no-header > dist/quickdom.debug.js",
-    "compile:test": "simplyimport -i test/test.coffee | coffee -cbs > test/test.js",
-    "minify": "npm run minify:super && npm run minify:manual && npm run minify:simple",
-    "minify:simple": "uglifyjs dist/quickdom.debug.js -m -c keep_fargs,unused=false -o dist/quickdom.js",
-    "minify:super": "closure-service dist/quickdom.debug.js > dist/quickdom.js",
-    "minify:manual": "coffee .config/manual-minify.coffee",
-    "watch": "npm run watch:js & npm run watch:test",
-    "watch:js": "simplywatch -g 'src/*.coffee' -x 'npm run compile:js -s'",
-    "watch:test": "simplywatch -g 'test/test.coffee' -x 'npm run compile:test -s'",
+    "build": "cake -d build && cake build && cp -r build/* dist/",
+    "compile": "cake -d build",
+    "watch": "cake -d watch",
     "coverage": "npm run coverage:run; npm run coverage:badge",
     "coverage:run": "coverage=true npm run test:electron",
     "coverage:badge": "badge-gen -d ./.config/badges/coverage",
@@ -59,9 +63,10 @@
     "coffee-script": "^1.12.2",
     "electron": "^1.6.2",
     "foreach-cli": "^1.7.1",
+    "fs-jetpack": "^1.1.0",
+    "google-closure-compiler-js": "^20170521.0.0",
     "http-server": "^0.9.0",
     "jquery": "^3.1.1",
-    "json": "^9.0.4",
     "karma": "^1.4.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.0.0",
@@ -71,8 +76,10 @@
     "karma-mocha": "^1.3.0",
     "karma-opera-launcher": "^1.0.0",
     "karma-safari-launcher": "^1.0.0",
+    "listr": "^0.12.0",
     "mocha": "^3.2.0",
     "simplyimport": "^4.0.0-o",
     "simplywatch": "^3.0.0-i",
+    "uglify-js": "^3.0.20"
   }
 }

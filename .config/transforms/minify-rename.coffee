@@ -1,4 +1,16 @@
-fs = require 'fs'
+module.exports = (file, options, file_, content)->
+	if options._flags.debug
+		return content
+	else
+		output = content
+		replacements.forEach (replacement)->
+			source = replacement[0]
+			dest = replacement[1]
+
+			output = output.replace(source, dest)
+		return output
+
+
 replacements = [
 	[/iterable/g, 'iT']
 	[/domEl/g, 'dE']
@@ -50,15 +62,3 @@ replacements = [
 	[/parseQuery/g, 'pQ']
 	[/register/g, 'rg']
 ]
-
-
-fs.readFile 'dist/quickdom.js', {encoding:'utf8'}, (err, fileContent)-> if err then throw err else
-	output = fileContent
-	
-	replacements.forEach (replacement)->
-		source = replacement[0]
-		dest = replacement[1]
-
-		output = output.replace(source, dest)
-
-	fs.writeFile 'dist/quickdom.js', output, (err)-> if err then throw err
