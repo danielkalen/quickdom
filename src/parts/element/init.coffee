@@ -2,6 +2,16 @@ baseStateTriggers =
 	'hover': {on:'mouseenter', off:'mouseleave', bubbles:true}
 	'focus': {on:'focus', off:'blur', bubbles:true}
 
+
+QuickElement::updateOptions = (options)->
+	if IS.object(options) 
+		@options = options
+		@_normalizeOptions()
+		@_applyOptions(@options)
+	
+	return @
+
+
 QuickElement::_normalizeOptions = ()->
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
@@ -14,7 +24,11 @@ QuickElement::_normalizeOptions = ()->
 		else
 			baseStateTriggers
 	
-	@_parseStyles()
+	if @type is 'text'
+		@_parseText()
+	else
+		@_parseStyles()
+	
 	return
 
 
@@ -66,6 +80,15 @@ QuickElement::_parseStyles = ()->
 
 
 
+QuickElement::_parseText = ()->
+	return if not IS.objectPlain(@options.text)
+	states = Object.keys(@options.text).map (state)-> state.slice(1)
+	@_providedStates = states.filter (state)-> state isnt 'base'
+	@_texts = base:''
+	@_texts[state] = @options.text['$'+state] for state in states
+	
+	return
+
 
 QuickElement::_applyOptions = ()->
 	if ref=(@options.id or @options.ref) then @attr('data-ref', @ref=ref)
@@ -81,6 +104,7 @@ QuickElement::_applyOptions = ()->
 	if @options.props then @prop(key,value) for key,value of @options.props
 	if @options.attrs then @attr(key,value) for key,value of @options.attrs
 	@style(@_styles.base) if not @options.styleAfterInsert
+	@text = @_texts.base if @_texts
 
 	@onInserted ()=>
 		if @options.styleAfterInsert

@@ -1,13 +1,5 @@
 DUMMY_ARRAY = []
 
-QuickElement::updateOptions = (options)->
-	if IS.object(options) 
-		@options = options
-		@_normalizeOptions()
-		@_applyOptions(@options)
-	
-	return @
-
 
 QuickElement::state = (targetState, value, bubbles, source)->
 	if arguments.length is 1
@@ -25,12 +17,16 @@ QuickElement::state = (targetState, value, bubbles, source)->
 		
 		# ==== Toggle styles for this state =================================================================================
 		if @state(targetState) isnt desiredValue
+			prop = if @type is 'text' then 'Text' else 'Style'
+		
 			if desiredValue #is on
 				@_state.push(targetState)
-				@_turnStyleOn(targetState, activeStates)			
+				toggle = 'ON'
 			else
 				helpers.removeItem(@_state, targetState)
-				@_turnStyleOff(targetState, activeStates)			
+				toggle = 'OFF'
+			
+			@['_turn'+prop+toggle](targetState, activeStates)			
 
 
 		# ==== Pass state to parent/children =================================================================================
@@ -90,7 +86,11 @@ QuickElement::_getSharedStates = (targetState)->
 		stateChain.isApplicable(targetState, activeStates)
 
 
-QuickElement::_turnStyleOn = (targetState, activeStates)->
+QuickElement::_getStateStyles = (states)->
+	states.map (state)=> @_styles[state]
+
+
+QuickElement::_turnStyleON = (targetState, activeStates)->
 	if targetStyle = @_styles[targetState]
 		superiorStyles = @_getStateStyles @_getSuperiorStates(targetState, activeStates)
 		@style extend.clone.keys(targetStyle)(targetStyle, superiorStyles...)
@@ -110,7 +110,7 @@ QuickElement::_turnStyleOn = (targetState, activeStates)->
 	return
 
 
-QuickElement::_turnStyleOff = (targetState, activeStates)->
+QuickElement::_turnStyleOFF = (targetState, activeStates)->
 	if targetStyle = @_styles[targetState]
 		activeStyles = @_getStateStyles(activeStates)
 		stylesToKeep = extend.clone.keys(targetStyle)(@_styles.base, activeStyles...)
@@ -140,12 +140,28 @@ QuickElement::_turnStyleOff = (targetState, activeStates)->
 	return
 
 
-QuickElement::_getStateStyles = (states)->
-	states.map (state)=> @_styles[state] or @_styles[state]
+
+QuickElement::_turnTextON = (targetState, activeStates)->
+	if @_texts and IS.string(targetText = @_texts[targetState])
+		superiorStates = @_getSuperiorStates(targetState, activeStates)
+		
+		@text = targetText unless superiorStates.length
+	return
 
 
+QuickElement::_turnTextOFF = (targetState, activeStates)->
+	if @_texts and IS.string(targetText = @_texts[targetState])
+		activeStates = activeStates.filter (state)-> state isnt targetState
+		targetText = @_texts[activeStates[activeStates.length-1]]
+		targetText ?= @_texts.base
+		
+		@text = targetText
+	return
 
 
 
 
 	
+
+
+
