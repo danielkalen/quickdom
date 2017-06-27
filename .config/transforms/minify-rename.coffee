@@ -49,6 +49,7 @@ replacements = [
 	[/_parseStyles/g, '_ns']
 	[/_applyOptions/g, '_a']
 	[/_attachStateEvents/g, '_ae']
+	[/_invokeHandlers/g, '_ih']
 	[/_listenTo/g, '_l']
 	[/_refreshParent/g, '_rP']
 	[/_removeChild/g, '_r']

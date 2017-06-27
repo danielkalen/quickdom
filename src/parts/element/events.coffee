@@ -11,10 +11,7 @@ QuickElement::on = (eventNames, callback)->
 		eventNames.split(regexWhitespace).forEach (eventName)=>
 			if not @_eventCallbacks[eventName]
 				@_eventCallbacks[eventName] = []		
-				@_listenTo eventName, (event)=>
-					callbacks = @_eventCallbacks[eventName].slice()
-					cb.call(@el, event) for cb in callbacks
-					return
+				@_listenTo eventName, (event)=> @_invokeHandlers(eventName, event)
 
 			@_eventCallbacks.__refs[callbackRef] = callback if callbackRef
 			@_eventCallbacks[eventName].push(callback)
@@ -63,6 +60,13 @@ QuickElement::emit = (eventName, bubbles=true, cancelable=true)->
 	return @
 
 
+QuickElement::emitPrivate = (eventName, arg)->
+	if eventName and IS.string(eventName) and @_eventCallbacks?[eventName]
+		@_invokeHandlers(eventName, arg)
+	
+	return @
+
+
 
 QuickElement::onInserted = (callback, invokeIfInserted=true)-> if IS.function(callback)
 	if not @_inserted
@@ -73,6 +77,11 @@ QuickElement::onInserted = (callback, invokeIfInserted=true)-> if IS.function(ca
 
 	return @
 
+
+QuickElement::_invokeHandlers = (eventName, arg)->
+	callbacks = @_eventCallbacks[eventName].slice()
+	cb.call(@el, arg) for cb in callbacks
+	return
 
 
 ### istanbul ignore next ###
