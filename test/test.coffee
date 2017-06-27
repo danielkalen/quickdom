@@ -3493,6 +3493,9 @@ suite "QuickDom", ()->
 			expect(templateB.options.style.$base).to.equal(undefined)
 
 
+		# suite "Value computers", ()->
+		# 	test "Templates accept options.computers fn map which will be invoked with"
+
 
 	suite "Misc", ()->
 		test "Stringification", ()->
