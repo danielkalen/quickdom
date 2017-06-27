@@ -26,7 +26,7 @@ suite "QuickDom", ()->
 	setup(restartSandbox)
 
 	test "Version Property", ()->
-		packageVersion = require('../package').version
+		packageVersion = (import '../package $ version')
 		expect(Dom.version).to.equal(packageVersion)
 
 
