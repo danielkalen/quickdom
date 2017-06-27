@@ -22,13 +22,13 @@ parseTree = (tree, parseChildren)-> switch
 
 
 	when IS.string(tree) or IS.domText(tree)
-		type:'text', options:{text: tree.textContent or tree}, children:configSchema.children
+		type:'text', options:{text: tree.textContent or tree}, children:schema.children
 
 	when IS.domEl(tree)
 		type: tree.nodeName.toLowerCase()
 		ref: tree.id
 		options: extend.clone.keys(allowedTemplateOptions)(tree)
-		children: configSchema.children.map.call(tree.childNodes, QuickDom.template)
+		children: schema.children.map.call(tree.childNodes, QuickDom.template)
 
 	when IS.quickDomEl(tree)
 		type: tree.type

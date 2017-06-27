@@ -1,11 +1,6 @@
 import './extendTemplate'
 import './parseTree'
-pholderRegex = /\{\{.+?\}\}/g
-configSchema = 
-	type: 'div'
-	ref: undefined
-	options: {}
-	children: []
+import './schema'
 
 class QuickTemplate
 	constructor: (config, isTree)->
@@ -27,7 +22,7 @@ class QuickTemplate
 QuickTemplate.name ?= 'QuickTemplate'
 
 
-Object.keys(configSchema).forEach (key)->
+Object.keys(schema).forEach (key)->
 	Object.defineProperty QuickTemplate::, key, get:()-> @_config[key]
 
 Object.defineProperty QuickTemplate::, 'child', get: ()->

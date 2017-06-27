@@ -99,6 +99,9 @@ QuickElement::_applyOptions = ()->
 	if @options.recalcOnResize
 		window.addEventListener 'resize', ()=> @recalcStyle()
 
+	if @options.events
+		@on(event, handler) for event,handler of @options.events
+
 	return
 
 

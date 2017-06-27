@@ -29,7 +29,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 					if currentChild
 						currentChild.extend(newChildProcessed, globalOpts)
 					else
-						new QuickTemplate(extend.deep.clone(configSchema, newChildProcessed))
+						new QuickTemplate(extend.deep.clone(schema, newChildProcessed))
 
 			output.children.push newChildProcessed
 	
@@ -40,7 +40,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 		
 		for ref,newChild of remainingNewChildren
 			newChildProcessed = if IS.objectPlain(newChildProcessed) then newChild else parseTree(newChild)
-			output.children.push new QuickTemplate extend.deep.clone(configSchema, newChildProcessed)
+			output.children.push new QuickTemplate extend.deep.clone(schema, newChildProcessed)
 			delete remainingNewChildren[ref]
 		
 
@@ -61,7 +61,3 @@ extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChi
 		output.push(newChildProcessed)
 
 	return output
-
-
-
-
