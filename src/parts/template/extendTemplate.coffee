@@ -1,6 +1,7 @@
 extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
 	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
+	newOpts = newOpts._config if IS.template(newOpts)
 
 	output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children
@@ -40,7 +41,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 		
 		for ref,newChild of remainingNewChildren
 			newChildProcessed = if IS.objectPlain(newChildProcessed) then newChild else parseTree(newChild)
-			output.children.push new QuickTemplate extend.deep.clone(schema, newChildProcessed)
+			output.children.push new QuickTemplate newChildProcessed
 			delete remainingNewChildren[ref]
 		
 

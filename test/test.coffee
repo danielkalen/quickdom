@@ -3646,6 +3646,52 @@ suite "QuickDom", ()->
 			expect(rendered.child.childD.attr('data-ref')).to.equal('childD')
 
 
+		test "Templates can be passed as replacement/new children in {ref:newChild} extension maps", ()->
+			childA = Dom.template(
+				['div', {id:'childA'},
+					['span', {ref:'childA_1'}]
+					['div', {ref:'childA_2', id:'childA_2'}]
+				]
+			)
+			childB = Dom.template(
+				['div', ref:'childB', 
+					['span', {ref:'childB_1'}]
+					['text', {id:'childB_2', text:'The Text'}]
+				]
+			)
+			childC = Dom.template(
+				['div', {id:'childC'}, 
+					['span', {ref:'childC_1'}]
+					['text', {id:'childC_2', text:'The Text'}]
+				]
+			)
+			templateMain = 
+				Dom.template ['div', {id:'divA'},
+					childA,
+					childB
+				]
+			templateCopy = templateMain.extend ['section', null, 
+				childA: type: 'form'
+				childB: childB.extend(ref:'ChildB')
+				childC: childC.extend(ref:'ChildC')
+			], {value:'theValue'}
+
+			expect(Object.keys(templateMain.child).length).to.equal(7)
+			expect(Object.keys(templateCopy.child).length).to.equal(10)
+			expect(templateMain.children.length).to.equal(2)
+			expect(templateCopy.children.length).to.equal(3)
+			expect(templateCopy.child.divA).to.equal templateCopy
+			expect(templateCopy.child.childA).to.equal templateCopy.children[0]
+			expect(templateCopy.child.childA.type).to.equal 'form'
+			expect(templateCopy.child.childA.children.length).to.equal(2)
+			expect(templateCopy.child.ChildB).to.equal templateCopy.children[1]
+			expect(templateCopy.child.childB_1).to.equal templateCopy.children[1].children[0]
+			expect(templateCopy.child.childB_2).to.equal templateCopy.children[1].children[1]
+			expect(templateMain.child.childC).to.equal undefined
+			expect(templateCopy.child.childC).to.equal undefined
+			expect(templateCopy.child.ChildC).to.equal templateCopy.children[2]
+
+
 		test "Null values in ref-children map will remove the child from the template", ()->
 			templateMain = 
 				Dom.template ['div', {id:'divA'},
