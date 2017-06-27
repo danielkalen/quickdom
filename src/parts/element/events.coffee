@@ -1,10 +1,13 @@
 regexWhitespace = /\s+/
 
 QuickElement::on = (eventNames, callback)->
+	@_eventCallbacks ?= {__refs:{}}
+	
 	if IS.string(eventNames) and IS.function(callback)
 		split = eventNames.split('.')
 		callbackRef = split[1]
 		eventNames = split[0]
+		
 		eventNames.split(regexWhitespace).forEach (eventName)=>
 			if not @_eventCallbacks[eventName]
 				@_eventCallbacks[eventName] = []		
@@ -15,6 +18,7 @@ QuickElement::on = (eventNames, callback)->
 
 			@_eventCallbacks.__refs[callbackRef] = callback if callbackRef
 			@_eventCallbacks[eventName].push(callback)
+
 	return @
 
 
@@ -29,6 +33,7 @@ QuickElement::once = (eventNames, callback)->
 
 
 QuickElement::off = (eventNames, callback)->
+	@_eventCallbacks ?= {__refs:{}}
 	if not IS.string(eventNames)
 		@off(eventName) for eventName of @_eventCallbacks
 	

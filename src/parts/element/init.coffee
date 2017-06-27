@@ -19,7 +19,7 @@ QuickElement::_normalizeOptions = ()->
 
 
 QuickElement::_parseStyles = ()->
-	return @_providedStates = [] if not IS.objectPlain(@options.style)
+	return if not IS.objectPlain(@options.style)
 	keys = Object.keys(@options.style)
 	states = keys.filter (key)-> helpers.isStateStyle(key)
 	specialStates = helpers.removeItem(states.slice(), '$base')
@@ -35,7 +35,7 @@ QuickElement::_parseStyles = ()->
 		@_styles.base = @options.style.$base
 
 
-	flattenNestedStates = (styleObject, stateChain)=>
+	flattenNestedStates = (styleObject, chain)=>
 		styleKeys = Object.keys(styleObject)
 		output = {}
 		hasNonStateProps = false
@@ -45,14 +45,13 @@ QuickElement::_parseStyles = ()->
 				hasNonStateProps = true
 				output[state] = styleObject[state]
 			else
-				state_ = state.slice(1)
-				stateChain.push(state_)
-				stateChainString = stateChain.join('+')
-				@_hasSharedStateStyle = true
+				chain.push(state_ = state.slice(1))
+				stateChain = new (import './stateChain')(chain)
 				@_stateShared ?= []
-				@_stylesShared.push(stateChainString)
+				@_providedStatesShared ?= []
+				@_providedStatesShared.push(stateChain)
 				@_mediaStates.push(state_) if state[0] is '@'
-				@_styles[stateChainString] = flattenNestedStates(styleObject[state], stateChain)
+				@_styles[stateChain.string] = flattenNestedStates(styleObject[state], chain)
 		
 		return if hasNonStateProps then output
 

@@ -10,11 +10,12 @@ class QuickElement
 
 		@_parent = null
 		@_styles = {}
-		@_stylesShared = []
 		@_state = []
 		@_children = []
 		@_insertedCallbacks = []
-		@_eventCallbacks = {__refs:{}}
+		# @_providedStates = []				# defined conditionally
+		# @_providedStatesShared = []		# defined conditionally
+		# @_eventCallbacks = {__refs:{}}	# defined conditionally
 		
 		@_normalizeOptions()
 		@_applyOptions()
@@ -37,6 +38,7 @@ import './aliases'
 import './traversing'
 import './init'
 import './events'
-import './state-and-style'
+import './state'
+import './style'
 import './attributes-and-properties'
 import './manipulation'

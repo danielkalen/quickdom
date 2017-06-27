@@ -117,7 +117,8 @@ QuickElement::detach = ()->
 QuickElement::remove = ()->
 	@detach()
 	@resetState()
-	@_eventCallbacks[eventName].length = 0 for eventName of @_eventCallbacks
+	if @_eventCallbacks
+		@_eventCallbacks[eventName].length = 0 for eventName of @_eventCallbacks
 	return @
 
 
