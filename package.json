@@ -25,6 +25,7 @@
   "scripts": {
     "postversion": "npm run build",
     "test": "npm run test:electron -s || true",
+    "test:travis": "npm run test && npm run test:minified || true",
     "test:local": "open test/testrunner.html",
     "test:minified": "minified=1 npm run test:electron -s || true",
     "test:karma": "karma start .config/karma.conf.coffee",

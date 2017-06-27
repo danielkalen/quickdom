@@ -127,7 +127,7 @@ suite("QuickDom", function() {
     var packageVersion;
     packageVersion = ({
   "name": "quickdom",
-  "version": "1.0.39",
+  "version": "1.0.40",
   "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
   "main": "dist/quickdom.js",
   "browser": {
