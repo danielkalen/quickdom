@@ -490,6 +490,56 @@ suite "QuickDom", ()->
 			expect(emitCountB).to.equal(2)
 
 
+		test "Pre-defined event listeners can be passed in options.events", ()->
+			emitCount = 0
+			emitContext = null
+			listeners =
+				'one two three': ()-> emitCount++
+				'four': ()-> emitCount++
+				'five': ()-> emitContext = @
+			
+			div = Dom.div(events:listeners)
+			expect(emitCount).to.equal 0
+
+			div.emit('one')
+			expect(emitCount).to.equal 1
+
+			div.emit('two')
+			expect(emitCount).to.equal 2
+
+			div.emit('three')
+			expect(emitCount).to.equal 3
+
+			div.emit('four')
+			expect(emitCount).to.equal 4
+
+			div.off('one      three')
+			div.emit('one')
+			expect(emitCount).to.equal 4
+
+			div.emit('two')
+			expect(emitCount).to.equal 5
+
+			div.emit('three')
+			expect(emitCount).to.equal 5
+
+			div.emit('five')
+			expect(emitContext).to.equal div[0]
+
+			div.off()
+			div.emit('one'); div.emit('two'); div.emit('three'); div.emit('four');
+			expect(emitCount).to.equal 5
+
+			divB = Dom.div(events:listeners)
+			divB.emit('one'); divB.emit('three')
+			expect(emitCount).to.equal 7
+			
+			expect(emitContext).to.equal div[0]
+			divB.emit('five')
+			expect(emitContext).to.equal divB[0]
+
+
+
 
 
 	suite "Style", ()->
