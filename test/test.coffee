@@ -3632,8 +3632,8 @@ suite "QuickDom", ()->
 			expect ()-> Dom.batch([12])
 				.not.to.throw()
 			
-			expect ()-> Dom.batch($('div'))
-				.not.to.throw()
+			# expect ()-> Dom.batch($('div'))
+			# 	.not.to.throw()
 
 			expect ()-> Dom.template()
 				.to.throw()

@@ -39,7 +39,7 @@ task 'build:test', (options)->
 
 		.map (file)->
 			title: "Compiling #{file.base}.js"
-			task: ()-> compileJS(file, noPkgConfig:true)
+			task: ()-> compileJS(file, noPkgConfig:true, debug:true)
 	
 		.then runTaskList
 
@@ -74,7 +74,7 @@ task 'watch:test', (options)->
 					fileBase = path.basename(file,'.coffee')
 					{src:"test/#{fileBase}.coffee", dest:"test/#{fileBase}.js", base:fileBase}
 
-				.then (file)-> compileJS(file, noPkgConfig:true)
+				.then (file)-> compileJS(file, noPkgConfig:true, debug:true)
 
 
 
