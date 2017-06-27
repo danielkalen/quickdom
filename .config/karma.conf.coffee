@@ -1,4 +1,5 @@
-LIB_FILE = if process.env.minified then 'build/quickdom.js' else 'build/quickdom.debug.js'
+DIR = if process.env.CI then 'dist' else 'build'
+LIB_FILE = if process.env.minified then "#{DIR}/quickdom.js" else "#{DIR}/quickdom.debug.js"
 
 module.exports = (config)-> config.set
 	basePath: '../'
