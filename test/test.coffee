@@ -1766,6 +1766,62 @@ suite "QuickDom", ()->
 			expect(divA.styleSafe 'height').to.equal '100px'
 
 
+		test "state-based text", ()->
+			divA = Dom(
+				['div', null,
+					['text',
+						text:
+							$base: 'abc123'
+							$happy: 'Happy'
+							$relaxed: 'Relaxed'
+					]
+				]
+			)
+			divB = Dom(
+				['div', null,
+					['text',
+						text:
+							$happy: 'Happy'
+							$relaxed: 'Relaxed'
+							'$relaxed+funny': 'Funny & Relaxed'
+					]
+				]
+			)
+			expect(divA.text).to.equal 'abc123'
+			expect(divB.text).to.equal ''
+			
+			divA.state 'happy', on
+			divB.state 'happy', on
+			expect(divA.text).to.equal 'Happy'
+			expect(divB.text).to.equal 'Happy'
+			
+			divA.state 'happy', off
+			divB.state 'happy', off
+			expect(divA.text).to.equal 'abc123'
+			expect(divB.text).to.equal ''
+			
+			divA.state 'relaxed', on
+			divB.state 'relaxed', on
+			expect(divA.text).to.equal 'Relaxed'
+			expect(divB.text).to.equal 'Relaxed'
+			
+			divA.state 'happy', on
+			divB.state 'happy', on
+			expect(divA.text).to.equal 'Relaxed'
+			expect(divB.text).to.equal 'Relaxed'
+			
+			divA.state 'relaxed', off
+			divB.state 'relaxed', off
+			expect(divA.text).to.equal 'Happy'
+			expect(divB.text).to.equal 'Happy'
+			
+			divB.state 'relaxed', on
+			divB.state 'funny', on
+			expect(divB.text).to.equal 'Relaxed'
+
+			divB.state 'relaxed+funny', on
+			expect(divB.text).to.equal 'Funny & Relaxed'
+
 
 
 
