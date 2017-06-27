@@ -3494,7 +3494,7 @@ suite "QuickDom", ()->
 						['text', {id:'childC_2', text:'The Text'}]
 					]
 				]
-			window.templateCopy = templateMain.extend ['section', null, 
+			templateCopy = templateMain.extend ['section', null, 
 				childA:
 					type: 'form'
 					options:
@@ -3542,8 +3542,213 @@ suite "QuickDom", ()->
 			expect(templateB.options.style.$base).to.equal(undefined)
 
 
-		# suite "Value computers", ()->
-		# 	test "Templates accept options.computers fn map which will be invoked with"
+		suite "Data computers", ()->
+			test "Templates accept options.computers fn map which will be invoked with provided options.data upon spawning", ()->
+				receivedData = null
+				template = Dom.template(
+					['div'
+						computers: 'someLabel': (data)-> receivedData = data or 'nothing'
+					]
+				)
+
+				expect(receivedData).to.equal(null)
+				template.spawn()
+				expect(receivedData).to.equal(null)
+				
+				template.spawn({data:'someLabel':'works'})
+				expect(receivedData).to.equal('works')
+
+
+			test "Computers will be have the spawned QuickElement instance as their context", ()->
+				context = null
+				template = Dom.template(
+					['div'
+						computers: 'someLabel': (data)-> context = this
+					]
+				)
+
+				expect(context).to.equal(null)
+				template.spawn()
+				expect(context).to.equal(null)
+				
+				instance = template.spawn({data:'someLabel':undefined})
+				expect(context).to.equal(instance)
+
+
+			test "Values specified in options.defaults will be used if not specified in options.data upon spawning", ()->
+				results = {}
+				template = Dom.template(
+					['div'
+						computers:
+							'first': (data)-> results.first = data.toLowerCase()
+							'second': (data)-> results.second = data.toLowerCase()
+							'third': (data)-> results.third = data.toLowerCase()
+						defaults:
+							'first': 'firstValue here'
+							'third': 'thirdValue here'
+					]
+				)
+				expect(results).to.deep.equal({})
+				template.spawn()
+				expect(results).to.deep.equal({first:'firstvalue here', third:'thirdvalue here'})
+				
+				instance = template.spawn({data:'third':'customvalue here'})
+				expect(results).to.deep.equal({first:'firstvalue here', third:'customvalue here'})
+
+
+			test "Values can be of any type", ()->
+				results = {}
+				template = Dom.template(
+					['div'
+						computers:
+							'first': (data)-> results.first = data
+							'second': (data)-> results.second = data
+							'third': (data)-> results.third = data
+							'fourth': (data)-> results.fourth = data
+							'fifth': (data)-> results.fifth = data
+							'sixth': (data)-> results.sixth = data
+						defaults:
+							'first': ['abc', '123']
+							'third': {a:1, b:12}
+							'sixth': 999
+					]
+				)
+
+				
+				instance = template.spawn(data:
+					'second': null
+					'fourth': 19
+					'fifth': false
+					'sixth': undefined
+				)
+				expect(results).to.deep.equal
+					first: ['abc', '123']
+					second: null
+					third: {a:1, b:12}
+					fourth: 19
+					fifth: false
+					sixth: undefined
+
+				expect(Object.keys(results).length).to.equal(6)
+
+
+			test "Values in options.data that do not have a matching computer will be skipped", ()->
+				results = {}
+				template = Dom.template(
+					['div'
+						computers:
+							'first': (data)-> results.first = data
+							'second': (data)-> results.second = data
+							'third': (data)-> results.third = data
+					]
+				)
+
+				
+				instance = template.spawn(data:
+					'first': 'first value'
+					'second': 'second value'
+					'third': 'third value'
+					'fourth': 'fourth value'
+				)
+				expect(results).to.deep.equal
+					'first': 'first value'
+					'second': 'second value'
+					'third': 'third value'
+
+				expect(Object.keys(results).length).to.equal(3)
+
+
+			test "Computers in template children will receive the parent's options.data", ()->
+				results = parent:{}, childA:{}, childB:{}, childC:{}
+				template = Dom.template(
+					['div'
+						computers:
+							'first': (data)-> results.parent.first = data
+							'second': (data)-> results.parent.second = data
+							'third': (data)-> results.parent.third = data
+						
+						['div'
+							computers:
+								'first': (data)-> results.childA.first = data
+								'second': (data)-> results.childA.second = data
+								'third': (data)-> results.childA.third = data
+						]
+						['div', null,
+							['div'
+								computers:
+									'first': (data)-> results.childB.first = data
+									'fourth': (data)-> results.childB.fourth = data
+							]
+							['div'
+								computers:
+									'first': (data)-> results.childC.first = data
+									'sixth': (data)-> results.childC.sixth = data
+							]
+						]
+					]
+				)
+
+				
+				instance = template.spawn(data:
+					'first': 'first value'
+					'second': 'second value'
+					'third': 'third value'
+					'fourth': 'fourth value'
+				)
+				expect(results.parent).to.deep.equal
+					'first': 'first value'
+					'second': 'second value'
+					'third': 'third value'
+				
+				expect(results.childA).to.deep.equal
+					'first': 'first value'
+					'second': 'second value'
+					'third': 'third value'
+				
+				expect(results.childB).to.deep.equal
+					'first': 'first value'
+					'fourth': 'fourth value'
+				
+				expect(results.childC).to.deep.equal
+					'first': 'first value'
+
+
+			test "Parent defaults will not be passed to children", ()->
+				results = parent:{}, child:{}
+				template = Dom.template(
+					['div'
+						computers:
+							'first': (data)-> results.parent.first = data
+							'second': (data)-> results.parent.second = data
+							'third': (data)-> results.parent.third = data
+						defaults:
+							'second': 'second value'
+							'fourth': 'fourth value'
+						
+						['div'
+							computers:
+								'first': (data)-> results.child.first = data
+								'second': (data)-> results.child.second = data
+								'third': (data)-> results.child.third = data
+								'fourth': (data)-> results.child.fourth = data
+							defaults:
+								'first': 'first value'
+						]
+					]
+				)
+				
+				instance = template.spawn(data:
+					'third': 'third value'
+				)
+				expect(results.parent).to.deep.equal
+					'second': 'second value'
+					'third': 'third value'
+				
+				expect(results.child).to.deep.equal
+					'first': 'first value'
+					'third': 'third value'
+
+
 
 
 	suite "Misc", ()->
