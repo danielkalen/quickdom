@@ -5,11 +5,13 @@ mocha.slow(400)
 mocha.timeout(12000)
 mocha.bail() unless window.location.hostname
 expect = chai.expect
-sandbox$ = sandbox = null
+sandbox = null
 restartSandbox = ()->
-	sandbox$?.remove()
-	sandbox$ = $('<div id="sandbox" style="border:1px solid; padding:20px; box-sizing:border-box"></div>').appendTo(document.body)
-	sandbox = sandbox$[0]
+	sandbox.parentElement.removeChild(sandbox) if sandbox
+	sandbox = document.createElement('div')
+	sandbox.id = 'sandbox'
+	sandbox.setAttribute 'style', 'border:1px solid; padding:20px; box-sizing:border-box'
+	document.body.appendChild(sandbox)
 
 checkChildStructure = (main)-> (children...)->
 	expect(main.children.length).to.equal(children.length)
@@ -195,7 +197,8 @@ suite "QuickDom", ()->
 				'lameo': '19px'
 				'background-color': 'blue'
 				'backgroundSize': 'cover'
-			sandbox$.append(div.el)
+
+			sandbox.appendChild(div.el)
 			computedStyle = getComputedStyle(div.el)
 
 			expect(div.style.lameo).to.equal undefined

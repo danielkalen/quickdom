@@ -8,7 +8,6 @@ module.exports = (config)-> config.set
 	files: [
 		LIB_FILE
 		'node_modules/bluebird/js/browser/bluebird.js'
-		'node_modules/jquery/dist/jquery.min.js'
 		'test/test.js'
 	]
 	exclude: [

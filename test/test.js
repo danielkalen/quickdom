@@ -75,7 +75,7 @@ module.exports = new function() {
 return module.exports;
 },
 0: function (require, module, exports) {
-var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox, sandbox$,
+var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox,
   slice = [].slice;
 
 this.dimensions = require(1);
@@ -94,14 +94,16 @@ if (!window.location.hostname) {
 
 expect = chai.expect;
 
-sandbox$ = sandbox = null;
+sandbox = null;
 
 restartSandbox = function() {
-  if (sandbox$ != null) {
-    sandbox$.remove();
+  if (sandbox) {
+    sandbox.parentElement.removeChild(sandbox);
   }
-  sandbox$ = $('<div id="sandbox" style="border:1px solid; padding:20px; box-sizing:border-box"></div>').appendTo(document.body);
-  return sandbox = sandbox$[0];
+  sandbox = document.createElement('div');
+  sandbox.id = 'sandbox';
+  sandbox.setAttribute('style', 'border:1px solid; padding:20px; box-sizing:border-box');
+  return document.body.appendChild(sandbox);
 };
 
 checkChildStructure = function(main) {
@@ -190,7 +192,6 @@ suite("QuickDom", function() {
     "fs-jetpack": "^1.1.0",
     "google-closure-compiler-js": "^20170521.0.0",
     "http-server": "^0.9.0",
-    "jquery": "^3.1.1",
     "karma": "^1.4.0",
     "karma-chai": "^0.1.0",
     "karma-chrome-launcher": "^2.0.0",
@@ -408,7 +409,7 @@ suite("QuickDom", function() {
           'backgroundSize': 'cover'
         }
       });
-      sandbox$.append(div.el);
+      sandbox.appendChild(div.el);
       computedStyle = getComputedStyle(div.el);
       expect(div.style.lameo).to.equal(void 0);
       expect(computedStyle.lameo).to.equal(void 0);
