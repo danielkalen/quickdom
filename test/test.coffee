@@ -1082,10 +1082,11 @@ suite "QuickDom", ()->
 
 
 		test "options.stateTriggers can be forced to be attached even if they aren't being used in style object via ._attachStateEvents(true)", ()->
+			attachStateEvents = if Dom.div()._attachStateEvents then '_attachStateEvents' else '_ae'
 			divA = Dom.div(style:{$hover: display:'block'})
 			divB = Dom.div(style:{$focus: display:'block'})
-			divA._attachStateEvents(true)
-			divB._attachStateEvents(true)
+			divA[attachStateEvents](true)
+			divB[attachStateEvents](true)
 
 			expect(divA.state 'hover').to.equal off
 			expect(divB.state 'hover').to.equal off

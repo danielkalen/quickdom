@@ -6,9 +6,26 @@ module.exports = (file, options, file_, content)->
 	else
 		Closure = require('google-closure-compiler-js')
 		result = Closure.compile(extend jsCode:[src:content], config)
+		
+		if result.errors.length
+			console.error(result.errors)
+			throw new Error('closure compiler failed')
+		else if result.warnings.length
+			console.error(result.warnings)
+
 		return result.compiledCode
 
 config =
 	applyInputSourceMaps: false
-	languageIn: 'es5'
-	languageOut: 'es5'
+	languageIn: 'ECMASCRIPT5'
+	languageOut: 'ECMASCRIPT5'
+	# compilationLevel: 'SIMPLE'
+	compilationLevel: 'WHITESPACE_ONLY'
+	assumeFunctionWrapper: false
+	exportLocalPropertyDefinitions: true
+	createSourceMap: true
+	externs: [
+		src:"function QuickTemplate(){}"
+	,
+		src:"function QuickElement(){}"
+	]
