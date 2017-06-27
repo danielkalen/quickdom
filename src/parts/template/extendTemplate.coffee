@@ -51,13 +51,19 @@ extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChi
 	output = []
 	
 	for currentChild in currentChildren
-		if newChild=newChildrenRefs[currentChild.ref]
+		newChild = newChildrenRefs[currentChild.ref]
+		if newChild
 			newChildProcessed = currentChild.extend(newChild, globalOpts)
 			delete newChildrenRefs[currentChild.ref]
+		
+		else if newChild is null
+			delete newChildrenRefs[currentChild.ref]
+			continue
+		
 		else
 			newChildProcessed = if globalOpts then currentChild.extend(null, globalOpts) else currentChild
 
-		newChildProcessed._config.children = theNewChildren = extendByRef(newChildrenRefs, newChildProcessed.children)
+		newChildProcessed._config.children = extendByRef(newChildrenRefs, newChildProcessed.children)
 		output.push(newChildProcessed)
 
 	return output
