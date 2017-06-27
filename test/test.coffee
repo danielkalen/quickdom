@@ -296,6 +296,34 @@ suite "QuickDom", ()->
 			expect(emitCountB).to.equal(2)
 
 
+		test "Event handlers can be manually invoked with a custom arg via the .emitPrivate method", ()->
+			emitCountA = emitCountB = 0
+			arg = null
+			div = Dom.div()
+			div.on 'myEvent', ()-> emitCountA++; arg = arguments[0]
+			div.el.addEventListener 'myEvent', ()-> emitCountB++
+
+			expect(emitCountA).to.equal(0)
+			expect(emitCountB).to.equal(0)
+			expect(arg).to.equal(null)
+			
+			div.emitPrivate('myEvent')
+			expect(emitCountA).to.equal(1)
+			expect(emitCountB).to.equal(0)
+			expect(arg).to.equal(undefined)
+			
+			div.emitPrivate('myEvent', 'abc123')
+			expect(emitCountA).to.equal(2)
+			expect(emitCountB).to.equal(0)
+			expect(arg).to.equal('abc123')
+			
+			div.el.emitEvent('myEvent')
+			expect(emitCountA).to.equal(3)
+			expect(emitCountB).to.equal(1)
+			expect(arg).not.to.equal('abc123')
+			expect(typeof arg).to.equal('object')
+
+
 		test "Booleans can be passed for the 2nd and 3rd args of .emit to control event.bubbles and event.cancelable", ()->
 			emitCountA = emitCountB = emitCountC = 0
 			div = Dom.div()
@@ -3915,6 +3943,9 @@ suite "QuickDom", ()->
 			emitCount = 0; div.on 'something', cb=()-> emitCount++
 			expect(div.emit('')).to.equal(div)
 			expect(div.emit()).to.equal(div)
+			expect(div.emitPrivate('none')).to.equal(div)
+			expect(div.emitPrivate('')).to.equal(div)
+			expect(div.emitPrivate()).to.equal(div)
 			expect(emitCount).to.equal(0)
 			expect(div.emit('something')).to.equal(div)
 			expect(emitCount).to.equal(1)
