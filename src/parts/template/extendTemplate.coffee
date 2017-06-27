@@ -40,7 +40,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 		remainingNewChildren = newChildren
 		
 		for ref,newChild of remainingNewChildren
-			newChildProcessed = if IS.objectPlain(newChildProcessed) then newChild else parseTree(newChild)
+			newChildProcessed = if IS.objectPlain(newChild) and not IS.template(newChild) then newChild else parseTree(newChild)
 			output.children.push new QuickTemplate newChildProcessed
 			delete remainingNewChildren[ref]
 		

@@ -3690,6 +3690,9 @@ suite "QuickDom", ()->
 			expect(templateMain.child.childC).to.equal undefined
 			expect(templateCopy.child.childC).to.equal undefined
 			expect(templateCopy.child.ChildC).to.equal templateCopy.children[2]
+			expect(Object.keys(templateMain.spawn().child).length).to.equal(7)
+			expect(Object.keys(templateCopy.spawn().child).length).to.equal(10)
+
 
 
 		test "Null values in ref-children map will remove the child from the template", ()->
