@@ -830,6 +830,50 @@ suite "QuickDom", ()->
 			expect(count).to.eql A:6,B:3,C:2,D:2,E:4,F:4,G:2
 
 
+		test ".recalcStyle() accepts a single argument to indicate if to recalc style on children", ()->
+			count = A:0,B:0,C:0,D:0,E:0,F:0,G:0
+			wrapperCount = 0
+			wrapper = Dom.div style:
+				width: ()-> ++wrapperCount
+			
+			div = Dom.div style:
+				width: ()-> ++count.A
+				opacity: 1
+				height: ()-> ++count.B
+				fontSize: ()-> ++count.C
+				$happy:
+					opacity: 0.5
+					fontSize: ()-> ++count.D
+				$relaxed:
+					height: ()-> ++count.E
+					fontSize: ()-> ++count.F
+					$funny:
+						width: ()-> ++count.G
+
+			div.appendTo(wrapper)
+			expect(wrapperCount).to.equal 1
+			expect(count).to.eql A:1,B:1,C:1,D:0,E:0,F:0,G:0
+			
+			wrapper.recalcStyle()
+			expect(wrapperCount).to.equal 2
+			expect(count).to.eql A:1,B:1,C:1,D:0,E:0,F:0,G:0
+			
+			wrapper.recalcStyle(true)
+			expect(wrapperCount).to.equal 3
+			expect(count).to.eql A:2,B:2,C:2,D:0,E:0,F:0,G:0
+			
+			div.state 'happy', on
+			expect(count).to.eql A:2,B:2,C:2,D:1,E:0,F:0,G:0
+
+			wrapper.recalcStyle()
+			expect(wrapperCount).to.equal 4
+			expect(count).to.eql A:2,B:2,C:2,D:1,E:0,F:0,G:0
+			
+			wrapper.recalcStyle(1)
+			expect(wrapperCount).to.equal 5
+			expect(count).to.eql A:3,B:3,C:2,D:2,E:0,F:0,G:0
+
+
 		test "If options.recalcOnResize is set, .recalcStyle() will be invoked on each resize event", ()->
 			count = A:0,B:0,C:0,D:0
 			Dom.div
