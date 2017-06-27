@@ -1851,6 +1851,45 @@ suite "QuickDom", ()->
 			expect(divB.text).to.equal 'Funny & Relaxed'
 
 
+		test "state changes will emit a private stateChange:<state> event", ()->
+			results = []
+			div = Dom.div style:
+				color: 'white'
+				opacity: 1
+				$happy: color: 'black'
+			
+			
+			div.state 'any', on
+			div.on 'stateChange:happy', (state)-> results.push ['happy', state]
+			div.on 'stateChange:relaxed', (state)-> results.push ['relaxed', state]
+			div.on 'stateChange:arbitrary', (state)-> results.push ['arbitrary', state]
+			expect(results).to.deep.equal []
+
+			div.state 'happy', on
+			expect(results).to.deep.equal [['happy',on]]
+
+			div.state 'happy', off
+			expect(results).to.deep.equal [['happy',on], ['happy',off]]
+
+			div.state 'happy', on
+			expect(results).to.deep.equal [['happy',on], ['happy',off], ['happy',on]]
+
+			div.state 'happy', on
+			expect(results).to.deep.equal [['happy',on], ['happy',off], ['happy',on]]
+
+			div.state 'another', on
+			expect(results).to.deep.equal [['happy',on], ['happy',off], ['happy',on]]
+
+			div.state 'relaxed', on
+			expect(results).to.deep.equal [['happy',on], ['happy',off], ['happy',on], ['relaxed',on]]
+
+			div.state 'arbitrary', on
+			expect(results).to.deep.equal [['happy',on], ['happy',off], ['happy',on], ['relaxed',on], ['arbitrary',on]]
+
+			div.state 'relaxed', on
+			expect(results).to.deep.equal [['happy',on], ['happy',off], ['happy',on], ['relaxed',on], ['arbitrary',on]]
+
+
 
 
 
