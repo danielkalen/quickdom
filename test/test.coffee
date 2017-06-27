@@ -3478,6 +3478,55 @@ suite "QuickDom", ()->
 			expect(rendered.child.childD.attr('data-ref')).to.equal('childD')
 
 
+		test "Null values in ref-children map will remove the child from the template", ()->
+			templateMain = 
+				Dom.template ['div', {id:'divA'},
+					['div', {id:'childA'},
+						['span', {ref:'childA_1'}]
+						['div', {ref:'childA_2', id:'childA_2'}]
+					]
+					['div', null, 
+						['span', {ref:'childB_1'}]
+						['text', {id:'childB_2', text:'The Text'}]
+					]
+					['div', {id:'childC'}, 
+						['span', {ref:'childC_1'}]
+						['text', {id:'childC_2', text:'The Text'}]
+					]
+				]
+			window.templateCopy = templateMain.extend ['section', null, 
+				childA:
+					type: 'form'
+					options:
+						style: display: 'inline-block'
+
+				childA_1: null
+				childA_2:
+					['a', {id:'CHILDa_2', href:'http://google.com'},
+						['text', {ref:'childA_2_1', text:'New Text'}]
+					]
+				childC: null
+			], {value:'theValue'}
+
+			expect(typeof templateCopy.child.childA_2_1).not.to.equal 'undefined'
+			expect(Object.keys(templateMain.child).length).to.equal(9)
+			expect(Object.keys(templateCopy.child).length).to.equal(6)
+			expect(templateCopy.children.length).to.equal(2)
+			expect(templateCopy.child.divA).to.equal templateCopy
+			expect(templateCopy.child.childA).to.equal templateCopy.children[0]
+			expect(templateCopy.child.childA.type).to.equal 'form'
+			expect(templateCopy.child.childA.children.length).to.equal(1)
+			expect(templateCopy.child.childA_1).to.equal undefined
+			expect(templateCopy.child.childA_2).to.equal undefined
+			expect(templateCopy.child.CHILDa_2).to.equal templateCopy.children[0].children[0]
+			expect(templateCopy.child.childA_2_1).to.equal templateCopy.children[0].children[0].children[0]
+			expect(templateCopy.child.childA_2_1.options.text).to.equal 'New Text'
+			expect(templateCopy.child.childB_1).to.equal templateCopy.children[1].children[0]
+			expect(templateCopy.child.childB_2).to.equal templateCopy.children[1].children[1]
+			expect(templateMain.child.childC).to.equal templateMain.children[2]
+			expect(templateCopy.child.childC).to.equal undefined
+
+
 		test "When spawning elements the options object passed to the spawns should be a clone of the template's options", ()->
 			templateA = Dom.template ['div', style:{display:'block'}]
 			templateB = Dom.template ['div', style:{display:'block'}]
