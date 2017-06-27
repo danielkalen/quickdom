@@ -26,7 +26,8 @@ QuickElement::state = (targetState, value, bubbles, source)->
 				helpers.removeItem(@_state, targetState)
 				toggle = 'OFF'
 			
-			@['_turn'+prop+toggle](targetState, activeStates)			
+			@['_turn'+prop+toggle](targetState, activeStates)
+			@emitPrivate "stateChange:#{targetState}", desiredValue
 
 
 		# ==== Pass state to parent/children =================================================================================
