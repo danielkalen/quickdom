@@ -48,13 +48,18 @@ QuickElement::styleParsed = (property)->
 	parseFloat @styleSafe(property)
 
 
-QuickElement::recalcStyle = ()->
+QuickElement::recalcStyle = (recalcChildren)->
 	activeStyles = @_getStateStyles @_getActiveStates()
 	targetStyles = extend.clone.filter(
 		(value)-> typeof value is 'function'
 	)(@_styles.base, activeStyles...)
 
 	@style(targetStyles)
+	
+	if recalcChildren
+		child.recalcStyle() for child in @_children
+	
+	return @
 
 
 QuickElement::show = (display)->
