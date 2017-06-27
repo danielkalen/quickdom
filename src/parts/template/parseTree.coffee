@@ -10,7 +10,7 @@ parseTree = (tree, parseChildren)-> switch
 		if tree.length > 1 and not IS.object(tree[1]) and tree[1] isnt null
 			throw new Error "#{parseErrorPrefix} object for 'options', got '#{String(tree[1])}'"
 		else
-			output.options = if tree[1] then extend.deep.clone(tree[1]) else null
+			output.options = if tree[1] then extend.deep.clone(tree[1]) else schema.options
 			output.ref = tree[1].id or tree[1].ref if tree[1]
 
 		output.children = tree.slice(2)
