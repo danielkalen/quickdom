@@ -62,7 +62,10 @@ extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChi
 			continue
 		
 		else
-			newChildProcessed = if globalOpts then currentChild.extend(null, globalOpts) else currentChild
+			newChildProcessed = switch
+				when globalOpts then currentChild.extend(null, globalOpts)
+				when Object.keys(newChildrenRefs).length then currentChild.extend()
+				else currentChild
 
 		newChildProcessed._config.children = extendByRef(newChildrenRefs, newChildProcessed.children)
 		output.push(newChildProcessed)
