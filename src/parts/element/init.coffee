@@ -15,7 +15,7 @@ QuickElement::updateOptions = (options)->
 QuickElement::_normalizeOptions = ()->
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
-	@options.relatedInstance ?= @
+	@related = @options.relatedInstance ?= @
 	@options.unpassableStates ?= []
 	@options.passStateToChildren ?= true
 	@options.stateTriggers =

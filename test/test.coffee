@@ -70,6 +70,7 @@ suite "QuickDom", ()->
 			G = Dom.anchor(url:'https://google.com/')
 			H = Dom.text('Some text')
 			I = Dom.img(src:'https://google.com/')
+			J = Dom.div(relatedInstance: obj={a:1})
 
 			expect(A.el.className).to.equal('abc-123')
 			expect(A.el.abc).to.equal(123)
@@ -90,6 +91,8 @@ suite "QuickDom", ()->
 			expect(H.el.nodeType).to.equal(3)
 			expect(H.el.textContent).to.equal('Some text')
 			expect(I.el.src).to.equal('https://google.com/')
+			expect(J.related).to.equal(obj)
+			expect(J.options.relatedInstance).to.equal(obj)
 
 
 		test "Creation w/ children", ()->
@@ -628,7 +631,7 @@ suite "QuickDom", ()->
 			expect(div.style 'width').to.contain 'px'
 
 
-		test "Functions can be passed as values for properties in style objects which will be invoked with the element's options.relatedElement as the only argument", ()->
+		test "Functions can be passed as values for properties in style objects which will be invoked with the element's options.relatedInstance as the only argument", ()->
 			div = Dom.div(rate:25).appendTo(sandbox)
 			applyWidth = (expectedInstance)->
 				div.style width: (instance)->
