@@ -3619,6 +3619,16 @@ suite "QuickDom", ()->
 				childC:
 					['div', ref:'childD']
 			], {value:'theValue'}
+			
+			templateCopy2 = templateMain.extend children:
+				childA:
+					children: newChild: ['div']
+				childA_2:
+					['a', {id:'CHILDa_2', href:'http://google.com'},
+						['text', {ref:'childA_2_1', text:'New Text'}]
+					]
+				childC:
+					['div', ref:'childD']
 
 			expect(typeof templateCopy.child.childA_2_1).not.to.equal 'undefined'
 			expect(Object.keys(templateMain.child).length).to.equal(6)

@@ -7,7 +7,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 	currentChildren = currentOpts.children
 	newChildren = newOpts?.children or []
 	output.children = []
-	
+
 	### istanbul ignore next ###
 	if IS.array(newChildren)
 		for index in [0...Math.max(currentChildren.length, newChildren.length)]
@@ -43,9 +43,11 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 			newChildProcessed = if IS.objectPlain(newChild) and not IS.template(newChild) then newChild else parseTree(newChild)
 			output.children.push new QuickTemplate newChildProcessed
 			delete remainingNewChildren[ref]
-		
+
 
 	return output
+
+
 
 
 extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChildren.length then currentChildren else
@@ -71,3 +73,7 @@ extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChi
 		output.push(newChildProcessed)
 
 	return output
+
+
+
+
