@@ -2661,6 +2661,66 @@ suite "QuickDom", ()->
 			expect(childC.indexRef).to.equal null
 
 
+		test "Query", ()->
+			div = Dom.template(
+				['div', {class:'div-one', attrs:name:'abc123'},
+					['div', {class:'childA', style:{color:'pink'}},
+						['span', {class:'childA_1'}]
+						['div', {class:'childA_1'}]
+						['span', {class:'childA_1'}]
+						['div', {class:'childA_2'}]
+					]
+					['div', className:'childB', 
+						['span', {class:'childB_1'}]
+					]
+					['section', className:'childB', 
+						['span', {class:'childB_1'}]
+					]
+				]
+			).spawn().appendTo(sandBox = Dom(sandbox))
+
+			expect(div.query '.childA').to.equal(div.children[0])
+			expect(div.query '.childB').to.equal(div.children[1])
+			expect(div.query '.childB_1').to.equal(div.children[1].children[0])
+			expect(div.query '.childA_1').to.equal(div.children[0].children[0])
+			expect(div.query '.childA_2').to.equal(div.children[0].children[3])
+			expect(sandBox.query '.div-one').to.equal(div)
+			expect(sandBox.query '.childB_1').to.equal(div.children[1].children[0])
+			expect(sandBox.query 'div[name="abc123"]').to.equal(div)
+			expect(sandBox.query 'span[name="abc123"]').to.equal(undefined)
+
+
+		test "QueryAll", ()->
+			div = Dom.template(
+				['div', {class:'div-one', attrs:name:'abc123'},
+					['div', {class:'childA', style:{color:'pink'}},
+						['span', {class:'childA_1'}]
+						['div', {class:'childA_1'}]
+						['span', {class:'childA_1'}]
+						['div', {class:'childA_2'}]
+					]
+					['div', className:'childB', 
+						['span', {class:'childB_1'}]
+					]
+					['section', className:'childB', 
+						['span', {class:'childB_1'}]
+					]
+				]
+			).spawn().appendTo(sandBox = Dom(sandbox))
+
+			expect(div.queryAll('.childA').elements).to.eql([div.children[0]])
+			expect(div.queryAll('.childB').elements).to.eql([div.children[1], div.children[2]])
+			expect(div.queryAll('.childB_1').elements).to.eql([div.children[1].children[0], div.children[2].children[0]])
+			expect(div.queryAll('.childA_1').elements).to.eql([div.children[0].children[0], div.children[0].children[1], div.children[0].children[2]])
+			expect(div.queryAll('.childA_2').elements).to.eql([div.children[0].children[3]])
+			expect(sandBox.queryAll('.div-one').elements).to.eql([div])
+			expect(sandBox.queryAll('.childB_1').elements).to.eql([div.children[1].children[0], div.children[2].children[0]])
+			expect(sandBox.queryAll('div[name="abc123"]').elements).to.eql([div])
+			expect(sandBox.queryAll('span[name="abc123"]').elements).to.eql([])
+			expect(div.text).to.equal('')
+			expect(sandBox.queryAll('.childB_1').text('abc123').elements).to.eql([div.children[1].children[0], div.children[2].children[0]])
+			expect(div.text).to.equal('abc123abc123')
+
 
 
 
