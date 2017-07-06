@@ -9,6 +9,15 @@ QuickElement::parentMatching = (filterFn)-> if IS.function(filterFn)
 	
 	return
 
+QuickElement::query = (selector)->
+	QuickDom @raw.querySelector(selector)
+
+QuickElement::queryAll = (selector)->
+	result = @raw.querySelectorAll(selector)
+	output = []; output.push(item) for item in result
+	return new QuickBatch(output)
+
+
 
 Object.defineProperties QuickElement::,
 	'children': get: ()->
