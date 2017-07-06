@@ -170,6 +170,41 @@ QuickElement::replace = (targetEl)->
 	return @
 
 
+QuickElement::hasClass = (target)->
+	helpers.includes(@classList, target)
+
+
+QuickElement::addClass = (target)->
+	classList = @classList
+	targetIndex = classList.indexOf(target)
+
+	if targetIndex is -1
+		classList.push(target)
+		@raw.className = if classList.length > 1 then classList.join(' ') else classList[0]
+
+	return @
+
+
+QuickElement::removeClass = (target)->
+	classList = @classList
+	targetIndex = classList.indexOf(target)
+	
+	if targetIndex isnt -1
+		classList.splice(targetIndex, 1)
+		@raw.className = if classList.length then classList.join(' ') else ''
+
+	return @
+
+
+QuickElement::toggleClass = (target)->
+	if @hasClass(target)
+		@removeClass(target)
+	else
+		@addClass(target)
+
+	return @
+
+
 QuickElement::_refreshParent = ()->
 	@parent
 
@@ -197,10 +232,12 @@ Object.defineProperties QuickElement::,
 		get: ()-> @el.textContent
 		set: (newValue)-> @el.textContent = newValue
 
-
-
-
-
+	'classList':
+		get: ()->
+			list = @raw.className.split(/\s+/)
+			list.pop() if list[list.length-1] is ''
+			list.shift() if list[0] is ''
+			return list
 
 
 
