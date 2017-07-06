@@ -3126,7 +3126,6 @@ suite "QuickDom", ()->
 			expect(Object.keys(div.el)).to.contain('promiseIsLast')
 
 
-
 		test ".attr() - element property getter/setter", ()->
 			div = Dom.div()
 			
@@ -3156,7 +3155,6 @@ suite "QuickDom", ()->
 			expect(div.el.getAttribute 'promiseIsLast').to.equal null
 
 
-
 		test ".html - innerHTML getter/setter", ()->
 			div = Dom.div(null, Dom.div(), 'Some text', Dom.span(), Dom.div())
 
@@ -3184,6 +3182,87 @@ suite "QuickDom", ()->
 			expect(div.el.textContent).to.equal('newText')
 			expect(div.children.length).to.equal(1)
 			expect(div.children[0].el.nodeType).to.equal(3)
+
+
+		test ".addClass", ()->
+			div = Dom.div class:'some-selector anotherSelector .period    annoying-_-selector '
+
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period    annoying-_-selector '
+			
+			div.addClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+			
+			div.addClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+			
+			div.raw.className = div.raw.className.replace 'new-selector', ' '
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector  '
+			
+			div.addClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+			
+			div.addClass('.period')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+			
+			div.addClass('period')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector period'
+
+
+		test ".removeClass", ()->
+			div = Dom.div class:'some-selector anotherSelector .period    annoying-_-selector '
+
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period    annoying-_-selector '
+			
+			div.addClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+
+			div.removeClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector'
+
+			div.removeClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector'
+						
+			div.removeClass('some-selector')
+			expect(div.raw.className).to.equal 'anotherSelector .period annoying-_-selector'
+						
+			div.removeClass('period')
+			expect(div.raw.className).to.equal 'anotherSelector .period annoying-_-selector'
+						
+			div.removeClass('.period')
+			expect(div.raw.className).to.equal 'anotherSelector annoying-_-selector'
+
+
+		test ".toggleClass", ()->
+			div = Dom.div class:'some-selector anotherSelector .period    annoying-_-selector '
+
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period    annoying-_-selector '
+			
+			div.toggleClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+
+			div.toggleClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector'
+
+			div.toggleClass('new-selector')
+			expect(div.raw.className).to.equal 'some-selector anotherSelector .period annoying-_-selector new-selector'
+						
+			div.toggleClass('new-selector')
+			div.toggleClass('some-selector')
+			expect(div.raw.className).to.equal 'anotherSelector .period annoying-_-selector'
+						
+			div.toggleClass('some-selector')
+			expect(div.raw.className).to.equal 'anotherSelector .period annoying-_-selector some-selector'
+						
+			div.toggleClass('period')
+			expect(div.raw.className).to.equal 'anotherSelector .period annoying-_-selector some-selector period'
+						
+			div.toggleClass('.period')
+			expect(div.raw.className).to.equal 'anotherSelector annoying-_-selector some-selector period'
+						
+			div.toggleClass('annoying-_-selector')
+			expect(div.raw.className).to.equal 'anotherSelector some-selector period'
+
+
 
 
 		test "Appending/prepending elements to a text node should do nothing", ()->
