@@ -4980,7 +4980,7 @@ suite("QuickDom", function() {
         expect(count.child).to.equal(2);
         return expect(count.childChild).to.equal(2);
       });
-      return test("Data/defaults should be applied even when parent doesn't have computers", function() {
+      test("Data/defaults should be applied even when parent doesn't have computers", function() {
         var count, template;
         count = 0;
         template = Dom.template([
@@ -5007,6 +5007,99 @@ suite("QuickDom", function() {
         expect(count).to.equal(1);
         template.spawn();
         return expect(count).to.equal(2);
+      });
+      return test("Data can be re-applied via .applyData(data)", function() {
+        var count, instance, results, template;
+        results = {};
+        count = {
+          a: 0,
+          b: 0,
+          c: 0,
+          d: 0,
+          e: 0,
+          f: 0
+        };
+        template = Dom.template([
+          'div', {
+            computers: {
+              'a': function(data) {
+                results.a = data;
+                return count.a++;
+              },
+              'b': function(data) {
+                results.b = data;
+                return count.b++;
+              },
+              'c': function(data) {
+                results.c = data;
+                return count.c++;
+              },
+              'd': function(data) {
+                results.d = data;
+                return count.d++;
+              },
+              'e': function(data) {
+                results.e = data;
+                return count.e++;
+              },
+              'f': function(data) {
+                results.f = data;
+                return count.f++;
+              }
+            },
+            defaults: {
+              'a': 1,
+              'c': 3,
+              'f': 6
+            }
+          }
+        ]);
+        instance = template.spawn({
+          data: {
+            b: 2,
+            d: 4,
+            e: 5,
+            f: 6
+          }
+        });
+        expect(results).to.deep.equal({
+          a: 1,
+          b: 2,
+          c: 3,
+          d: 4,
+          e: 5,
+          f: 6
+        });
+        expect(count).to.deep.equal({
+          a: 1,
+          b: 1,
+          c: 1,
+          d: 1,
+          e: 1,
+          f: 1
+        });
+        instance.applyData({
+          a: 11,
+          b: 22,
+          d: 44,
+          e: 55
+        });
+        expect(results).to.deep.equal({
+          a: 11,
+          b: 22,
+          c: 3,
+          d: 44,
+          e: 55,
+          f: 6
+        });
+        return expect(count).to.deep.equal({
+          a: 2,
+          b: 2,
+          c: 2,
+          d: 2,
+          e: 2,
+          f: 2
+        });
       });
     });
   });

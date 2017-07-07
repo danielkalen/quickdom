@@ -4183,6 +4183,34 @@ suite "QuickDom", ()->
 				expect(count).to.equal(2)
 
 
+			test "Data can be re-applied via .applyData(data)", ()->
+				results = {}; count = {a:0, b:0, c:0, d:0, e:0, f:0}
+				template = Dom.template(
+					['div'
+						computers:
+							'a': (data)-> results.a = data;	count.a++
+							'b': (data)-> results.b = data;	count.b++
+							'c': (data)-> results.c = data;	count.c++
+							'd': (data)-> results.d = data;	count.d++
+							'e': (data)-> results.e = data;	count.e++
+							'f': (data)-> results.f = data;	count.f++
+						defaults:
+							'a': 1
+							'c': 3
+							'f': 6
+					]
+				)
+
+				
+				instance = template.spawn(data: {b:2, d:4, e:5, f:6})
+				expect(results).to.deep.equal {a:1, b:2, c:3, d:4, e:5, f:6}
+				expect(count).to.deep.equal {a:1, b:1, c:1, d:1, e:1, f:1}
+
+				instance.applyData(a:11, b:22, d:44, e:55)
+				expect(results).to.deep.equal {a:11, b:22, c:3, d:44, e:55, f:6}
+				expect(count).to.deep.equal {a:2, b:2, c:2, d:2, e:2, f:2}
+
+
 
 
 	suite "Misc", ()->
