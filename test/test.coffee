@@ -4161,6 +4161,28 @@ suite "QuickDom", ()->
 				expect(count.childChild).to.equal(2)
 
 
+			test "Data/defaults should be applied even when parent doesn't have computers", ()->
+				count = 0
+				template = Dom.template(
+					['div', null,
+						['section', null,
+							['div'
+								computers:
+									'first': (data)-> count++
+								defaults:
+									'first': 'first value'
+							]
+						]
+					]
+				)
+				
+				template.spawn(data:'first':'second value')
+				expect(count).to.equal(1)
+				
+				template.spawn()
+				expect(count).to.equal(2)
+
+
 
 
 	suite "Misc", ()->

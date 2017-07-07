@@ -9,7 +9,7 @@ class QuickTemplate
 		@_hasComputers = !!@_config.options.computers
 		
 		if not @_hasComputers and @_config.children.length
-			for child in @_config.children when child._config.options.computers
+			for child in @_config.children when child._hasComputers or child._config.options.computers
 				@_hasComputers = true
 				break
 	
