@@ -30,7 +30,7 @@ class QuickTemplate
 
 		element = QuickDom(opts.type, opts.options, opts.children...)
 
-		if @_hasComputers
+		if @_hasComputers and newValues isnt false
 			applyData(element, data)
 
 		return element

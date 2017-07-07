@@ -4121,6 +4121,46 @@ suite "QuickDom", ()->
 					'third': 'third value'
 
 
+			test "Defaults should only be applied once", ()->
+				count = parent:0, child:0, childChild:0
+				template = Dom.template(
+					['div'
+						ref: 'parent'
+						computers:
+							'first': (data)-> count.parent++
+						defaults:
+							'first': 'first value'
+						
+						['div'
+							ref: 'child'
+							computers:
+								'first': (data)-> count.parent++
+								'second': (data)-> count.child++
+							defaults:
+								'second': 'second value'
+							
+							['div'
+								ref: 'child'
+								computers:
+									'fourth': (data)-> count.childChild++
+								defaults:
+									'fourth': 'fourth value'
+							]
+						]
+					]
+				)
+				
+				template.spawn(data:'third':'third value')
+				expect(count.parent).to.equal(1)
+				expect(count.child).to.equal(1)
+				expect(count.childChild).to.equal(1)
+				
+				template.spawn()
+				expect(count.parent).to.equal(2)
+				expect(count.child).to.equal(2)
+				expect(count.childChild).to.equal(2)
+
+
 
 
 	suite "Misc", ()->
