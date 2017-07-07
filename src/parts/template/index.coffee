@@ -1,6 +1,5 @@
 import './extendTemplate'
 import './parseTree'
-import './applyData'
 import './schema'
 
 class QuickTemplate
@@ -31,7 +30,7 @@ class QuickTemplate
 		element = QuickDom(opts.type, opts.options, opts.children...)
 
 		if @_hasComputers and newValues isnt false
-			applyData(element, data)
+			element.applyData(data)
 
 		return element
 

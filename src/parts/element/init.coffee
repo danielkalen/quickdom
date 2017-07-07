@@ -3,15 +3,6 @@ baseStateTriggers =
 	'focus': {on:'focus', off:'blur', bubbles:true}
 
 
-QuickElement::updateOptions = (options)->
-	if IS.object(options) 
-		@options = options
-		@_normalizeOptions()
-		@_applyOptions(@options)
-	
-	return @
-
-
 QuickElement::_normalizeOptions = ()->
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
