@@ -452,15 +452,6 @@ baseStateTriggers = {
   }
 };
 
-QuickElement.prototype.updateOptions = function(options) {
-  if (IS.object(options)) {
-    this.options = options;
-    this._normalizeOptions();
-    this._applyOptions(this.options);
-  }
-  return this;
-};
-
 QuickElement.prototype._normalizeOptions = function() {
   var base, base1, base2;
   if (this.options["class"]) {
@@ -1542,6 +1533,38 @@ Object.defineProperties(QuickElement.prototype, {
 
 ;
 
+QuickElement.prototype.updateOptions = function(options) {
+  if (IS.object(options)) {
+    this.options = options;
+    this._normalizeOptions();
+    this._applyOptions(this.options);
+  }
+  return this;
+};
+
+QuickElement.prototype.applyData = function(data) {
+  var child, computers, defaults, i, j, key, keys, len, len1, ref;
+  if (computers = this.options.computers) {
+    defaults = this.options.defaults;
+    keys = Object.keys(computers);
+    for (i = 0, len = keys.length; i < len; i++) {
+      key = keys[i];
+      if (data && data.hasOwnProperty(key)) {
+        computers[key].call(this, data[key]);
+      } else if (defaults && defaults.hasOwnProperty(key)) {
+        computers[key].call(this, defaults[key]);
+      }
+    }
+  }
+  ref = this._children;
+  for (j = 0, len1 = ref.length; j < len1; j++) {
+    child = ref[j];
+    child.applyData(data);
+  }
+};
+
+;
+
 ;
 
 var QuickWindow;
@@ -2022,31 +2045,6 @@ parseErrorPrefix = 'Template Parse Error: expected';
 
 ;
 
-var applyData;
-
-applyData = function(element, data) {
-  var child, computers, defaults, i, j, key, keys, len, len1, ref;
-  if (computers = element.options.computers) {
-    defaults = element.options.defaults;
-    keys = Object.keys(computers);
-    for (i = 0, len = keys.length; i < len; i++) {
-      key = keys[i];
-      if (data && data.hasOwnProperty(key)) {
-        computers[key].call(element, data[key]);
-      } else if (defaults && defaults.hasOwnProperty(key)) {
-        computers[key].call(element, defaults[key]);
-      }
-    }
-  }
-  ref = element._children;
-  for (j = 0, len1 = ref.length; j < len1; j++) {
-    child = ref[j];
-    applyData(child, data);
-  }
-};
-
-;
-
 var schema;
 
 schema = {
@@ -2096,7 +2094,7 @@ QuickTemplate = (function() {
     }
     element = QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
     if (this._hasComputers && newValues !== false) {
-      applyData(element, data);
+      element.applyData(data);
     }
     return element;
   };
@@ -2152,7 +2150,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.46";
+QuickDom.version = "1.0.47";
 
 module.exports = QuickDom;
 
