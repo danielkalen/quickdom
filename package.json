@@ -23,8 +23,9 @@
     "test": "test"
   },
   "scripts": {
-    "postversion": "npm run build",
+    "postversion": "npm run build && git commit -a -m '[Build]'",
     "prepublishOnly": "CI=1 npm run test:travis",
+    "postpublish": "git push",
     "test": "npm run test:electron -s || true",
     "test:travis": "npm run test && npm run test:minified || true",
     "test:local": "open test/testrunner.html",
