@@ -5104,6 +5104,39 @@ suite("QuickDom", function() {
     });
   });
   return suite("Misc", function() {
+    test("QuickDom.isTemplate", function() {
+      expect(Dom.isTemplate(Dom.template(['div']))).to.be["true"];
+      expect(Dom.isTemplate(Dom.div())).to.be["false"];
+      expect(Dom.isTemplate(Dom.div()[0])).to.be["false"];
+      expect(Dom.isTemplate({})).to.be["false"];
+      expect(Dom.isTemplate('string')).to.be["false"];
+      expect(Dom.isTemplate(5)).to.be["false"];
+      expect(Dom.isTemplate(false)).to.be["false"];
+      return expect(Dom.isTemplate(true)).to.be["false"];
+    });
+    test("QuickDom.isQuickEl", function() {
+      expect(Dom.isQuickEl(Dom.template(['div']))).to.be["false"];
+      expect(Dom.isQuickEl(Dom.div())).to.be["true"];
+      expect(Dom.isQuickEl(Dom.text())).to.be["true"];
+      expect(Dom.isQuickEl(Dom.div()[0])).to.be["false"];
+      expect(Dom.isQuickEl({})).to.be["false"];
+      expect(Dom.isQuickEl('string')).to.be["false"];
+      expect(Dom.isQuickEl(5)).to.be["false"];
+      expect(Dom.isQuickEl(false)).to.be["false"];
+      return expect(Dom.isQuickEl(true)).to.be["false"];
+    });
+    test("QuickDom.isEl", function() {
+      expect(Dom.isEl(Dom.template(['div']))).to.be["false"];
+      expect(Dom.isEl(Dom.div())).to.be["false"];
+      expect(Dom.isEl(Dom.text())).to.be["false"];
+      expect(Dom.isEl(Dom.div()[0])).to.be["true"];
+      expect(Dom.isEl(Dom.text()[0])).to.be["false"];
+      expect(Dom.isEl({})).to.be["false"];
+      expect(Dom.isEl('string')).to.be["false"];
+      expect(Dom.isEl(5)).to.be["false"];
+      expect(Dom.isEl(false)).to.be["false"];
+      return expect(Dom.isEl(true)).to.be["false"];
+    });
     test("Stringification", function() {
       var section, sectionCopy;
       section = Dom([
