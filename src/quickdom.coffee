@@ -63,7 +63,14 @@ QuickDom.html = (innerHTML)->
 
 	return QuickDom.batch(children)
 
+QuickDom.isTemplate = (target)->
+	IS.template(target)
 
+QuickDom.isQuickEl = (target)->
+	IS.quickDomEl(target)
+
+QuickDom.isEl = (target)->
+	IS.domEl(target)
 
 
 
