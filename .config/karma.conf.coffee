@@ -3,7 +3,7 @@ LIB_FILE = if process.env.minified then "#{DIR}/quickdom.js" else "#{DIR}/quickd
 
 module.exports = (config)-> config.set
 	basePath: '../'
-	client: captureConsole: true
+	client: captureConsole: true unless process.env.sauce
 	browserConsoleLogOptions: level:'log', terminal:true
 	frameworks: ['mocha', 'chai']
 	files: [
@@ -16,7 +16,11 @@ module.exports = (config)-> config.set
 	]
 
 	preprocessors: {"#{LIB_FILE}":'coverage'} if process.env.coverage
-	reporters: ['progress', 'coverage'] if process.env.coverage
+	reporters: do ()->
+		reporters = ['progress']
+		reporters.push('coverage') if process.env.coverage
+		reporters.push('saucelabs') if process.env.sauce
+		return reporters
 
 	coverageReporter:
 		type: 'lcov'
@@ -29,9 +33,21 @@ module.exports = (config)-> config.set
 	port: 9876
 	colors: true
 	logLevel: config.LOG_INFO
-	autoWatch: true
-	autoWatchBatchDelay: 1000
-	restartOnFileChange: true
+	# autoWatch: if process.env.sauce then false else true
+	# autoWatchBatchDelay: 1000
+	# restartOnFileChange: true
 	singleRun: true
-	concurrency: Infinity
-	browsers: ['Chrome', 'Firefox', 'Opera', 'Safari']
+	concurrency: if process.env.sauce then 2 else 5
+	captureTimeout: 1.8e5 if process.env.sauce
+	browserNoActivityTimeout: 1.8e5 if process.env.sauce
+	browserDisconnectTimeout: 1e4 if process.env.sauce
+	browserDisconnectTolerance: 3 if process.env.sauce
+	browsers: if process.env.sauce then Object.keys(require('./sauceTargets')) else ['Chrome', 'Firefox', 'Opera', 'Safari']
+	retryLimit: 1 if process.env.sauce
+	customLaunchers: require('./sauceTargets')
+	sauceLabs: 
+		testName: 'QuickDOM Test Suite'
+		recordVideo: true
+		build: require('../package.json').version+'-'+Math.round(Math.random()*1e6).toString(16)
+		username: 'quickdom'
+		accessKey: '0c7a6cc2-ed14-4f08-b48d-e46c74905b6a'
