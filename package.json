@@ -53,7 +53,7 @@
   },
   "homepage": "https://github.com/danielkalen/quickdom#readme",
   "dependencies": {
-    "@danielkalen/is": "^1.0.0",
+    "@danielkalen/is": "^2.0.0",
     "quickcss": "^1.0.5",
     "smart-extend": "^1.7.0"
   },
