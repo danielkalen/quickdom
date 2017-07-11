@@ -78,7 +78,7 @@
     "karma-sauce-launcher": "github:danielkalen/karma-sauce-launcher",
     "listr": "^0.12.0",
     "mocha": "^3.2.0",
-    "simplyimport": "^4.0.0-r2",
+    "simplyimport": "^4.0.0-s7",
     "simplywatch": "^3.0.0-k",
     "uglify-js": "^3.0.20"
   }
