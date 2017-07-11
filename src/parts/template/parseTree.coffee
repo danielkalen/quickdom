@@ -37,7 +37,7 @@ parseTree = (tree, parseChildren)-> switch
 		children: tree.children.map(QuickDom.template)
 
 	when IS.template(tree)
-		extendTemplate(tree._config)
+		return tree
 
 	else
 		throw new Error "#{parseErrorPrefix} (array || string || domEl || quickDomEl || template), got #{String(tree)}"

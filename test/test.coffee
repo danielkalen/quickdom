@@ -3675,9 +3675,9 @@ suite "QuickDom", ()->
 			sectionTemplate = Dom.template ['section', null, headerTemplate]
 			section = sectionTemplate.spawn().appendTo(sandbox)
 
-			expect(headerTemplateClone).not.to.equal(headerTemplate)
+			expect(headerTemplateClone).to.equal(headerTemplate)
 			expect(sectionTemplate.children.length).to.equal(1)
-			expect(sectionTemplate.children[0]).not.to.equal(headerTemplate)
+			expect(sectionTemplate.children[0]).to.equal(headerTemplate)
 			expect(sectionTemplate.children[0].children.length).to.equal(2)
 			expect(section.children.length).to.equal(1)
 			expect(section.children[0].type).to.equal('header')

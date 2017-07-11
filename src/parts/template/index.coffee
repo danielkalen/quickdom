@@ -4,6 +4,7 @@ import './schema'
 
 class QuickTemplate
 	constructor: (config, isTree)->
+		return config if IS.template(config)
 		@_config = if isTree then parseTree(config) else config
 		@_hasComputers = !!@_config.options.computers
 		
