@@ -55,7 +55,7 @@
   "dependencies": {
     "@danielkalen/is": "^2.0.0",
     "quickcss": "^1.0.5",
-    "smart-extend": "^1.7.0"
+    "smart-extend": "^1.7.2"
   },
   "devDependencies": {
     "bluebird": "^3.4.7",
