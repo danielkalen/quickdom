@@ -210,7 +210,7 @@ QuickElement::_refreshParent = ()->
 
 
 QuickElement::_removeChild = (targetChild, replacementChild)->
-	indexOfChild = @_children.indexOf(targetChild)
+	indexOfChild = @children.indexOf(targetChild)
 	if indexOfChild isnt -1
 		if replacementChild
 			@el.replaceChild(replacementChild.el, targetChild.el)
