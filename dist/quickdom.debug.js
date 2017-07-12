@@ -1731,7 +1731,7 @@ QuickElement.prototype._refreshParent = function() {
 
 QuickElement.prototype._removeChild = function(targetChild, replacementChild) {
   var indexOfChild;
-  indexOfChild = this._children.indexOf(targetChild);
+  indexOfChild = this.children.indexOf(targetChild);
   if (indexOfChild !== -1) {
     if (replacementChild) {
       this.el.replaceChild(replacementChild.el, targetChild.el);
@@ -2158,7 +2158,7 @@ extendTemplate = function(currentOpts, newOpts, globalOpts) {
   if (IS.template(newOpts)) {
     newOpts = newOpts._config;
   }
-  output = extend.deep.notKeys('children').notDeep('relatedInstance').transform(globalOptsTransform).clone(currentOpts, newOpts);
+  output = extend.deep.notKeys('children').notDeep(['relatedInstance', 'data']).transform(globalOptsTransform).clone(currentOpts, newOpts);
   currentChildren = currentOpts.children;
   newChildren = (newOpts != null ? newOpts.children : void 0) || [];
   output.children = [];
@@ -2414,7 +2414,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.49";
+QuickDom.version = "1.0.51";
 
 module.exports = QuickDom;
 
