@@ -30,13 +30,15 @@ module.exports = (config)-> config.set
 	electronOpts:
 		show: false
 
+	client: mocha: reporter:'html'
+
 	port: 9876
 	colors: true
 	logLevel: config.LOG_INFO
 	# autoWatch: if process.env.sauce then false else true
 	# autoWatchBatchDelay: 1000
 	# restartOnFileChange: true
-	singleRun: true
+	singleRun: process.env.sauce
 	concurrency: if process.env.sauce then 2 else 5
 	captureTimeout: 1.8e5 if process.env.sauce
 	browserNoActivityTimeout: 1.8e5 if process.env.sauce
@@ -48,6 +50,7 @@ module.exports = (config)-> config.set
 	sauceLabs: 
 		testName: 'QuickDOM Test Suite'
 		recordVideo: true
+		recordScreenshots: false
 		build: require('../package.json').version+'-'+Math.round(Math.random()*1e6).toString(16)
 		username: 'quickdom'
 		accessKey: '0c7a6cc2-ed14-4f08-b48d-e46c74905b6a'
