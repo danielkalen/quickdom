@@ -7,6 +7,73 @@ exports: {}
 }, cache[r].exports = modules[r].call(cx, require, cache[r], cache[r].exports)));
 };
 })({}, {
+1: function (require, module, exports) {
+var origDescriptors;
+
+origDescriptors = {
+  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
+};
+
+module.exports = new function() {
+  var current, getReal, overwrite, overwritten;
+  overwritten = false;
+  current = {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+  getReal = function(dimension) {
+    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
+      return letter.toUpperCase();
+    });
+    return origDescriptors[dimension].get.call(window);
+  };
+  overwrite = function() {
+    if (!overwritten) {
+      overwritten = true;
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        get: function() {
+          return current.width;
+        },
+        set: function(newValue) {
+          return current.width = newValue;
+        }
+      });
+      return Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        get: function() {
+          return current.height;
+        },
+        set: function(newValue) {
+          return current.height = newValue;
+        }
+      });
+    }
+  };
+  this.simulate = function(width, height) {
+    var event;
+    if (width) {
+      current.width = width;
+    }
+    if (height) {
+      current.height = height;
+    }
+    overwrite();
+    event = document.createEvent('Event');
+    event.initEvent('resize', true, false);
+    return window.dispatchEvent(event);
+  };
+  this.restore = function() {
+    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
+    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
+  };
+  return this;
+};
+
+;
+return module.exports;
+},
 0: function (require, module, exports) {
 var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox,
   slice = [].slice;
@@ -275,17 +342,18 @@ suite("QuickDom", function() {
       return expect(computedStyle.backgroundSize).to.equal('cover');
     });
     test("SVG elements can be created via a '*' in the element's type string", function() {
-      var svgBad, svgDiv, svgGood, svgPolyBad, svgPolyGood;
+      var regDiv, svgBad, svgDiv, svgGood, svgPolyBad, svgPolyGood;
       svgBad = Dom('svg').el;
       svgGood = Dom('*svg').el;
       svgPolyBad = Dom('polyline').el;
       svgPolyGood = Dom('*polyline').el;
       svgDiv = Dom('*div').el;
+      regDiv = Dom('div').el;
       expect(svgBad.constructor.name).to.equal('HTMLUnknownElement');
       expect(svgPolyBad.constructor.name).to.equal('HTMLUnknownElement');
       expect(svgGood.constructor.name).to.equal('SVGSVGElement');
       expect(svgPolyGood.constructor.name).to.equal('SVGPolylineElement');
-      return expect(svgDiv.constructor.name).to.equal('SVGElement');
+      return expect(svgDiv.constructor.name).not.to.equal(regDiv.constructor.name);
     });
     test("QuickDom.html() accepts an html string which would be parsed and converted into a QuickBatch instance", function() {
       var htmlString;
@@ -2294,7 +2362,10 @@ suite("QuickDom", function() {
   });
   suite("Media Queries", function() {
     suiteTeardown(function() {
-      return dimensions.restore();
+      var ref;
+      if ((ref = Object.getOwnPropertyDescriptor(window, 'innerWidth')) != null ? ref.configurable : void 0) {
+        return dimensions.restore();
+      }
     });
     suiteSetup(function() {
       var ref;
@@ -2719,24 +2790,22 @@ suite("QuickDom", function() {
       div.el.appendChild(document.createElement('div'));
       expect(div.children.length).to.equal(4);
       expect(div.el.childNodes.length).to.equal(4);
-      if (typeof window.Comment === 'function') {
-        div = document.createElement('div');
-        spanA = document.createElement('span');
-        spanB = document.createElement('span');
-        text = document.createTextNode('someTextNode');
-        comment = new Comment('someCommentNode');
-        div.appendChild(spanA);
-        div.appendChild(comment);
-        div.appendChild(spanB);
-        div.appendChild(text);
-        expect(div.childNodes.length).to.equal(4);
-        expect(div.children.length).to.equal(2);
-        div$ = Dom(div);
-        expect(div$.children.length).to.equal(3);
-        expect(div$.children[0].raw).to.equal(spanA);
-        expect(div$.children[1].raw).to.equal(spanB);
-        return expect(div$.children[2].raw).to.equal(text);
-      }
+      div = document.createElement('div');
+      spanA = document.createElement('span');
+      spanB = document.createElement('span');
+      text = document.createTextNode('someTextNode');
+      comment = document.createComment('someCommentNode');
+      div.appendChild(spanA);
+      div.appendChild(comment);
+      div.appendChild(spanB);
+      div.appendChild(text);
+      expect(div.childNodes.length).to.equal(4);
+      expect(div.children.length).to.equal(2);
+      div$ = Dom(div);
+      expect(div$.children.length).to.equal(3);
+      expect(div$.children[0].raw).to.equal(spanA);
+      expect(div$.children[1].raw).to.equal(spanB);
+      return expect(div$.children[2].raw).to.equal(text);
     });
     test("Parent", function() {
       var A, B, C;
@@ -5345,73 +5414,6 @@ if (HTMLElement.name !== 'HTMLElement') {
 if (window.ClientRect == null) {
   window.ClientRect = DOMRect;
 }
-
-;
-return module.exports;
-},
-1: function (require, module, exports) {
-var origDescriptors;
-
-origDescriptors = {
-  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
-  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
-};
-
-module.exports = new function() {
-  var current, getReal, overwrite, overwritten;
-  overwritten = false;
-  current = {
-    width: window.innerWidth,
-    height: window.innerHeight
-  };
-  getReal = function(dimension) {
-    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
-      return letter.toUpperCase();
-    });
-    return origDescriptors[dimension].get.call(window);
-  };
-  overwrite = function() {
-    if (!overwritten) {
-      overwritten = true;
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        get: function() {
-          return current.width;
-        },
-        set: function(newValue) {
-          return current.width = newValue;
-        }
-      });
-      return Object.defineProperty(window, 'innerHeight', {
-        configurable: true,
-        get: function() {
-          return current.height;
-        },
-        set: function(newValue) {
-          return current.height = newValue;
-        }
-      });
-    }
-  };
-  this.simulate = function(width, height) {
-    var event;
-    if (width) {
-      current.width = width;
-    }
-    if (height) {
-      current.height = height;
-    }
-    overwrite();
-    event = document.createEvent('Event');
-    event.initEvent('resize', true, false);
-    return window.dispatchEvent(event);
-  };
-  this.restore = function() {
-    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
-    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
-  };
-  return this;
-};
 
 ;
 return module.exports;

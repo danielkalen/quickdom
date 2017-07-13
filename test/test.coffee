@@ -218,12 +218,14 @@ suite "QuickDom", ()->
 			svgPolyBad = Dom('polyline').el
 			svgPolyGood = Dom('*polyline').el
 			svgDiv = Dom('*div').el
+			regDiv = Dom('div').el
 
 			expect(svgBad.constructor.name).to.equal('HTMLUnknownElement')
 			expect(svgPolyBad.constructor.name).to.equal('HTMLUnknownElement')
 			expect(svgGood.constructor.name).to.equal('SVGSVGElement')
 			expect(svgPolyGood.constructor.name).to.equal('SVGPolylineElement')
-			expect(svgDiv.constructor.name).to.equal('SVGElement')
+			# expect(svgDiv.constructor.name).to.equal('SVGElement')
+			expect(svgDiv.constructor.name).not.to.equal(regDiv.constructor.name)
 
 
 		test "QuickDom.html() accepts an html string which would be parsed and converted into a QuickBatch instance", ()->
@@ -1942,9 +1944,8 @@ suite "QuickDom", ()->
 
 
 	suite "Media Queries", ()->
-		suiteTeardown ()-> dimensions.restore()
-		suiteSetup ()->
-			@skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth')?.configurable
+		suiteTeardown ()-> dimensions.restore() if Object.getOwnPropertyDescriptor(window, 'innerWidth')?.configurable
+		suiteSetup ()-> @skip() if not Object.getOwnPropertyDescriptor(window, 'innerWidth')?.configurable
 
 
 		test "Window dimensions", ()->
@@ -2371,25 +2372,24 @@ suite "QuickDom", ()->
 			expect(div.children.length).to.equal(4)
 			expect(div.el.childNodes.length).to.equal(4)
 
-			if typeof window.Comment is 'function'
-				div = document.createElement('div')
-				spanA = document.createElement('span')
-				spanB = document.createElement('span')
-				text = document.createTextNode('someTextNode')
-				comment = new Comment('someCommentNode')
-				
-				div.appendChild(spanA)
-				div.appendChild(comment)
-				div.appendChild(spanB)
-				div.appendChild(text)
-				expect(div.childNodes.length).to.equal(4)
-				expect(div.children.length).to.equal(2)
+			div = document.createElement('div')
+			spanA = document.createElement('span')
+			spanB = document.createElement('span')
+			text = document.createTextNode('someTextNode')
+			comment = document.createComment('someCommentNode')
+			
+			div.appendChild(spanA)
+			div.appendChild(comment)
+			div.appendChild(spanB)
+			div.appendChild(text)
+			expect(div.childNodes.length).to.equal(4)
+			expect(div.children.length).to.equal(2)
 
-				div$ = Dom(div)
-				expect(div$.children.length).to.equal(3)
-				expect(div$.children[0].raw).to.equal(spanA)
-				expect(div$.children[1].raw).to.equal(spanB)
-				expect(div$.children[2].raw).to.equal(text)
+			div$ = Dom(div)
+			expect(div$.children.length).to.equal(3)
+			expect(div$.children[0].raw).to.equal(spanA)
+			expect(div$.children[1].raw).to.equal(spanB)
+			expect(div$.children[2].raw).to.equal(text)
 
 
 		test "Parent", ()->
