@@ -35,7 +35,7 @@ suite "QuickDom", ()->
 			div = Dom('div')
 			expect(typeof div).to.equal 'object'
 			expect(typeof div.el).to.equal 'object'
-			expect(div.el.constructor.name).to.equal 'HTMLDivElement'
+			expect(div.el).to.be.instanceOf window.HTMLDivElement
 			expect(div.parent).to.be.undefined
 			expect(div.children.length).to.equal 0
 
@@ -220,12 +220,12 @@ suite "QuickDom", ()->
 			svgDiv = Dom('*div').el
 			regDiv = Dom('div').el
 
-			expect(svgBad.constructor.name).to.equal('HTMLUnknownElement')
-			expect(svgPolyBad.constructor.name).to.equal('HTMLUnknownElement')
-			expect(svgGood.constructor.name).to.equal('SVGSVGElement')
-			expect(svgPolyGood.constructor.name).to.equal('SVGPolylineElement')
-			# expect(svgDiv.constructor.name).to.equal('SVGElement')
-			expect(svgDiv.constructor.name).not.to.equal(regDiv.constructor.name)
+			expect(svgBad).to.be.instanceOf(HTMLUnknownElement)
+			expect(svgPolyBad).to.be.instanceOf(HTMLUnknownElement)
+			expect(svgGood).to.be.instanceOf(SVGSVGElement)
+			expect(svgPolyGood).to.be.instanceOf(SVGPolylineElement)
+			# expect(svgDiv).to.be.instanceOf('SVGElement')
+			expect(svgDiv.constructor).not.to.equal(regDiv.constructor)
 
 
 		test "QuickDom.html() accepts an html string which would be parsed and converted into a QuickBatch instance", ()->
