@@ -3899,6 +3899,62 @@ suite "QuickDom", ()->
 			expect(templateCopy.child.childC).to.equal undefined
 
 
+		test "Null values in options object will delete keys during template extension", ()->
+			templateA = Dom.template(
+				['div'
+					ref: 'theDiv'
+					computers:
+						valueA: ()-> 1
+						valueB: ()-> 2
+					
+					style:
+						position: 'relative'
+						width: 100
+						height: 100
+						$active:
+							width: 200
+							height: 200
+				]
+			)
+			templateB = templateA.extend(
+				options:
+					ref: null
+					computers:
+						valueA: null
+						valueB: ()-> 3
+
+					style:
+						height: null
+						opacity: 1
+						$active:
+							width: null
+			)
+
+			spawnA = templateA.spawn()
+			spawnB = templateB.spawn()
+
+			expect(spawnA.ref).to.equal 'theDiv'
+			expect(spawnB.ref).to.equal undefined
+			expect(typeof spawnA.options.computers.valueA).to.equal 'function'
+			expect(typeof spawnB.options.computers.valueA).to.equal 'undefined'
+			expect(typeof spawnA.options.computers.valueB).to.equal 'function'
+			expect(typeof spawnB.options.computers.valueB).to.equal 'function'
+			expect(spawnA.options.computers.valueB()).to.equal 2
+			expect(spawnB.options.computers.valueB()).to.equal 3
+			expect(spawnA.options.style.position).to.equal 'relative'
+			expect(spawnB.options.style.position).to.equal 'relative'
+			expect(spawnA.options.style.width).to.equal 100
+			expect(spawnB.options.style.width).to.equal 100
+			expect(spawnA.options.style.height).to.equal 100
+			expect(spawnB.options.style.height).to.equal undefined
+			expect(spawnA.options.style.opacity).to.equal undefined
+			expect(spawnB.options.style.opacity).to.equal 1
+			expect(spawnA.options.style.$active.width).to.equal 200
+			expect(spawnB.options.style.$active.width).to.equal undefined
+			expect(spawnA.options.style.$active.height).to.equal 200
+			expect(spawnB.options.style.$active.height).to.equal 200
+
+
 		test "When spawning elements the options object passed to the spawns should be a clone of the template's options", ()->
 			templateA = Dom.template ['div', style:{display:'block'}]
 			templateB = Dom.template ['div', style:{display:'block'}]

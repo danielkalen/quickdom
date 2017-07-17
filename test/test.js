@@ -7,6 +7,73 @@ exports: {}
 }, cache[r].exports = modules[r].call(cx, require, cache[r], cache[r].exports)));
 };
 })({}, {
+1: function (require, module, exports) {
+var origDescriptors;
+
+origDescriptors = {
+  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
+};
+
+module.exports = new function() {
+  var current, getReal, overwrite, overwritten;
+  overwritten = false;
+  current = {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+  getReal = function(dimension) {
+    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
+      return letter.toUpperCase();
+    });
+    return origDescriptors[dimension].get.call(window);
+  };
+  overwrite = function() {
+    if (!overwritten) {
+      overwritten = true;
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        get: function() {
+          return current.width;
+        },
+        set: function(newValue) {
+          return current.width = newValue;
+        }
+      });
+      return Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        get: function() {
+          return current.height;
+        },
+        set: function(newValue) {
+          return current.height = newValue;
+        }
+      });
+    }
+  };
+  this.simulate = function(width, height) {
+    var event;
+    if (width) {
+      current.width = width;
+    }
+    if (height) {
+      current.height = height;
+    }
+    overwrite();
+    event = document.createEvent('Event');
+    event.initEvent('resize', true, false);
+    return window.dispatchEvent(event);
+  };
+  this.restore = function() {
+    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
+    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
+  };
+  return this;
+};
+
+;
+return module.exports;
+},
 0: function (require, module, exports) {
 var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox,
   slice = [].slice;
@@ -4510,6 +4577,71 @@ suite("QuickDom", function() {
       expect(templateMain.child.childC).to.equal(templateMain.children[2]);
       return expect(templateCopy.child.childC).to.equal(void 0);
     });
+    test("Null values in options object will delete keys during template extension", function() {
+      var spawnA, spawnB, templateA, templateB;
+      templateA = Dom.template([
+        'div', {
+          ref: 'theDiv',
+          computers: {
+            valueA: function() {
+              return 1;
+            },
+            valueB: function() {
+              return 2;
+            }
+          },
+          style: {
+            position: 'relative',
+            width: 100,
+            height: 100,
+            $active: {
+              width: 200,
+              height: 200
+            }
+          }
+        }
+      ]);
+      templateB = templateA.extend({
+        options: {
+          ref: null,
+          computers: {
+            valueA: null,
+            valueB: function() {
+              return 3;
+            }
+          },
+          style: {
+            height: null,
+            opacity: 1,
+            $active: {
+              width: null
+            }
+          }
+        }
+      });
+      spawnA = templateA.spawn();
+      spawnB = templateB.spawn();
+      expect(spawnA.ref).to.equal('theDiv');
+      expect(spawnB.ref).to.equal(void 0);
+      expect(typeof spawnA.options.computers.valueA).to.equal('function');
+      expect(typeof spawnB.options.computers.valueA).to.equal('undefined');
+      expect(typeof spawnA.options.computers.valueB).to.equal('function');
+      expect(typeof spawnB.options.computers.valueB).to.equal('function');
+      expect(spawnA.options.computers.valueB()).to.equal(2);
+      expect(spawnB.options.computers.valueB()).to.equal(3);
+      expect(spawnA.options.style.position).to.equal('relative');
+      expect(spawnB.options.style.position).to.equal('relative');
+      expect(spawnA.options.style.width).to.equal(100);
+      expect(spawnB.options.style.width).to.equal(100);
+      expect(spawnA.options.style.height).to.equal(100);
+      expect(spawnB.options.style.height).to.equal(void 0);
+      expect(spawnA.options.style.opacity).to.equal(void 0);
+      expect(spawnB.options.style.opacity).to.equal(1);
+      expect(spawnA.options.style.$active.width).to.equal(200);
+      expect(spawnB.options.style.$active.width).to.equal(void 0);
+      expect(spawnA.options.style.$active.height).to.equal(200);
+      return expect(spawnB.options.style.$active.height).to.equal(200);
+    });
     test("When spawning elements the options object passed to the spawns should be a clone of the template's options", function() {
       var spawnA, spawnB, templateA, templateB;
       templateA = Dom.template([
@@ -5347,73 +5479,6 @@ if (HTMLElement.name !== 'HTMLElement') {
 if (window.ClientRect == null) {
   window.ClientRect = DOMRect;
 }
-
-;
-return module.exports;
-},
-1: function (require, module, exports) {
-var origDescriptors;
-
-origDescriptors = {
-  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
-  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
-};
-
-module.exports = new function() {
-  var current, getReal, overwrite, overwritten;
-  overwritten = false;
-  current = {
-    width: window.innerWidth,
-    height: window.innerHeight
-  };
-  getReal = function(dimension) {
-    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
-      return letter.toUpperCase();
-    });
-    return origDescriptors[dimension].get.call(window);
-  };
-  overwrite = function() {
-    if (!overwritten) {
-      overwritten = true;
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        get: function() {
-          return current.width;
-        },
-        set: function(newValue) {
-          return current.width = newValue;
-        }
-      });
-      return Object.defineProperty(window, 'innerHeight', {
-        configurable: true,
-        get: function() {
-          return current.height;
-        },
-        set: function(newValue) {
-          return current.height = newValue;
-        }
-      });
-    }
-  };
-  this.simulate = function(width, height) {
-    var event;
-    if (width) {
-      current.width = width;
-    }
-    if (height) {
-      current.height = height;
-    }
-    overwrite();
-    event = document.createEvent('Event');
-    event.initEvent('resize', true, false);
-    return window.dispatchEvent(event);
-  };
-  this.restore = function() {
-    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
-    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
-  };
-  return this;
-};
 
 ;
 return module.exports;
