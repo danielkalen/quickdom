@@ -9,6 +9,7 @@ module.exports = (config)-> config.set
 	files: [
 		LIB_FILE
 		'node_modules/bluebird/js/browser/bluebird.js'
+		'test/sauceReporter.js'
 		'test/test.js'
 	]
 	exclude: [
@@ -30,7 +31,10 @@ module.exports = (config)-> config.set
 	electronOpts:
 		show: false
 
-	client: mocha: reporter:'html'
+	client:
+		# runInParent:true
+		clearContext:false
+		mocha: {reporter:'html'}
 
 	port: 9876
 	colors: true
@@ -54,3 +58,5 @@ module.exports = (config)-> config.set
 		build: require('../package.json').version+'-'+Math.round(Math.random()*1e6).toString(16)
 		username: 'quickdom'
 		accessKey: '0c7a6cc2-ed14-4f08-b48d-e46c74905b6a'
+
+

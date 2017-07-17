@@ -56,7 +56,7 @@ module.exports =
 	edge13:				device 'edge', 13
 	ie11:				device 'ie', 11
 	ie10:				device 'ie', 10
-	ie9:				device 'ie', 9
+	# ie9:				device 'ie', 9
 	# iphone10:			device 'iphone', 10
 	iphone9:			device 'iphone', 9
 	# iphone8:			device 'iphone', 8
