@@ -9,6 +9,7 @@ mocha.run = do ()->
 			window.mochaResults = runner.stats
 			window.mochaResults.reports = window.failedTests
 		
+		runner.on 'pass', ()-> 
 		runner.on 'fail', (test, err)->
 			failedTests.push
 				name: test.title
@@ -20,6 +21,7 @@ mocha.run = do ()->
 					while test.parent.title
 						titles.push test.parent.title
 						test = test.parent
-					return title.reverse()
+
+					return titles.reverse()
 
 		return runner

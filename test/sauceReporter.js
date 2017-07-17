@@ -9,9 +9,10 @@ mocha.run = (function() {
     var runner;
     runner = orig.apply(null, arguments);
     runner.on('end', function() {
-      window.mochaResults = runner.stats || {};
+      window.mochaResults = runner.stats;
       return window.mochaResults.reports = window.failedTests;
     });
+    runner.on('pass', function() {});
     runner.on('fail', function(test, err) {
       return failedTests.push({
         name: test.title,
@@ -25,7 +26,7 @@ mocha.run = (function() {
             titles.push(test.parent.title);
             test = test.parent;
           }
-          return title.reverse();
+          return titles.reverse();
         })()
       });
     });
