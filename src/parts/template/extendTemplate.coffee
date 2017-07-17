@@ -3,7 +3,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
 	newOpts = newOpts._config if IS.template(newOpts)
 
-	output = extend.deep.notKeys('children').notDeep(['relatedInstance','data']).transform(globalOptsTransform).clone(currentOpts, newOpts)
+	output = extend.deep.nullDeletes.notKeys('children').notDeep(['relatedInstance','data']).transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children
 	newChildren = newOpts?.children or []
 	output.children = []
