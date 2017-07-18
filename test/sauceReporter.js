@@ -9,7 +9,7 @@ mocha.run = (function() {
     var runner;
     runner = orig.apply(null, arguments);
     runner.on('end', function() {
-      window.mochaResults = runner.stats;
+      window.mochaResults = runner.stats || {};
       return window.mochaResults.reports = window.failedTests;
     });
     runner.on('pass', function() {});

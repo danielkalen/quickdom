@@ -6,7 +6,7 @@ mocha.run = do ()->
 		runner = orig(arguments...)
 
 		runner.on 'end', ()->
-			window.mochaResults = runner.stats
+			window.mochaResults = runner.stats or {}
 			window.mochaResults.reports = window.failedTests
 		
 		runner.on 'pass', ()-> 
