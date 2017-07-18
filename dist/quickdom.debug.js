@@ -7,7 +7,7 @@ exports: {}
 }, cache[r].exports = modules[r].call(cx, require, cache[r], cache[r].exports)));
 };
 })({}, {
-30: function (require, module, exports) {
+33: function (require, module, exports) {
 var StateChain;
 
 module.exports = StateChain = (function() {
@@ -50,18 +50,10 @@ module.exports = StateChain = (function() {
 ;
 return module.exports;
 },
-1: function (require, module, exports) {
-(function(){var k=["webkit","moz","ms","o"];var g="backgroundPositionX backgroundPositionY blockSize borderWidth columnRuleWidth cx cy fontSize gridColumnGap gridRowGap height inlineSize lineHeight minBlockSize minHeight minInlineSize minWidth maxHeight maxWidth outlineOffset outlineWidth perspective shapeMargin strokeDashoffset strokeWidth textIndent width wordSpacing top bottom left right x y".split(" ");["margin","padding","border","borderRadius"].forEach(function(a){var b;g.push(a);var c=["Top",
-"Bottom","Left","Right"];var d=[];var e=0;for(b=c.length;e<b;e++){var f=c[e];d.push(g.push(a+f))}return d});var l=document.createElement("div").style;var m=/^\d+(?:[a-z]|\%)+$/i;var n=/\d+$/;var p=/\s/;var h={includes:function(a,b){return a&&-1!==a.indexOf(b)},isIterable:function(a){return a&&"object"===typeof a&&"number"===typeof a.length&&!a.nodeType},isPropSupported:function(a){return"undefined"!==typeof l[a]},toTitleCase:function(a){return a[0].toUpperCase()+a.slice(1)},normalizeProperty:function(a){var b;
-if(this.isPropSupported(a))return a;var c=this.toTitleCase(a);a=0;for(b=k.length;a<b;a++){var d=k[a];d=""+d+c;if(this.isPropSupported(d))return d}},normalizeValue:function(a,b){this.includes(g,a)&&null!==b&&(b=""+b,!n.test(b)||m.test(b)||p.test(b)||(b+="px"));return b}};var f=function(a,b,c){var d;if(h.isIterable(a)){var e=0;for(d=a.length;e<d;e++){var g=a[e];f(g,b,c)}}else if("object"===typeof b)for(e in b)c=b[e],f(a,e,c);else{b=h.normalizeProperty(b);if("undefined"===typeof c)return getComputedStyle(a)[b];
-b&&(a.style[b]=h.normalizeValue(b,c))}};f.version="1.0.6";return null!=("undefined"!==typeof module&&null!==module?module.exports:void 0)?module.exports=f:"function"===typeof define&&define.amd?define(["quickdom"],function(){return f}):this.Css=f})();
-;
-return module.exports;
-},
 2: function (require, module, exports) {
 var exports, extend, modifiers, newBuilder, normalizeKeys;
 
-extend = require(13);
+extend = require(16);
 
 normalizeKeys = function(keys) {
   var i, key, len, output;
@@ -229,12 +221,12 @@ exports.version = "1.7.2";
 ;
 return module.exports;
 },
-15: function (require, module, exports) {
+18: function (require, module, exports) {
 var Checks, availSets;
 
 availSets = {
-  natives: require(28),
-  dom: require(29)
+  natives: require(31),
+  dom: require(32)
 };
 
 Checks = (function() {
@@ -282,7 +274,7 @@ module.exports = Checks.prototype.create();
 ;
 return module.exports;
 },
-29: function (require, module, exports) {
+32: function (require, module, exports) {
 var exports;
 
 module.exports = exports = {
@@ -315,7 +307,7 @@ module.exports = exports = {
 ;
 return module.exports;
 },
-28: function (require, module, exports) {
+31: function (require, module, exports) {
 var exports;
 
 module.exports = exports = {
@@ -410,7 +402,7 @@ helpers.isStateStyle = function(string) {
 
 var IS;
 
-IS = require(15);
+IS = require(18);
 
 IS = IS.create('natives', 'dom');
 
@@ -760,7 +752,7 @@ QuickElement.prototype._parseStyles = function() {
           output[state] = styleObject[state];
         } else {
           chain.push(state_ = state.slice(1));
-          stateChain = new (require(30))(chain);
+          stateChain = new (require(33))(chain);
           if (_this._stateShared == null) {
             _this._stateShared = [];
           }
@@ -2414,14 +2406,170 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.52";
+QuickDom.version = "1.0.53";
 
 module.exports = QuickDom;
 
 ;
 return module.exports;
 },
-13: function (require, module, exports) {
+1: function (require, module, exports) {
+var QuickCSS;
+
+var POSSIBLE_PREFIXES, QUAD_SHORTHANDS, REQUIRES_UNIT_VALUE;
+
+POSSIBLE_PREFIXES = ['webkit', 'moz', 'ms', 'o'];
+
+REQUIRES_UNIT_VALUE = ['backgroundPositionX', 'backgroundPositionY', 'blockSize', 'borderWidth', 'columnRuleWidth', 'cx', 'cy', 'fontSize', 'gridColumnGap', 'gridRowGap', 'height', 'inlineSize', 'lineHeight', 'minBlockSize', 'minHeight', 'minInlineSize', 'minWidth', 'maxHeight', 'maxWidth', 'outlineOffset', 'outlineWidth', 'perspective', 'shapeMargin', 'strokeDashoffset', 'strokeWidth', 'textIndent', 'width', 'wordSpacing', 'top', 'bottom', 'left', 'right', 'x', 'y'];
+
+QUAD_SHORTHANDS = ['margin', 'padding', 'border', 'borderRadius'];
+
+QUAD_SHORTHANDS.forEach(function(property) {
+  var direction, i, len, ref, results;
+  REQUIRES_UNIT_VALUE.push(property);
+  ref = ['Top', 'Bottom', 'Left', 'Right'];
+  results = [];
+  for (i = 0, len = ref.length; i < len; i++) {
+    direction = ref[i];
+    results.push(REQUIRES_UNIT_VALUE.push(property + direction));
+  }
+  return results;
+});
+
+;
+
+var REGEX_DIGITS, REGEX_KEBAB, REGEX_LEN_VAL, REGEX_SPACE, helpers, sampleStyle, styleContent, styleEl;
+
+sampleStyle = document.createElement('div').style;
+
+REGEX_LEN_VAL = /^\d+(?:[a-z]|\%)+$/i;
+
+REGEX_DIGITS = /\d+$/;
+
+REGEX_SPACE = /\s/;
+
+REGEX_KEBAB = /([A-Z])+/g;
+
+helpers = {};
+
+helpers.includes = function(target, item) {
+  return target && target.indexOf(item) !== -1;
+};
+
+helpers.isIterable = function(target) {
+  return target && typeof target === 'object' && typeof target.length === 'number' && !target.nodeType;
+};
+
+helpers.isPropSupported = function(property) {
+  return typeof sampleStyle[property] !== 'undefined';
+};
+
+helpers.toKebabCase = function(string) {
+  return string.replace(REGEX_KEBAB, function(e, letter) {
+    return "-" + (letter.toLowerCase());
+  });
+};
+
+helpers.normalizeProperty = function(property) {
+  property = helpers.toKebabCase(property);
+  if (helpers.isPropSupported(property)) {
+    return property;
+  } else {
+    return "" + (helpers.getPrefix(property, true)) + property;
+  }
+};
+
+helpers.getPrefix = function(property, skipInitialCheck) {
+  var i, len, prefix;
+  if (skipInitialCheck || !helpers.isPropSupported(property)) {
+    for (i = 0, len = POSSIBLE_PREFIXES.length; i < len; i++) {
+      prefix = POSSIBLE_PREFIXES[i];
+
+      /* istanbul ignore next */
+      if (helpers.isPropSupported("-" + prefix + "-" + property)) {
+        return "-" + prefix + "-";
+      }
+    }
+  }
+  return '';
+};
+
+helpers.normalizeValue = function(property, value) {
+  if (helpers.includes(REQUIRES_UNIT_VALUE, property) && value !== null) {
+    value = '' + value;
+    if (REGEX_DIGITS.test(value) && !REGEX_LEN_VAL.test(value) && !REGEX_SPACE.test(value)) {
+      value += 'px';
+    }
+  }
+  return value;
+};
+
+styleEl = null;
+
+styleContent = '';
+
+helpers.inlineStyle = function(rule) {
+  if (!styleEl) {
+    styleEl = document.createElement('style');
+    styleEl.id = 'quickcss';
+    document.head.appendChild(styleEl);
+  }
+  if (!helpers.includes(styleContent, rule)) {
+    return styleEl.innerHTML = styleContent += rule;
+  }
+};
+
+;
+
+QuickCSS = function(targetEl, property, value) {
+  var i, len, subEl, subProperty, subValue;
+  if (helpers.isIterable(targetEl)) {
+    for (i = 0, len = targetEl.length; i < len; i++) {
+      subEl = targetEl[i];
+      QuickCSS(subEl, property, value);
+    }
+  } else if (typeof property === 'object') {
+    for (subProperty in property) {
+      subValue = property[subProperty];
+      QuickCSS(targetEl, subProperty, subValue);
+    }
+  } else {
+    property = helpers.normalizeProperty(property);
+    if (typeof value === 'undefined') {
+      return getComputedStyle(targetEl)[property];
+    } else if (property) {
+      targetEl.style[property] = helpers.normalizeValue(property, value);
+    }
+  }
+};
+
+QuickCSS.animation = function(name, frames) {
+  var frame, generated, prefix, property, rules, value;
+  if (name && typeof name === 'string' && frames && typeof frames === 'object') {
+    prefix = helpers.getPrefix('animation');
+    generated = '';
+    for (frame in frames) {
+      rules = frames[frame];
+      generated += frame + " {";
+      for (property in rules) {
+        value = rules[property];
+        generated += (helpers.normalizeProperty(property)) + ": " + (helpers.normalizeValue(property, value)) + ";";
+      }
+      generated += "}";
+    }
+    generated = "@" + prefix + "keyframes " + name + " {" + generated + "}";
+    return helpers.inlineStyle(generated);
+  }
+};
+
+QuickCSS.version = "1.1.0";
+
+module.exports = QuickCSS;
+
+;
+return module.exports;
+},
+16: function (require, module, exports) {
 var extend, isArray, isObject, shouldDeepExtend;
 
 isArray = function(target) {
