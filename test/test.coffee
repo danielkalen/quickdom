@@ -557,7 +557,7 @@ suite "QuickDom", ()->
 			expect(emitCount).to.equal 5
 
 			div.emit('five')
-			expect(emitContext).to.equal div[0]
+			expect(emitContext).to.equal div
 
 			div.off()
 			div.emit('one'); div.emit('two'); div.emit('three'); div.emit('four');
@@ -567,9 +567,9 @@ suite "QuickDom", ()->
 			divB.emit('one'); divB.emit('three')
 			expect(emitCount).to.equal 7
 			
-			expect(emitContext).to.equal div[0]
+			expect(emitContext).to.equal div
 			divB.emit('five')
-			expect(emitContext).to.equal divB[0]
+			expect(emitContext).to.equal divB
 
 
 

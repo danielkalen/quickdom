@@ -82,7 +82,7 @@ QuickElement::onInserted = (callback, invokeIfInserted=true)-> if IS.function(ca
 
 QuickElement::_invokeHandlers = (eventName, arg)->
 	callbacks = @_eventCallbacks[eventName].slice()
-	cb.call(@el, arg) for cb in callbacks
+	cb.call(@, arg) for cb in callbacks
 	return
 
 
