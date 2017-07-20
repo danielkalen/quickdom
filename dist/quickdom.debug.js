@@ -1237,7 +1237,7 @@ QuickElement.prototype._invokeHandlers = function(eventName, arg) {
   callbacks = this._eventCallbacks[eventName].slice();
   for (i = 0, len = callbacks.length; i < len; i++) {
     cb = callbacks[i];
-    cb.call(this.el, arg);
+    cb.call(this, arg);
   }
 };
 
@@ -2562,7 +2562,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.57";
+QuickDom.version = "1.0.58";
 
 module.exports = QuickDom;
 
