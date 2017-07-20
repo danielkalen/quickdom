@@ -7,20 +7,22 @@
  * is returned
  * @return {[type]} [description]
 ###
-QuickElement::style = ()->
+QuickElement::style = (property)->
 	return if @type is 'text'
 	args = arguments
 	
-	if IS.string(args[0])
-		returnValue = CSS(@el, args[0], args[1])
-		if not IS.defined(args[1])
+	if IS.string(property)
+		returnValue = CSS(@el, property, args[1])
+		if args.length is 1
 			### istanbul ignore next ###
 			return if @_inserted then returnValue else if not returnValue then returnValue else ''
 
-	else if IS.object(args[0])
-		CSS @el, extend.allowNull.transform((value)=>
-			if typeof value is 'function' then value.call(@, @related) else value
-		).clone(args[0])
+	else if IS.object(property)
+		keys = Object.keys(property)
+		i = -1
+		while key=keys[++i]
+			value = if typeof property[key] is 'function' then property[key].call(@, @related) else property[key]
+			CSS(@el, key, value)
 
 	return @
 
@@ -34,12 +36,10 @@ QuickElement::style = ()->
 ###
 QuickElement::styleSafe = (property, skipComputed)->
 	return if @type is 'text'
-	args = arguments
-	computed = @style(property)
 
-	if IS.string(computed)
-		computed = 0 if skipComputed
-		result = computed or @el.style[args[0]] or @_styles.base?[args[0]] or ''
+	if IS.string(@el.style[property])
+		computed = if skipComputed then 0 else @style(property)
+		result = computed or @el.style[property] or @_styles.base?[property] or ''
 		return if typeof result is 'function' then result.call(@, @related) else result
 
 	return @
