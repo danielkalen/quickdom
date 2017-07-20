@@ -1500,7 +1500,7 @@ QuickElement.prototype.style = function() {
     CSS(this.el, extend.allowNull.transform((function(_this) {
       return function(value) {
         if (typeof value === 'function') {
-          return value.call(_this, _this.options.relatedInstance);
+          return value.call(_this, _this.related);
         } else {
           return value;
         }
@@ -1520,17 +1520,22 @@ QuickElement.prototype.style = function() {
  */
 
 QuickElement.prototype.styleSafe = function(property, skipComputed) {
-  var args, computedResult, ref;
+  var args, computed, ref, result;
   if (this.type === 'text') {
     return;
   }
   args = arguments;
-  computedResult = this.style(property);
-  if (IS.string(computedResult)) {
+  computed = this.style(property);
+  if (IS.string(computed)) {
     if (skipComputed) {
-      computedResult = 0;
+      computed = 0;
     }
-    return computedResult || this.el.style[args[0]] || ((ref = this._styles.base) != null ? ref[args[0]] : void 0) || '';
+    result = computed || this.el.style[args[0]] || ((ref = this._styles.base) != null ? ref[args[0]] : void 0) || '';
+    if (typeof result === 'function') {
+      return result.call(this, this.related);
+    } else {
+      return result;
+    }
   }
   return this;
 };
@@ -2563,7 +2568,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.54";
+QuickDom.version = "1.0.55";
 
 module.exports = QuickDom;
 
