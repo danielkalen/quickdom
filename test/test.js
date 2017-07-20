@@ -57,7 +57,7 @@ suite("QuickDom", function() {
   setup(restartSandbox);
   test("Version Property", function() {
     var packageVersion;
-    packageVersion = "1.0.56";
+    packageVersion = "1.0.57";
     return expect(Dom.version).to.equal(packageVersion);
   });
   suite("Element Creation", function() {

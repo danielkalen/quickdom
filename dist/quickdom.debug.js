@@ -307,42 +307,6 @@ module.exports = exports = {
 ;
 return module.exports;
 },
-31: function (require, module, exports) {
-var exports;
-
-module.exports = exports = {
-  defined: function(subject) {
-    return subject !== void 0;
-  },
-  array: function(subject) {
-    return subject instanceof Array;
-  },
-  object: function(subject) {
-    return typeof subject === 'object' && subject;
-  },
-  objectPlain: function(subject) {
-    return exports.object(subject) && Object.prototype.toString.call(subject) === '[object Object]' && subject.constructor === Object;
-  },
-  string: function(subject) {
-    return typeof subject === 'string';
-  },
-  number: function(subject) {
-    return typeof subject === 'number' && !isNaN(subject);
-  },
-  numberLoose: function(subject) {
-    return exports.number(subject) || exports.string(subject) && exports.number(Number(subject));
-  },
-  "function": function(subject) {
-    return typeof subject === 'function';
-  },
-  iterable: function(subject) {
-    return exports.object(subject) && exports.number(subject.length);
-  }
-};
-
-;
-return module.exports;
-},
 1: function (require, module, exports) {
 var QuickCSS;
 
@@ -451,7 +415,7 @@ helpers.inlineStyle = function(rule) {
 ;
 
 QuickCSS = function(targetEl, property, value) {
-  var i, len, subEl, subProperty, subValue;
+  var computedStyle, i, len, subEl, subProperty, subValue;
   if (helpers.isIterable(targetEl)) {
     for (i = 0, len = targetEl.length; i < len; i++) {
       subEl = targetEl[i];
@@ -465,7 +429,8 @@ QuickCSS = function(targetEl, property, value) {
   } else {
     property = helpers.normalizeProperty(property);
     if (typeof value === 'undefined') {
-      return getComputedStyle(targetEl)[property];
+      computedStyle = targetEl._computedStyle || (targetEl._computedStyle = getComputedStyle(targetEl));
+      return computedStyle[property];
     } else if (property) {
       targetEl.style[property] = helpers.normalizeValue(property, value);
     }
@@ -493,9 +458,45 @@ QuickCSS.animation = function(name, frames) {
   }
 };
 
-QuickCSS.version = "1.1.1";
+QuickCSS.version = "1.1.2";
 
 module.exports = QuickCSS;
+
+;
+return module.exports;
+},
+31: function (require, module, exports) {
+var exports;
+
+module.exports = exports = {
+  defined: function(subject) {
+    return subject !== void 0;
+  },
+  array: function(subject) {
+    return subject instanceof Array;
+  },
+  object: function(subject) {
+    return typeof subject === 'object' && subject;
+  },
+  objectPlain: function(subject) {
+    return exports.object(subject) && Object.prototype.toString.call(subject) === '[object Object]' && subject.constructor === Object;
+  },
+  string: function(subject) {
+    return typeof subject === 'string';
+  },
+  number: function(subject) {
+    return typeof subject === 'number' && !isNaN(subject);
+  },
+  numberLoose: function(subject) {
+    return exports.number(subject) || exports.string(subject) && exports.number(Number(subject));
+  },
+  "function": function(subject) {
+    return typeof subject === 'function';
+  },
+  iterable: function(subject) {
+    return exports.object(subject) && exports.number(subject.length);
+  }
+};
 
 ;
 return module.exports;
@@ -1118,7 +1119,7 @@ var regexWhitespace;
 
 regexWhitespace = /\s+/;
 
-QuickElement.prototype.on = function(eventNames, callback) {
+QuickElement.prototype.on = function(eventNames, callback, useCapture) {
   var callbackRef, split;
   if (this._eventCallbacks == null) {
     this._eventCallbacks = {
@@ -1135,7 +1136,7 @@ QuickElement.prototype.on = function(eventNames, callback) {
           _this._eventCallbacks[eventName] = [];
           _this._listenTo(eventName, function(event) {
             return _this._invokeHandlers(eventName, event);
-          });
+          }, useCapture);
         }
         if (callbackRef) {
           _this._eventCallbacks.__refs[callbackRef] = callback;
@@ -1243,11 +1244,11 @@ QuickElement.prototype._invokeHandlers = function(eventName, arg) {
 
 /* istanbul ignore next */
 
-QuickElement.prototype._listenTo = function(eventName, callback) {
+QuickElement.prototype._listenTo = function(eventName, callback, useCapture) {
   var eventNameToListenFor, listenMethod;
   listenMethod = this.el.addEventListener ? 'addEventListener' : 'attachEvent';
   eventNameToListenFor = this.el.addEventListener ? eventName : "on" + eventName;
-  this.el[listenMethod](eventNameToListenFor, callback);
+  this.el[listenMethod](eventNameToListenFor, callback, useCapture);
   return this;
 };
 
@@ -2561,7 +2562,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.56";
+QuickDom.version = "1.0.57";
 
 module.exports = QuickDom;
 
