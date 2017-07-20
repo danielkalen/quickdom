@@ -1,6 +1,6 @@
 regexWhitespace = /\s+/
 
-QuickElement::on = (eventNames, callback)->
+QuickElement::on = (eventNames, callback, useCapture)->
 	@_eventCallbacks ?= {__refs:{}}
 	
 	if IS.string(eventNames) and IS.function(callback)
@@ -11,7 +11,9 @@ QuickElement::on = (eventNames, callback)->
 		eventNames.split(regexWhitespace).forEach (eventName)=>
 			if not @_eventCallbacks[eventName]
 				@_eventCallbacks[eventName] = []		
-				@_listenTo eventName, (event)=> @_invokeHandlers(eventName, event)
+				@_listenTo eventName, (event)=>
+					@_invokeHandlers(eventName, event)
+				, useCapture
 
 			@_eventCallbacks.__refs[callbackRef] = callback if callbackRef
 			@_eventCallbacks[eventName].push(callback)
@@ -85,11 +87,11 @@ QuickElement::_invokeHandlers = (eventName, arg)->
 
 
 ### istanbul ignore next ###
-QuickElement::_listenTo = (eventName, callback)->
+QuickElement::_listenTo = (eventName, callback, useCapture)->
 	listenMethod = if @el.addEventListener then 'addEventListener' else 'attachEvent'
 	eventNameToListenFor = if @el.addEventListener then eventName else "on#{eventName}"
 	
-	@el[listenMethod](eventNameToListenFor, callback)
+	@el[listenMethod](eventNameToListenFor, callback, useCapture)
 	return @
 
 
