@@ -19,7 +19,7 @@ QuickElement::style = ()->
 
 	else if IS.object(args[0])
 		CSS @el, extend.allowNull.transform((value)=>
-			if typeof value is 'function' then value.call(@, @options.relatedInstance) else value
+			if typeof value is 'function' then value.call(@, @related) else value
 		).clone(args[0])
 
 	return @
@@ -35,11 +35,12 @@ QuickElement::style = ()->
 QuickElement::styleSafe = (property, skipComputed)->
 	return if @type is 'text'
 	args = arguments
-	computedResult = @style(property)
+	computed = @style(property)
 
-	if IS.string(computedResult)
-		computedResult = 0 if skipComputed
-		return computedResult or @el.style[args[0]] or @_styles.base?[args[0]] or ''
+	if IS.string(computed)
+		computed = 0 if skipComputed
+		result = computed or @el.style[args[0]] or @_styles.base?[args[0]] or ''
+		return if typeof result is 'function' then result.call(@, @related) else result
 
 	return @
 
