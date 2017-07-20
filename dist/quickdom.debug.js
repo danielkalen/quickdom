@@ -1477,15 +1477,15 @@ QuickElement.prototype._turnTextOFF = function(targetState, activeStates) {
 var aspectRatioGetter, orientationGetter,
   slice = [].slice;
 
-QuickElement.prototype.style = function() {
-  var args, returnValue;
+QuickElement.prototype.style = function(property) {
+  var args, i, key, keys, returnValue, value;
   if (this.type === 'text') {
     return;
   }
   args = arguments;
-  if (IS.string(args[0])) {
-    returnValue = CSS(this.el, args[0], args[1]);
-    if (!IS.defined(args[1])) {
+  if (IS.string(property)) {
+    returnValue = CSS(this.el, property, args[1]);
+    if (args.length === 1) {
 
       /* istanbul ignore next */
       if (this._inserted) {
@@ -1496,16 +1496,13 @@ QuickElement.prototype.style = function() {
         return '';
       }
     }
-  } else if (IS.object(args[0])) {
-    CSS(this.el, extend.allowNull.transform((function(_this) {
-      return function(value) {
-        if (typeof value === 'function') {
-          return value.call(_this, _this.related);
-        } else {
-          return value;
-        }
-      };
-    })(this)).clone(args[0]));
+  } else if (IS.object(property)) {
+    keys = Object.keys(property);
+    i = -1;
+    while (key = keys[++i]) {
+      value = typeof property[key] === 'function' ? property[key].call(this, this.related) : property[key];
+      CSS(this.el, key, value);
+    }
   }
   return this;
 };
@@ -1520,17 +1517,13 @@ QuickElement.prototype.style = function() {
  */
 
 QuickElement.prototype.styleSafe = function(property, skipComputed) {
-  var args, computed, ref, result;
+  var computed, ref, result;
   if (this.type === 'text') {
     return;
   }
-  args = arguments;
-  computed = this.style(property);
-  if (IS.string(computed)) {
-    if (skipComputed) {
-      computed = 0;
-    }
-    result = computed || this.el.style[args[0]] || ((ref = this._styles.base) != null ? ref[args[0]] : void 0) || '';
+  if (IS.string(this.el.style[property])) {
+    computed = skipComputed ? 0 : this.style(property);
+    result = computed || this.el.style[property] || ((ref = this._styles.base) != null ? ref[property] : void 0) || '';
     if (typeof result === 'function') {
       return result.call(this, this.related);
     } else {
@@ -1545,7 +1538,7 @@ QuickElement.prototype.styleParsed = function(property) {
 };
 
 QuickElement.prototype.recalcStyle = function(recalcChildren) {
-  var activeStyles, child, i, len, ref, targetStyles;
+  var activeStyles, child, j, len, ref, targetStyles;
   activeStyles = this._getStateStyles(this._getActiveStates());
   targetStyles = extend.clone.filter(function(value) {
     return typeof value === 'function';
@@ -1553,8 +1546,8 @@ QuickElement.prototype.recalcStyle = function(recalcChildren) {
   this.style(targetStyles);
   if (recalcChildren) {
     ref = this._children;
-    for (i = 0, len = ref.length; i < len; i++) {
-      child = ref[i];
+    for (j = 0, len = ref.length; j < len; j++) {
+      child = ref[j];
       child.recalcStyle();
     }
   }
@@ -2568,7 +2561,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.55";
+QuickDom.version = "1.0.56";
 
 module.exports = QuickDom;
 
