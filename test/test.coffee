@@ -646,7 +646,7 @@ suite "QuickDom", ()->
 			expect(div.style 'width').to.equal '25px'
 
 			div.options.rate = 250
-			div.options.relatedInstance = anotherObj = {}
+			div.related = anotherObj = {}
 			applyWidth(anotherObj)
 			expect(div.style 'width').to.equal '250px'
 
@@ -655,12 +655,13 @@ suite "QuickDom", ()->
 			style =
 				width: '8px'
 				height: '9px'
+				zIndex: (field)-> field.options.theIndex
 				$happy:
 					width: '18px'
 				$relaxed:
 					height: '100%'
-			divA = Dom.div {style}
-			divB = Dom.div {style, styleAfterInsert:true}
+			divA = Dom.div {style, theIndex:'12'}
+			divB = Dom.div {style, theIndex:'29', styleAfterInsert:true}
 
 			expect(divA.style('width')).to.equal('')
 			expect(divA.raw.style.width).to.equal('8px')
@@ -688,6 +689,13 @@ suite "QuickDom", ()->
 			expect(divB.style('height')).to.equal('')
 			expect(divB.raw.style.height).to.equal('100%')
 			expect(divB.styleSafe('height')).to.equal('100%')
+
+			expect(divA.style('zIndex')).to.equal ''
+			expect(divB.style('zIndex')).to.equal ''
+
+			expect(divA.styleSafe('zIndex')).to.equal '12'
+			expect(divA.styleSafe('zIndex', true)).to.equal '12'
+			expect(divB.styleSafe('zIndex')).to.equal '29'
 			
 			divB.appendTo(sandbox)
 			expect(divB.style('height')).not.to.equal('')

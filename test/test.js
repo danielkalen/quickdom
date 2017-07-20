@@ -7,73 +7,6 @@ exports: {}
 }, cache[r].exports = modules[r].call(cx, require, cache[r], cache[r].exports)));
 };
 })({}, {
-1: function (require, module, exports) {
-var origDescriptors;
-
-origDescriptors = {
-  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
-  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
-};
-
-module.exports = new function() {
-  var current, getReal, overwrite, overwritten;
-  overwritten = false;
-  current = {
-    width: window.innerWidth,
-    height: window.innerHeight
-  };
-  getReal = function(dimension) {
-    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
-      return letter.toUpperCase();
-    });
-    return origDescriptors[dimension].get.call(window);
-  };
-  overwrite = function() {
-    if (!overwritten) {
-      overwritten = true;
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        get: function() {
-          return current.width;
-        },
-        set: function(newValue) {
-          return current.width = newValue;
-        }
-      });
-      return Object.defineProperty(window, 'innerHeight', {
-        configurable: true,
-        get: function() {
-          return current.height;
-        },
-        set: function(newValue) {
-          return current.height = newValue;
-        }
-      });
-    }
-  };
-  this.simulate = function(width, height) {
-    var event;
-    if (width) {
-      current.width = width;
-    }
-    if (height) {
-      current.height = height;
-    }
-    overwrite();
-    event = document.createEvent('Event');
-    event.initEvent('resize', true, false);
-    return window.dispatchEvent(event);
-  };
-  this.restore = function() {
-    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
-    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
-  };
-  return this;
-};
-
-;
-return module.exports;
-},
 0: function (require, module, exports) {
 var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox,
   slice = [].slice;
@@ -802,7 +735,7 @@ suite("QuickDom", function() {
       expect(div.options.rate).to.equal(25);
       expect(div.style('width')).to.equal('25px');
       div.options.rate = 250;
-      div.options.relatedInstance = anotherObj = {};
+      div.related = anotherObj = {};
       applyWidth(anotherObj);
       return expect(div.style('width')).to.equal('250px');
     });
@@ -811,6 +744,9 @@ suite("QuickDom", function() {
       style = {
         width: '8px',
         height: '9px',
+        zIndex: function(field) {
+          return field.options.theIndex;
+        },
         $happy: {
           width: '18px'
         },
@@ -819,10 +755,12 @@ suite("QuickDom", function() {
         }
       };
       divA = Dom.div({
-        style: style
+        style: style,
+        theIndex: '12'
       });
       divB = Dom.div({
         style: style,
+        theIndex: '29',
         styleAfterInsert: true
       });
       expect(divA.style('width')).to.equal('');
@@ -846,6 +784,11 @@ suite("QuickDom", function() {
       expect(divB.style('height')).to.equal('');
       expect(divB.raw.style.height).to.equal('100%');
       expect(divB.styleSafe('height')).to.equal('100%');
+      expect(divA.style('zIndex')).to.equal('');
+      expect(divB.style('zIndex')).to.equal('');
+      expect(divA.styleSafe('zIndex')).to.equal('12');
+      expect(divA.styleSafe('zIndex', true)).to.equal('12');
+      expect(divB.styleSafe('zIndex')).to.equal('29');
       divB.appendTo(sandbox);
       expect(divB.style('height')).not.to.equal('');
       expect(divB.style('height')).not.to.equal('100%');
@@ -5479,6 +5422,73 @@ if (HTMLElement.name !== 'HTMLElement') {
 if (window.ClientRect == null) {
   window.ClientRect = DOMRect;
 }
+
+;
+return module.exports;
+},
+1: function (require, module, exports) {
+var origDescriptors;
+
+origDescriptors = {
+  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
+};
+
+module.exports = new function() {
+  var current, getReal, overwrite, overwritten;
+  overwritten = false;
+  current = {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+  getReal = function(dimension) {
+    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
+      return letter.toUpperCase();
+    });
+    return origDescriptors[dimension].get.call(window);
+  };
+  overwrite = function() {
+    if (!overwritten) {
+      overwritten = true;
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        get: function() {
+          return current.width;
+        },
+        set: function(newValue) {
+          return current.width = newValue;
+        }
+      });
+      return Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        get: function() {
+          return current.height;
+        },
+        set: function(newValue) {
+          return current.height = newValue;
+        }
+      });
+    }
+  };
+  this.simulate = function(width, height) {
+    var event;
+    if (width) {
+      current.width = width;
+    }
+    if (height) {
+      current.height = height;
+    }
+    overwrite();
+    event = document.createEvent('Event');
+    event.initEvent('resize', true, false);
+    return window.dispatchEvent(event);
+  };
+  this.restore = function() {
+    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
+    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
+  };
+  return this;
+};
 
 ;
 return module.exports;
