@@ -1260,9 +1260,18 @@ var DUMMY_ARRAY,
 DUMMY_ARRAY = [];
 
 QuickElement.prototype.state = function(targetState, value, bubbles, source) {
-  var activeStates, child, desiredValue, i, len, prop, ref, toggle;
+  var activeStates, child, desiredValue, i, j, key, keys, len, prop, ref, toggle;
   if (arguments.length === 1) {
-    return helpers.includes(this._state, targetState);
+    if (IS.string(targetState)) {
+      return helpers.includes(this._state, targetState);
+    } else if (IS.object(targetState)) {
+      keys = Object.keys(targetState);
+      i = -1;
+      while (key = keys[++i]) {
+        this.state(key, targetState[key]);
+      }
+      return this;
+    }
   } else if (this._statePipeTarget && source !== this) {
     this._statePipeTarget.state(targetState, value, bubbles, this);
     return this;
@@ -1294,8 +1303,8 @@ QuickElement.prototype.state = function(targetState, value, bubbles, source) {
         }
       } else if (this.options.passStateToChildren) {
         ref = this._children;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
+        for (j = 0, len = ref.length; j < len; j++) {
+          child = ref[j];
           child.state(targetState, value, false, source || this);
         }
       }
@@ -1305,24 +1314,24 @@ QuickElement.prototype.state = function(targetState, value, bubbles, source) {
 };
 
 QuickElement.prototype.resetState = function() {
-  var activeState, i, len, ref;
+  var activeState, j, len, ref;
   ref = this._state.slice();
-  for (i = 0, len = ref.length; i < len; i++) {
-    activeState = ref[i];
+  for (j = 0, len = ref.length; j < len; j++) {
+    activeState = ref[j];
     this.state(activeState, false);
   }
   return this;
 };
 
 QuickElement.prototype.pipeState = function(targetEl) {
-  var activeState, i, len, ref;
+  var activeState, j, len, ref;
   if (targetEl) {
     targetEl = helpers.normalizeGivenEl(targetEl);
     if (IS.quickDomEl(targetEl) && targetEl !== this) {
       this._statePipeTarget = targetEl;
       ref = this._state;
-      for (i = 0, len = ref.length; i < len; i++) {
-        activeState = ref[i];
+      for (j = 0, len = ref.length; j < len; j++) {
+        activeState = ref[j];
         targetEl.state(activeState, true);
       }
     }
@@ -1379,15 +1388,15 @@ QuickElement.prototype._getStateStyles = function(states) {
 };
 
 QuickElement.prototype._turnStyleON = function(targetState, activeStates) {
-  var i, inferiorStateChains, len, sharedStates, stateChain, superiorStyles, targetStyle;
+  var inferiorStateChains, j, len, sharedStates, stateChain, superiorStyles, targetStyle;
   if (targetStyle = this._styles[targetState]) {
     superiorStyles = this._getStateStyles(this._getSuperiorStates(targetState, activeStates));
     this.style(extend.clone.keys(targetStyle).apply(null, [targetStyle].concat(slice.call(superiorStyles))));
   }
   if (this._providedStatesShared) {
     sharedStates = this._getSharedStates(targetState);
-    for (i = 0, len = sharedStates.length; i < len; i++) {
-      stateChain = sharedStates[i];
+    for (j = 0, len = sharedStates.length; j < len; j++) {
+      stateChain = sharedStates[j];
       if (!helpers.includes(this._stateShared, stateChain.string)) {
         this._stateShared.push(stateChain.string);
       }
@@ -1403,7 +1412,7 @@ QuickElement.prototype._turnStyleON = function(targetState, activeStates) {
 };
 
 QuickElement.prototype._turnStyleOFF = function(targetState, activeStates) {
-  var activeStyles, i, len, sharedStates, stateChain, stylesToKeep, stylesToRemove, targetStyle;
+  var activeStyles, j, len, sharedStates, stateChain, stylesToKeep, stylesToRemove, targetStyle;
   if (targetStyle = this._styles[targetState]) {
     activeStyles = this._getStateStyles(activeStates);
     stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this._styles.base].concat(slice.call(activeStyles)));
@@ -1417,8 +1426,8 @@ QuickElement.prototype._turnStyleOFF = function(targetState, activeStates) {
     if (activeStyles == null) {
       activeStyles = this._getStateStyles(activeStates);
     }
-    for (i = 0, len = sharedStates.length; i < len; i++) {
-      stateChain = sharedStates[i];
+    for (j = 0, len = sharedStates.length; j < len; j++) {
+      stateChain = sharedStates[j];
       helpers.removeItem(this._stateShared, stateChain.string);
       targetStyle = this._styles[stateChain.string];
       if (this._stateShared.length) {
@@ -1534,8 +1543,8 @@ QuickElement.prototype.styleSafe = function(property, skipComputed) {
   return this;
 };
 
-QuickElement.prototype.styleParsed = function(property) {
-  return parseFloat(this.styleSafe(property));
+QuickElement.prototype.styleParsed = function(property, skipComputed) {
+  return parseFloat(this.styleSafe(property, skipComputed));
 };
 
 QuickElement.prototype.recalcStyle = function(recalcChildren) {
@@ -2562,7 +2571,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.58";
+QuickDom.version = "1.0.59";
 
 module.exports = QuickDom;
 
