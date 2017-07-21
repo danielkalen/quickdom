@@ -3,7 +3,14 @@ DUMMY_ARRAY = []
 
 QuickElement::state = (targetState, value, bubbles, source)->
 	if arguments.length is 1
-		helpers.includes(@_state, targetState)
+		if IS.string(targetState)
+			return helpers.includes(@_state, targetState)
+		
+		else if IS.object(targetState)
+			keys = Object.keys(targetState)
+			i = -1
+			@state(key, targetState[key]) while key=keys[++i]
+			return @
 
 	else if @_statePipeTarget and source isnt @
 		@_statePipeTarget.state(targetState, value, bubbles, @)
