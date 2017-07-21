@@ -969,6 +969,23 @@ suite "QuickDom", ()->
 			expect(div.state 'base').to.be.false
 
 
+		test "A key:value pair object can be passed to toggle state for multiple states at once", ()->
+			div = Dom.div()
+
+			expect(div.state 'a').to.equal false
+			expect(div.state 'b').to.equal false
+			expect(div.state 'c').to.equal false
+
+			div.state a:true,b:1
+			expect(div.state 'a').to.equal true
+			expect(div.state 'b').to.equal true
+			expect(div.state 'c').to.equal false
+
+			div.state b:false,c:'y'
+			expect(div.state 'a').to.equal true
+			expect(div.state 'b').to.equal false
+			expect(div.state 'c').to.equal true
+
 
 		test "All states can be cleared/toggled off via .resetState", ()->
 			div = Dom.div()
