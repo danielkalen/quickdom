@@ -45,8 +45,8 @@ QuickElement::styleSafe = (property, skipComputed)->
 	return @
 
 
-QuickElement::styleParsed = (property)->
-	parseFloat @styleSafe(property)
+QuickElement::styleParsed = (property, skipComputed)->
+	parseFloat @styleSafe(property, skipComputed)
 
 
 QuickElement::recalcStyle = (recalcChildren)->
