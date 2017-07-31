@@ -1952,9 +1952,9 @@ QuickElement.prototype.applyData = function(data) {
     for (i = 0, len = keys.length; i < len; i++) {
       key = keys[i];
       if (data && data.hasOwnProperty(key)) {
-        computers[key].call(this, data[key]);
+        this._runComputer(key, data[key]);
       } else if (defaults && defaults.hasOwnProperty(key)) {
-        computers[key].call(this, defaults[key]);
+        this._runComputer(key, defaults[key]);
       }
     }
   }
@@ -1963,6 +1963,10 @@ QuickElement.prototype.applyData = function(data) {
     child = ref[j];
     child.applyData(data);
   }
+};
+
+QuickElement.prototype._runComputer = function(computer, arg) {
+  return this.options.computers[computer].call(this, arg);
 };
 
 ;
@@ -2500,7 +2504,7 @@ QuickTemplate = (function() {
   };
 
   QuickTemplate.prototype.spawn = function(newValues, globalOpts) {
-    var data, element, opts;
+    var data, element, opts, ref;
     if (newValues && newValues.data) {
       data = newValues.data;
       if (Object.keys(newValues).length === 1) {
@@ -2514,8 +2518,13 @@ QuickTemplate = (function() {
       opts.options = extend.deepOnly('style').clone(opts.options);
     }
     element = QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
-    if (this._hasComputers && newValues !== false) {
-      element.applyData(data);
+    if (this._hasComputers) {
+      if (newValues !== false) {
+        element.applyData(data);
+      }
+      if ((ref = element.options.computers) != null ? ref._init : void 0) {
+        element._runComputer('_init');
+      }
     }
     return element;
   };
@@ -2571,7 +2580,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.59";
+QuickDom.version = "1.0.60";
 
 module.exports = QuickDom;
 
