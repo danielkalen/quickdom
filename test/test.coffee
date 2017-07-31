@@ -4292,6 +4292,49 @@ suite "QuickDom", ()->
 				expect(count).to.deep.equal {a:2, b:2, c:2, d:2, e:2, f:2}
 
 
+			test "The '_init' computer will be run by default on template spawn regardless of data", ()->
+				count = {}
+				template = Dom.template(
+					['div'
+						ref: 'divA'
+						computers: _init: ()-> count[@ref]?=0; count[@ref]++
+						
+						['div'
+							ref: 'divB'
+							data: first: '1'
+							computers: _init: ()-> count[@ref]?=0; count[@ref]++
+						]
+						
+						['div'
+							ref: 'divC'
+							['div'
+								ref: 'divD'
+								
+								['div'
+									ref: 'divE'
+									computers: _init: ()-> count[@ref]?=0; count[@ref]++
+								]
+							]
+						]
+					]
+				)
+				
+				expect(count).to.eql {}
+				template.spawn()
+				expect(count).to.eql divA:1, divB:1, divE:1
+				
+				template.spawn()
+				expect(count).to.eql divA:2, divB:2, divE:2
+				
+				template.child.divB.spawn(data:second:'2')
+				expect(count).to.eql divA:2, divB:3, divE:2
+				
+				template.child.divC.spawn()
+				expect(count).to.eql divA:2, divB:3, divE:3
+				
+				template.child.divC.spawn()
+				expect(count).to.eql divA:2, divB:3, divE:4
+
 
 
 	suite "Misc", ()->

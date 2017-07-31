@@ -5106,7 +5106,7 @@ suite("QuickDom", function() {
         template.spawn();
         return expect(count).to.equal(2);
       });
-      return test("Data can be re-applied via .applyData(data)", function() {
+      test("Data can be re-applied via .applyData(data)", function() {
         var count, instance, results, template;
         results = {};
         count = {
@@ -5197,6 +5197,96 @@ suite("QuickDom", function() {
           d: 2,
           e: 2,
           f: 2
+        });
+      });
+      return test("The '_init' computer will be run by default on template spawn regardless of data", function() {
+        var count, template;
+        count = {};
+        template = Dom.template([
+          'div', {
+            ref: 'divA',
+            computers: {
+              _init: function() {
+                var name;
+                if (count[name = this.ref] == null) {
+                  count[name] = 0;
+                }
+                return count[this.ref]++;
+              }
+            }
+          }, [
+            'div', {
+              ref: 'divB',
+              data: {
+                first: '1'
+              },
+              computers: {
+                _init: function() {
+                  var name;
+                  if (count[name = this.ref] == null) {
+                    count[name] = 0;
+                  }
+                  return count[this.ref]++;
+                }
+              }
+            }
+          ], [
+            'div', {
+              ref: 'divC'
+            }, [
+              'div', {
+                ref: 'divD'
+              }, [
+                'div', {
+                  ref: 'divE',
+                  computers: {
+                    _init: function() {
+                      var name;
+                      if (count[name = this.ref] == null) {
+                        count[name] = 0;
+                      }
+                      return count[this.ref]++;
+                    }
+                  }
+                }
+              ]
+            ]
+          ]
+        ]);
+        expect(count).to.eql({});
+        template.spawn();
+        expect(count).to.eql({
+          divA: 1,
+          divB: 1,
+          divE: 1
+        });
+        template.spawn();
+        expect(count).to.eql({
+          divA: 2,
+          divB: 2,
+          divE: 2
+        });
+        template.child.divB.spawn({
+          data: {
+            second: '2'
+          }
+        });
+        expect(count).to.eql({
+          divA: 2,
+          divB: 3,
+          divE: 2
+        });
+        template.child.divC.spawn();
+        expect(count).to.eql({
+          divA: 2,
+          divB: 3,
+          divE: 3
+        });
+        template.child.divC.spawn();
+        return expect(count).to.eql({
+          divA: 2,
+          divB: 3,
+          divE: 4
         });
       });
     });
