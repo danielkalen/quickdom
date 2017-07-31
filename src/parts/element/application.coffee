@@ -15,11 +15,15 @@ QuickElement::applyData = (data)->
 		
 		for key in keys
 			if data and data.hasOwnProperty(key)
-				computers[key].call(@, data[key])
+				@_runComputer(key, data[key])
 			
 			else if defaults and defaults.hasOwnProperty(key)
-				computers[key].call(@, defaults[key])
+				@_runComputer(key, defaults[key])
 
 
 	child.applyData(data) for child in @_children
 	return
+
+
+QuickElement::_runComputer = (computer, arg)->
+	@options.computers[computer].call(@, arg)
