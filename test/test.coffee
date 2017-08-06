@@ -4336,6 +4336,47 @@ suite "QuickDom", ()->
 				expect(count).to.eql divA:2, divB:3, divE:4
 
 
+			test "The '_init' computer will be passed all of the data the template spawn receives", ()->
+				result = divA:{}, divB:{}
+				template = Dom.template(
+					['div'
+						ref: 'divA'
+						computers:
+							href: (href)-> result[@ref].href = href
+							name: (name)-> result[@ref].name = name
+							_init: ()-> result[@ref]._init = arguments[0]
+						
+						['div'
+							ref: 'divProxy'
+							
+							['div'
+								ref: 'divB'
+								defaults: first: '1'
+								computers:
+									href: (href)-> result[@ref].href = href
+									name: (name)-> result[@ref].name = name
+									_init: ()-> result[@ref]._init = arguments[0]
+							]						
+						]
+					]
+				)
+				expected = 
+					href: 'abc'
+					name: '123'
+					_init: {href:'abc', name:'123', value:'def', size:'456'}
+				
+				
+				expect(result).to.eql divA:{}, divB:{}
+				
+				template.spawn(data:{href:'abc', name:'123', value:'def', size:'456'})
+				expect(result).to.eql {divA:expected, divB:{href:'abc', name:'123', _init:undefined}}
+				
+				delete result.divA
+				divB: null
+				template.child.divB.spawn(data:{href:'abc', name:'123', value:'def', size:'456'})
+				expect(result).to.eql {divB:expected}
+
+
 
 	suite "Misc", ()->
 		test "QuickDom.isTemplate", ()->

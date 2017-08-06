@@ -5199,7 +5199,7 @@ suite("QuickDom", function() {
           f: 2
         });
       });
-      return test("The '_init' computer will be run by default on template spawn regardless of data", function() {
+      test("The '_init' computer will be run by default on template spawn regardless of data", function() {
         var count, template;
         count = {};
         template = Dom.template([
@@ -5207,9 +5207,9 @@ suite("QuickDom", function() {
             ref: 'divA',
             computers: {
               _init: function() {
-                var name;
-                if (count[name = this.ref] == null) {
-                  count[name] = 0;
+                var name1;
+                if (count[name1 = this.ref] == null) {
+                  count[name1] = 0;
                 }
                 return count[this.ref]++;
               }
@@ -5222,9 +5222,9 @@ suite("QuickDom", function() {
               },
               computers: {
                 _init: function() {
-                  var name;
-                  if (count[name = this.ref] == null) {
-                    count[name] = 0;
+                  var name1;
+                  if (count[name1 = this.ref] == null) {
+                    count[name1] = 0;
                   }
                   return count[this.ref]++;
                 }
@@ -5241,9 +5241,9 @@ suite("QuickDom", function() {
                   ref: 'divE',
                   computers: {
                     _init: function() {
-                      var name;
-                      if (count[name = this.ref] == null) {
-                        count[name] = 0;
+                      var name1;
+                      if (count[name1 = this.ref] == null) {
+                        count[name1] = 0;
                       }
                       return count[this.ref]++;
                     }
@@ -5287,6 +5287,96 @@ suite("QuickDom", function() {
           divA: 2,
           divB: 3,
           divE: 4
+        });
+      });
+      return test("The '_init' computer will be passed all of the data the template spawn receives", function() {
+        var expected, result, template;
+        result = {
+          divA: {},
+          divB: {}
+        };
+        template = Dom.template([
+          'div', {
+            ref: 'divA',
+            computers: {
+              href: function(href) {
+                return result[this.ref].href = href;
+              },
+              name: function(name) {
+                return result[this.ref].name = name;
+              },
+              _init: function() {
+                return result[this.ref]._init = arguments[0];
+              }
+            }
+          }, [
+            'div', {
+              ref: 'divProxy'
+            }, [
+              'div', {
+                ref: 'divB',
+                defaults: {
+                  first: '1'
+                },
+                computers: {
+                  href: function(href) {
+                    return result[this.ref].href = href;
+                  },
+                  name: function(name) {
+                    return result[this.ref].name = name;
+                  },
+                  _init: function() {
+                    return result[this.ref]._init = arguments[0];
+                  }
+                }
+              }
+            ]
+          ]
+        ]);
+        expected = {
+          href: 'abc',
+          name: '123',
+          _init: {
+            href: 'abc',
+            name: '123',
+            value: 'def',
+            size: '456'
+          }
+        };
+        expect(result).to.eql({
+          divA: {},
+          divB: {}
+        });
+        template.spawn({
+          data: {
+            href: 'abc',
+            name: '123',
+            value: 'def',
+            size: '456'
+          }
+        });
+        expect(result).to.eql({
+          divA: expected,
+          divB: {
+            href: 'abc',
+            name: '123',
+            _init: void 0
+          }
+        });
+        delete result.divA;
+        ({
+          divB: null
+        });
+        template.child.divB.spawn({
+          data: {
+            href: 'abc',
+            name: '123',
+            value: 'def',
+            size: '456'
+          }
+        });
+        return expect(result).to.eql({
+          divB: expected
         });
       });
     });
