@@ -55,7 +55,7 @@
   "dependencies": {
     "@danielkalen/is": "^2.0.0",
     "quickcss": "^1.1.2",
-    "smart-extend": "^1.7.2"
+    "smart-extend": "^1.7.3"
   },
   "devDependencies": {
     "bluebird": "^3.4.7",
@@ -78,7 +78,7 @@
     "karma-sauce-launcher": "github:danielkalen/karma-sauce-launcher",
     "listr": "^0.12.0",
     "mocha": "^3.2.0",
-    "simplyimport": "^4.0.0-s22",
+    "simplyimport": "^4.0.0-s24",
     "simplywatch": "^3.0.0-l2",
     "uglify-js": "^3.0.20"
   }
