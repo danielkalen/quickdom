@@ -34,7 +34,7 @@ class QuickTemplate
 			if newValues isnt false
 				element.applyData(data)
 			if element.options.computers?._init
-				element._runComputer('_init')
+				element._runComputer('_init', data)
 
 		return element
 
