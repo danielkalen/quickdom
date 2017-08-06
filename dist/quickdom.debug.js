@@ -216,7 +216,7 @@ modifiers = {
 
 module.exports = exports = newBuilder(true);
 
-exports.version = "1.7.2";
+exports.version = "1.7.3";
 
 ;
 return module.exports;
@@ -2523,7 +2523,7 @@ QuickTemplate = (function() {
         element.applyData(data);
       }
       if ((ref = element.options.computers) != null ? ref._init : void 0) {
-        element._runComputer('_init');
+        element._runComputer('_init', data);
       }
     }
     return element;
@@ -2580,7 +2580,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.60";
+QuickDom.version = "1.0.61";
 
 module.exports = QuickDom;
 
