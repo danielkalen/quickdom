@@ -2335,7 +2335,7 @@ extendTemplate = function(currentOpts, newOpts, globalOpts) {
           case !IS.template(newChild):
             return newChild;
           case !IS.array(newChild):
-            return needsTemplateWrap = parseTree(newChild, false);
+            return needsTemplateWrap = parseTree(newChild);
           case !IS.string(newChild):
             return needsTemplateWrap = {
               type: 'text',
@@ -2580,7 +2580,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.61";
+QuickDom.version = "1.0.62";
 
 module.exports = QuickDom;
 
