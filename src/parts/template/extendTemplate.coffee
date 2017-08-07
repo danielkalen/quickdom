@@ -16,7 +16,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 			newChild = newChildren[index]
 			newChildProcessed = switch
 				when IS.template(newChild) then newChild
-				when IS.array(newChild) then needsTemplateWrap = parseTree(newChild, false)
+				when IS.array(newChild) then needsTemplateWrap = parseTree(newChild)
 				when IS.string(newChild) then needsTemplateWrap = {type:'text', options:{text:newChild}}
 				when not newChild and not globalOpts then noChanges = true
 				else needsTemplateWrap = newChild or true

@@ -3650,6 +3650,10 @@ suite "QuickDom", ()->
 			expect(spawn.el.childNodes[1].nodeName.toLowerCase()).to.equal 'div'
 			expect(spawn.el.childNodes[1].textContent).to.equal 'text of div'
 
+			# expect ()->
+			# 	Dom.template(['div']).extend(['span', null, ['div', null, ['section']]])
+			# .not.to.throw()
+
 
 		test "Template.extend/spawn() can accept other template instances as children which will replace existing children", ()->
 			template = Dom.template ['div', null, ['span', {style:opacity:0.5}], 'original text']

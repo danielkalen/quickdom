@@ -7,7 +7,7 @@ class QuickTemplate
 		return config if IS.template(config)
 		@_config = if isTree then parseTree(config) else config
 		@_hasComputers = !!@_config.options.computers
-		
+
 		if not @_hasComputers and @_config.children.length
 			for child in @_config.children when child._hasComputers or child._config.options.computers
 				@_hasComputers = true
