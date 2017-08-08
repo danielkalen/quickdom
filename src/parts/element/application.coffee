@@ -9,9 +9,11 @@ QuickElement::updateOptions = (options)->
 
 QuickElement::updateStateStyles = (styles)->
 	extend.deep.concat @, @_parseStyles(styles)
+	return @
 
 QuickElement::updateStateTexts = (texts)->
 	extend.deep.concat @, @_parseTexts(texts)
+	return @
 
 
 
