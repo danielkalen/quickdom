@@ -589,7 +589,6 @@ QuickElement = (function() {
     this._styles = {};
     this._state = [];
     this._children = [];
-    this._insertedCallbacks = [];
     this._normalizeOptions();
     this._applyOptions();
     this._attachStateEvents();
@@ -1011,25 +1010,23 @@ QuickElement.prototype._applyOptions = function() {
   if (this._texts) {
     this.text = this._texts.base;
   }
-  this.onInserted((function(_this) {
-    return function() {
-      var _, mediaStates;
-      if (_this.options.styleAfterInsert) {
-        _this.style(extend.clone.apply(extend, [_this._styles.base].concat(slice.call(_this._getStateStyles(_this._getActiveStates())))));
-      }
-      _ = _this._inserted = _this;
-      if ((mediaStates = _this._mediaStates) && _this._mediaStates.length) {
-        return _this._mediaStates = new function() {
-          var i, len, queryString;
-          for (i = 0, len = mediaStates.length; i < len; i++) {
-            queryString = mediaStates[i];
-            this[queryString] = MediaQuery.register(_, queryString);
-          }
-          return this;
-        };
-      }
-    };
-  })(this));
+  this.on('inserted', function() {
+    var _, mediaStates;
+    if (this.options.styleAfterInsert) {
+      this.style(extend.clone.apply(extend, [this._styles.base].concat(slice.call(this._getStateStyles(this._getActiveStates())))));
+    }
+    _ = this._inserted = this;
+    if ((mediaStates = this._mediaStates) && this._mediaStates.length) {
+      return this._mediaStates = new function() {
+        var i, len, queryString;
+        for (i = 0, len = mediaStates.length; i < len; i++) {
+          queryString = mediaStates[i];
+          this[queryString] = MediaQuery.register(_, queryString);
+        }
+        return this;
+      };
+    }
+  }, false, true);
   if (this.options.recalcOnResize) {
     window.addEventListener('resize', (function(_this) {
       return function() {
@@ -1089,7 +1086,7 @@ QuickElement.prototype._proxyParent = function() {
         if (lastParent.raw === document.documentElement) {
           this._unproxyParent(newParent);
         } else {
-          parent.onInserted((function(_this) {
+          parent.on('inserted', (function(_this) {
             return function() {
               if (parent === newParent) {
                 return _this._unproxyParent(newParent);
@@ -1103,14 +1100,9 @@ QuickElement.prototype._proxyParent = function() {
 };
 
 QuickElement.prototype._unproxyParent = function(newParent) {
-  var callback, i, len, ref1;
   delete this._parent;
   this._parent = newParent;
-  ref1 = this._insertedCallbacks;
-  for (i = 0, len = ref1.length; i < len; i++) {
-    callback = ref1[i];
-    callback(this);
-  }
+  this.emitPrivate('inserted', newParent);
 };
 
 ;
@@ -1119,7 +1111,7 @@ var regexWhitespace;
 
 regexWhitespace = /\s+/;
 
-QuickElement.prototype.on = function(eventNames, callback, useCapture) {
+QuickElement.prototype.on = function(eventNames, callback, useCapture, isPrivate) {
   var callbackRef, split;
   if (this._eventCallbacks == null) {
     this._eventCallbacks = {
@@ -1130,13 +1122,19 @@ QuickElement.prototype.on = function(eventNames, callback, useCapture) {
     split = eventNames.split('.');
     callbackRef = split[1];
     eventNames = split[0];
+    if (eventNames === 'inserted' && this._inserted) {
+      callback.call(this, this._parent);
+      return this;
+    }
     eventNames.split(regexWhitespace).forEach((function(_this) {
       return function(eventName) {
         if (!_this._eventCallbacks[eventName]) {
           _this._eventCallbacks[eventName] = [];
-          _this._listenTo(eventName, function(event) {
-            return _this._invokeHandlers(eventName, event);
-          }, useCapture);
+          if (!isPrivate) {
+            _this._listenTo(eventName, function(event) {
+              return _this._invokeHandlers(eventName, event);
+            }, useCapture);
+          }
         }
         if (callbackRef) {
           _this._eventCallbacks.__refs[callbackRef] = callback;
@@ -1154,7 +1152,7 @@ QuickElement.prototype.once = function(eventNames, callback) {
     this.on(eventNames, onceCallback = (function(_this) {
       return function(event) {
         _this.off(eventNames, onceCallback);
-        return callback.call(_this.el, event);
+        return callback.call(_this, event);
       };
     })(this));
   }
@@ -1216,20 +1214,6 @@ QuickElement.prototype.emitPrivate = function(eventName, arg) {
     this._invokeHandlers(eventName, arg);
   }
   return this;
-};
-
-QuickElement.prototype.onInserted = function(callback, invokeIfInserted) {
-  if (invokeIfInserted == null) {
-    invokeIfInserted = true;
-  }
-  if (IS["function"](callback)) {
-    if (!this._inserted) {
-      this._insertedCallbacks.push(callback);
-    } else if (invokeIfInserted) {
-      callback(this);
-    }
-    return this;
-  }
 };
 
 QuickElement.prototype._invokeHandlers = function(eventName, arg) {
@@ -2580,7 +2564,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.62";
+QuickDom.version = "1.0.63";
 
 module.exports = QuickDom;
 
