@@ -1565,7 +1565,7 @@ suite "QuickDom", ()->
 			expect(divA.el.style.visibility).to.equal('hidden')
 
 
-		test "QuickElement.onInserted can accept callbacks which will be invoked when inserted into the DOM", ()->
+		test "the inserted event will be privately emitted when the element is inserted into the DOM", ()->
 			invokeCount = 0
 			parentA = Dom.section()
 			parentB = Dom.section()
@@ -1573,8 +1573,9 @@ suite "QuickDom", ()->
 			parentC = Dom.section().appendTo(sandbox)
 			div = Dom.div()
 
-			div.onInserted (el)->
-				expect(el).to.equal(div)
+			div.on 'inserted', (el)->
+				expect(@).to.equal(div)
+				expect(el).to.equal(div.parent)
 				expect(invokeCount++).to.equal(0)
 
 			expect(invokeCount).to.equal(0)
@@ -1595,7 +1596,7 @@ suite "QuickDom", ()->
 			expect(invokeCount).to.equal(1)
 			expect(div.parent).to.equal parentB
 
-			div.onInserted ()-> expect(invokeCount++).to.equal(1)
+			div.on 'inserted', ()-> expect(invokeCount++).to.equal(1)
 			expect(invokeCount).to.equal(2)
 			expect(div.parent).to.equal parentB
 			
@@ -1605,22 +1606,23 @@ suite "QuickDom", ()->
 			
 			div.detach()
 			div.appendTo(parentA)
-			div.onInserted (()-> invokeCount++; expect(false).to.be.true), false
-			expect(invokeCount).to.equal(2)
+			div.on 'inserted', ()-> invokeCount++
+			expect(invokeCount).to.equal(3)
 			
 			div.detach()
 			div.appendTo(parentB)
-			expect(invokeCount).to.equal(2)
+			expect(invokeCount).to.equal(3)
 
 
-		test "QuickElement.replace will trigger the onInserted event", ()->
+		test "QuickElement.replace will trigger the inserted event", ()->
 			invokeCount = 0
 			parent = Dom.section().appendTo(sandbox)
 			A = Dom.div()
 			B = Dom.div()
 
-			B.onInserted (el)->
-				expect(el).to.equal(B)
+			B.on 'inserted', (el)->
+				expect(@).to.equal(B)
+				expect(el).to.equal(B.parent)
 				expect(invokeCount++).to.equal(0)
 
 			expect(invokeCount).to.equal 0
@@ -4473,10 +4475,6 @@ suite "QuickDom", ()->
 		test "Chaining", ()->
 			div = Dom.div()
 			chainResult = div
-				.on('abc', ()->)
-				.emit('abc')
-				.off('abc')
-				.off()
 				.state('abc', on)
 				.resetState()
 				.style()
@@ -4498,6 +4496,10 @@ suite "QuickDom", ()->
 				.replace()
 				.appendTo(sandbox)
 				.wrap(head=Dom.header())
+				.on('abc', ()->)
+				.emit('abc')
+				.off('abc')
+				.off()
 
 			expect(chainResult).to.equal(div)
 			expect(sandbox.children[0]).to.equal(head.el)
@@ -4535,9 +4537,6 @@ suite "QuickDom", ()->
 			expect(div.off('something', ()->)).to.equal(div)
 			expect(div.emit('something')).to.equal(div)
 			expect(emitCount).to.equal(2)
-			expect(div.onInserted ()->).to.equal(div)
-			expect(div.onInserted(true)).to.equal(undefined)
-			expect(div.onInserted(null)).to.equal(undefined)
 
 			div.css(null, '129')
 			expect(div.el.style.null).to.equal(undefined)

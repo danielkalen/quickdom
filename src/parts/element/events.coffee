@@ -1,6 +1,6 @@
 regexWhitespace = /\s+/
 
-QuickElement::on = (eventNames, callback, useCapture)->
+QuickElement::on = (eventNames, callback, useCapture, isPrivate)->
 	@_eventCallbacks ?= {__refs:{}}
 	
 	if IS.string(eventNames) and IS.function(callback)
@@ -8,10 +8,15 @@ QuickElement::on = (eventNames, callback, useCapture)->
 		callbackRef = split[1]
 		eventNames = split[0]
 		
+		if eventNames is 'inserted' and @_inserted
+			callback.call(@, @_parent)
+			return @
+		
 		eventNames.split(regexWhitespace).forEach (eventName)=>
 			if not @_eventCallbacks[eventName]
 				@_eventCallbacks[eventName] = []		
-				@_listenTo eventName, (event)=>
+				
+				unless isPrivate then @_listenTo eventName, (event)=>
 					@_invokeHandlers(eventName, event)
 				, useCapture
 
@@ -68,16 +73,6 @@ QuickElement::emitPrivate = (eventName, arg)->
 	
 	return @
 
-
-
-QuickElement::onInserted = (callback, invokeIfInserted=true)-> if IS.function(callback)
-	if not @_inserted
-		@_insertedCallbacks.push(callback)
-	
-	else if invokeIfInserted
-		callback(@)
-
-	return @
 
 
 QuickElement::_invokeHandlers = (eventName, arg)->

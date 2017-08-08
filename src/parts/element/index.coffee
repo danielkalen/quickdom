@@ -13,7 +13,6 @@ class QuickElement
 		@_styles = {}
 		@_state = []
 		@_children = []
-		@_insertedCallbacks = []
 		# @_providedStates = []				# defined conditionally
 		# @_providedStatesShared = []		# defined conditionally
 		# @_eventCallbacks = {__refs:{}}	# defined conditionally

@@ -45,7 +45,6 @@ replacements = [
 	[/_children/g, '_c']
 	[/_childRefs/g, '_C']
 	[/_eventCallbacks/g, '_e']
-	[/_insertedCallbacks/g, '_i']
 	[/_inserted/g, '_I']
 	[/_normalizeOptions/g, '_n']
 	[/_parseStyles/g, '_ns']

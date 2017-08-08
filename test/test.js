@@ -2010,7 +2010,7 @@ suite("QuickDom", function() {
       expect(divA.el.style.width).to.equal('31px');
       return expect(divA.el.style.visibility).to.equal('hidden');
     });
-    test("QuickElement.onInserted can accept callbacks which will be invoked when inserted into the DOM", function() {
+    test("the inserted event will be privately emitted when the element is inserted into the DOM", function() {
       var div, invokeCount, masterParentB, parentA, parentB, parentC;
       invokeCount = 0;
       parentA = Dom.section();
@@ -2018,8 +2018,9 @@ suite("QuickDom", function() {
       masterParentB = Dom.div();
       parentC = Dom.section().appendTo(sandbox);
       div = Dom.div();
-      div.onInserted(function(el) {
-        expect(el).to.equal(div);
+      div.on('inserted', function(el) {
+        expect(this).to.equal(div);
+        expect(el).to.equal(div.parent);
         return expect(invokeCount++).to.equal(0);
       });
       expect(invokeCount).to.equal(0);
@@ -2035,7 +2036,7 @@ suite("QuickDom", function() {
       div.appendTo(parentB.appendTo(sandbox));
       expect(invokeCount).to.equal(1);
       expect(div.parent).to.equal(parentB);
-      div.onInserted(function() {
+      div.on('inserted', function() {
         return expect(invokeCount++).to.equal(1);
       });
       expect(invokeCount).to.equal(2);
@@ -2045,23 +2046,23 @@ suite("QuickDom", function() {
       expect(div.parent).to.equal(parentC);
       div.detach();
       div.appendTo(parentA);
-      div.onInserted((function() {
-        invokeCount++;
-        return expect(false).to.be["true"];
-      }), false);
-      expect(invokeCount).to.equal(2);
+      div.on('inserted', function() {
+        return invokeCount++;
+      });
+      expect(invokeCount).to.equal(3);
       div.detach();
       div.appendTo(parentB);
-      return expect(invokeCount).to.equal(2);
+      return expect(invokeCount).to.equal(3);
     });
-    test("QuickElement.replace will trigger the onInserted event", function() {
+    test("QuickElement.replace will trigger the inserted event", function() {
       var A, B, invokeCount, parent;
       invokeCount = 0;
       parent = Dom.section().appendTo(sandbox);
       A = Dom.div();
       B = Dom.div();
-      B.onInserted(function(el) {
-        expect(el).to.equal(B);
+      B.on('inserted', function(el) {
+        expect(this).to.equal(B);
+        expect(el).to.equal(B.parent);
         return expect(invokeCount++).to.equal(0);
       });
       expect(invokeCount).to.equal(0);
@@ -5485,7 +5486,7 @@ suite("QuickDom", function() {
     test("Chaining", function() {
       var chainResult, div, head;
       div = Dom.div();
-      chainResult = div.on('abc', function() {}).emit('abc').off('abc').off().state('abc', true).resetState().style().css('width', 12).attr('test', 123).prop('anotherTest', 123).append().appendTo().prepend().prependTo().before().after().insertBefore().insertAfter().detach().wrap(Dom.section()).unwrap().wrap(Dom.header()).replace().appendTo(sandbox).wrap(head = Dom.header());
+      chainResult = div.state('abc', true).resetState().style().css('width', 12).attr('test', 123).prop('anotherTest', 123).append().appendTo().prepend().prependTo().before().after().insertBefore().insertAfter().detach().wrap(Dom.section()).unwrap().wrap(Dom.header()).replace().appendTo(sandbox).wrap(head = Dom.header()).on('abc', function() {}).emit('abc').off('abc').off();
       expect(chainResult).to.equal(div);
       expect(sandbox.children[0]).to.equal(head.el);
       expect(div.parent).to.equal(head);
@@ -5525,9 +5526,6 @@ suite("QuickDom", function() {
       expect(div.off('something', function() {})).to.equal(div);
       expect(div.emit('something')).to.equal(div);
       expect(emitCount).to.equal(2);
-      expect(div.onInserted(function() {})).to.equal(div);
-      expect(div.onInserted(true)).to.equal(void 0);
-      expect(div.onInserted(null)).to.equal(void 0);
       div.css(null, '129');
       expect(div.el.style["null"]).to.equal(void 0);
       expect(div.state()).to.equal(void 0);

@@ -96,8 +96,7 @@ QuickElement::_applyOptions = ()->
 	if @options.attrs then @attr(key,value) for key,value of @options.attrs
 	@style(@_styles.base) if not @options.styleAfterInsert
 	@text = @_texts.base if @_texts
-
-	@onInserted ()=>
+	@on 'inserted', ()->
 		if @options.styleAfterInsert
 			@style(extend.clone @_styles.base, @_getStateStyles(@_getActiveStates())...)
 
@@ -109,6 +108,7 @@ QuickElement::_applyOptions = ()->
 					@[queryString] = MediaQuery.register(_, queryString)
 				
 				return @
+	, false, true
 
 	if @options.recalcOnResize
 		window.addEventListener 'resize', ()=> @recalcStyle()
@@ -141,7 +141,7 @@ QuickElement::_proxyParent = ()->
 			if lastParent.raw is document.documentElement
 				@_unproxyParent(newParent)
 			else
-				parent.onInserted ()=>
+				parent.on 'inserted', ()=>
 					@_unproxyParent(newParent) if parent is newParent
 			return
 
@@ -149,7 +149,7 @@ QuickElement::_proxyParent = ()->
 QuickElement::_unproxyParent = (newParent)->
 	delete @_parent
 	@_parent = newParent
-	callback(@) for callback in @_insertedCallbacks
+	@emitPrivate('inserted', newParent)
 	return
 
 
