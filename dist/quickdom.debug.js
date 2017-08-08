@@ -863,38 +863,40 @@ QuickElement.prototype._normalizeOptions = function() {
   }
   this.options.stateTriggers = this.options.stateTriggers ? extend.clone.deep(baseStateTriggers, this.options.stateTriggers) : baseStateTriggers;
   if (this.type === 'text') {
-    this._parseText();
+    extend(this, this._parseTexts(this.options.text, this._texts));
   } else {
-    this._parseStyles();
+    extend(this, this._parseStyles(this.options.style, this._styles));
   }
 };
 
-QuickElement.prototype._parseStyles = function() {
-  var flattenNestedStates, i, keys, len, specialStates, state, stateStyles, state_, states;
-  if (!IS.objectPlain(this.options.style)) {
+QuickElement.prototype._parseStyles = function(styles, store) {
+  var _mediaStates, _providedStates, _providedStatesShared, _stateShared, _styles, flattenNestedStates, i, keys, len, specialStates, state, stateStyles, state_, states;
+  if (!IS.objectPlain(styles)) {
     return;
   }
-  keys = Object.keys(this.options.style);
+  keys = Object.keys(styles);
   states = keys.filter(function(key) {
     return helpers.isStateStyle(key);
   });
   specialStates = helpers.removeItem(states.slice(), '$base');
-  this._mediaStates = states.filter(function(key) {
+  _mediaStates = states.filter(function(key) {
     return key[0] === '@';
   }).map(function(state) {
     return state.slice(1);
   });
-  this._providedStates = states.map(function(state) {
+  _providedStates = states.map(function(state) {
     return state.slice(1);
   });
+  _styles = store || {};
+  _stateShared = _providedStatesShared = void 0;
   if (!helpers.includes(states, '$base')) {
     if (states.length) {
-      this._styles.base = extend.clone.notKeys(states)(this.options.style);
+      _styles.base = extend.clone.notKeys(states)(styles);
     } else {
-      this._styles.base = this.options.style;
+      _styles.base = styles;
     }
   } else {
-    this._styles.base = this.options.style.$base;
+    _styles.base = styles.$base;
   }
   flattenNestedStates = (function(_this) {
     return function(styleObject, chain) {
@@ -910,17 +912,17 @@ QuickElement.prototype._parseStyles = function() {
         } else {
           chain.push(state_ = state.slice(1));
           stateChain = new (require(33))(chain);
-          if (_this._stateShared == null) {
-            _this._stateShared = [];
+          if (_stateShared == null) {
+            _stateShared = [];
           }
-          if (_this._providedStatesShared == null) {
-            _this._providedStatesShared = [];
+          if (_providedStatesShared == null) {
+            _providedStatesShared = [];
           }
-          _this._providedStatesShared.push(stateChain);
+          _providedStatesShared.push(stateChain);
           if (state[0] === '@') {
-            _this._mediaStates.push(state_);
+            _mediaStates.push(state_);
           }
-          _this._styles[stateChain.string] = flattenNestedStates(styleObject[state], chain);
+          _styles[stateChain.string] = flattenNestedStates(styleObject[state], chain);
         }
       }
       if (hasNonStateProps) {
@@ -931,31 +933,43 @@ QuickElement.prototype._parseStyles = function() {
   for (i = 0, len = specialStates.length; i < len; i++) {
     state = specialStates[i];
     state_ = state.slice(1);
-    stateStyles = flattenNestedStates(this.options.style[state], [state_]);
+    stateStyles = flattenNestedStates(styles[state], [state_]);
     if (stateStyles) {
-      this._styles[state_] = stateStyles;
+      _styles[state_] = stateStyles;
     }
   }
+  return {
+    _styles: _styles,
+    _mediaStates: _mediaStates,
+    _stateShared: _stateShared,
+    _providedStates: _providedStates,
+    _providedStatesShared: _providedStatesShared
+  };
 };
 
-QuickElement.prototype._parseText = function() {
-  var i, len, state, states;
-  if (!IS.objectPlain(this.options.text)) {
+QuickElement.prototype._parseTexts = function(texts, store) {
+  var _providedStates, _texts, i, len, state, states;
+  if (!IS.objectPlain(texts)) {
     return;
   }
-  states = Object.keys(this.options.text).map(function(state) {
+  states = Object.keys(texts).map(function(state) {
     return state.slice(1);
   });
-  this._providedStates = states.filter(function(state) {
+  _providedStates = states.filter(function(state) {
     return state !== 'base';
   });
-  this._texts = {
+  _texts = store || {};
+  _texts = {
     base: ''
   };
   for (i = 0, len = states.length; i < len; i++) {
     state = states[i];
-    this._texts[state] = this.options.text['$' + state];
+    _texts[state] = texts['$' + state];
   }
+  return {
+    _texts: _texts,
+    _providedStates: _providedStates
+  };
 };
 
 QuickElement.prototype._applyOptions = function() {
@@ -1928,6 +1942,14 @@ QuickElement.prototype.updateOptions = function(options) {
   return this;
 };
 
+QuickElement.prototype.updateStateStyles = function(styles) {
+  return extend.deep.concat(this, this._parseStyles(styles));
+};
+
+QuickElement.prototype.updateStateTexts = function(texts) {
+  return extend.deep.concat(this, this._parseTexts(texts));
+};
+
 QuickElement.prototype.applyData = function(data) {
   var child, computers, defaults, i, j, key, keys, len, len1, ref;
   if (computers = this.options.computers) {
@@ -2564,7 +2586,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.63";
+QuickDom.version = "1.0.64";
 
 module.exports = QuickDom;
 
