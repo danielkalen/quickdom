@@ -25,7 +25,7 @@ QuickElement::once = (eventNames, callback)->
 	if IS.string(eventNames) and IS.function(callback)
 		@on eventNames, onceCallback=(event)=>
 			@off(eventNames, onceCallback)
-			callback.call(@el, event)
+			callback.call(@, event)
 	
 	return @
 
