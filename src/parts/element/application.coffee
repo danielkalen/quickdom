@@ -7,6 +7,13 @@ QuickElement::updateOptions = (options)->
 	return @
 
 
+QuickElement::updateStateStyles = (styles)->
+	extend.deep.concat @, @_parseStyles(styles)
+
+QuickElement::updateStateTexts = (texts)->
+	extend.deep.concat @, @_parseTexts(texts)
+
+
 
 QuickElement::applyData = (data)->
 	if computers = @options.computers

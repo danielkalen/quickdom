@@ -16,28 +16,30 @@ QuickElement::_normalizeOptions = ()->
 			baseStateTriggers
 	
 	if @type is 'text'
-		@_parseText()
+		extend @, @_parseTexts(@options.text, @_texts)
 	else
-		@_parseStyles()
+		extend @, @_parseStyles(@options.style, @_styles)
 	
 	return
 
 
-QuickElement::_parseStyles = ()->
-	return if not IS.objectPlain(@options.style)
-	keys = Object.keys(@options.style)
+QuickElement::_parseStyles = (styles, store)->
+	return if not IS.objectPlain(styles)
+	keys = Object.keys(styles)
 	states = keys.filter (key)-> helpers.isStateStyle(key)
 	specialStates = helpers.removeItem(states.slice(), '$base')
-	@_mediaStates = states.filter((key)-> key[0] is '@').map (state)-> state.slice(1)
-	@_providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
+	_mediaStates = states.filter((key)-> key[0] is '@').map (state)-> state.slice(1)
+	_providedStates = states.map (state)-> state.slice(1) # Remove '$' prefix
+	_styles = store or {}
+	_stateShared = _providedStatesShared = undefined
 
 	if not helpers.includes(states, '$base')
 		if states.length # Indicates other states were provided but the $base state has no styling
-			@_styles.base = extend.clone.notKeys(states)(@options.style)
+			_styles.base = extend.clone.notKeys(states)(styles)
 		else
-			@_styles.base = @options.style
+			_styles.base = styles
 	else
-		@_styles.base = @options.style.$base
+		_styles.base = styles.$base
 
 
 	flattenNestedStates = (styleObject, chain)=>
@@ -52,11 +54,11 @@ QuickElement::_parseStyles = ()->
 			else
 				chain.push(state_ = state.slice(1))
 				stateChain = new (import './stateChain')(chain)
-				@_stateShared ?= []
-				@_providedStatesShared ?= []
-				@_providedStatesShared.push(stateChain)
-				@_mediaStates.push(state_) if state[0] is '@'
-				@_styles[stateChain.string] = flattenNestedStates(styleObject[state], chain)
+				_stateShared ?= []
+				_providedStatesShared ?= []
+				_providedStatesShared.push(stateChain)
+				_mediaStates.push(state_) if state[0] is '@'
+				_styles[stateChain.string] = flattenNestedStates(styleObject[state], chain)
 		
 		return if hasNonStateProps then output
 
@@ -64,21 +66,22 @@ QuickElement::_parseStyles = ()->
 	for state in specialStates
 		state_ = state.slice(1)
 		
-		stateStyles = flattenNestedStates(@options.style[state], [state_])
-		@_styles[state_] = stateStyles if stateStyles
+		stateStyles = flattenNestedStates(styles[state], [state_])
+		_styles[state_] = stateStyles if stateStyles
 
-	return
+	return {_styles, _mediaStates, _stateShared, _providedStates, _providedStatesShared}
 
 
 
-QuickElement::_parseText = ()->
-	return if not IS.objectPlain(@options.text)
-	states = Object.keys(@options.text).map (state)-> state.slice(1)
-	@_providedStates = states.filter (state)-> state isnt 'base'
-	@_texts = base:''
-	@_texts[state] = @options.text['$'+state] for state in states
+QuickElement::_parseTexts = (texts, store)->
+	return if not IS.objectPlain(texts)
+	states = Object.keys(texts).map (state)-> state.slice(1)
+	_providedStates = states.filter (state)-> state isnt 'base'
+	_texts = store or {}
+	_texts = base:''
+	_texts[state] = texts['$'+state] for state in states
 	
-	return
+	return {_texts, _providedStates}
 
 
 QuickElement::_applyOptions = ()->
