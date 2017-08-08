@@ -92,6 +92,8 @@ if (!window.location.hostname) {
   mocha.bail();
 }
 
+chai.config.truncateThreshold = 1e3;
+
 expect = chai.expect;
 
 sandbox = null;
@@ -659,7 +661,7 @@ suite("QuickDom", function() {
       expect(emitCountA).to.equal(4);
       return expect(emitCountB).to.equal(2);
     });
-    return test("Pre-defined event listeners can be passed in options.events", function() {
+    test("Pre-defined event listeners can be passed in options.events", function() {
       var div, divB, emitContext, emitCount, listeners;
       emitCount = 0;
       emitContext = null;
@@ -710,6 +712,73 @@ suite("QuickDom", function() {
       expect(emitContext).to.equal(div);
       divB.emit('five');
       return expect(emitContext).to.equal(divB);
+    });
+    test("the inserted event will be privately emitted when the element is inserted into the DOM", function() {
+      var div, invokeCount, masterParentB, parentA, parentB, parentC;
+      invokeCount = 0;
+      parentA = Dom.section();
+      parentB = Dom.section();
+      masterParentB = Dom.div();
+      parentC = Dom.section().appendTo(sandbox);
+      div = Dom.div();
+      div.on('inserted', function(el) {
+        expect(this).to.equal(div);
+        expect(el).to.equal(div.parent);
+        return expect(invokeCount++).to.equal(0);
+      });
+      expect(invokeCount).to.equal(0);
+      div.appendTo(parentA);
+      expect(invokeCount).to.equal(0);
+      div.appendTo(parentB.appendTo(masterParentB));
+      expect(invokeCount).to.equal(0);
+      parentA.appendTo(sandbox);
+      expect(invokeCount).to.equal(0);
+      div.appendTo(parentC);
+      expect(invokeCount).to.equal(1);
+      div.detach();
+      div.appendTo(parentB.appendTo(sandbox));
+      expect(invokeCount).to.equal(1);
+      expect(div.parent).to.equal(parentB);
+      div.on('inserted', function() {
+        return expect(invokeCount++).to.equal(1);
+      });
+      expect(invokeCount).to.equal(2);
+      expect(div.parent).to.equal(parentB);
+      div.appendTo(parentC);
+      expect(invokeCount).to.equal(2);
+      expect(div.parent).to.equal(parentC);
+      div.detach();
+      div.appendTo(parentA);
+      div.on('inserted', function() {
+        return invokeCount++;
+      });
+      expect(invokeCount).to.equal(3);
+      div.detach();
+      div.appendTo(parentB);
+      return expect(invokeCount).to.equal(3);
+    });
+    return test("QuickElement.replace will trigger the inserted event", function() {
+      var A, B, invokeCount, parent;
+      invokeCount = 0;
+      parent = Dom.section().appendTo(sandbox);
+      A = Dom.div();
+      B = Dom.div();
+      B.on('inserted', function(el) {
+        expect(this).to.equal(B);
+        expect(el).to.equal(B.parent);
+        return expect(invokeCount++).to.equal(0);
+      });
+      expect(invokeCount).to.equal(0);
+      expect(A.parent).to.equal(void 0);
+      expect(B.parent).to.equal(void 0);
+      parent.append(A);
+      expect(invokeCount).to.equal(0);
+      expect(A.parent).to.equal(parent);
+      expect(B.parent).to.equal(void 0);
+      A.replace(B);
+      expect(invokeCount).to.equal(1);
+      expect(A.parent).to.equal(void 0);
+      return expect(B.parent).to.equal(parent);
     });
   });
   suite("Style", function() {
@@ -2010,73 +2079,6 @@ suite("QuickDom", function() {
       expect(divA.el.style.width).to.equal('31px');
       return expect(divA.el.style.visibility).to.equal('hidden');
     });
-    test("the inserted event will be privately emitted when the element is inserted into the DOM", function() {
-      var div, invokeCount, masterParentB, parentA, parentB, parentC;
-      invokeCount = 0;
-      parentA = Dom.section();
-      parentB = Dom.section();
-      masterParentB = Dom.div();
-      parentC = Dom.section().appendTo(sandbox);
-      div = Dom.div();
-      div.on('inserted', function(el) {
-        expect(this).to.equal(div);
-        expect(el).to.equal(div.parent);
-        return expect(invokeCount++).to.equal(0);
-      });
-      expect(invokeCount).to.equal(0);
-      div.appendTo(parentA);
-      expect(invokeCount).to.equal(0);
-      div.appendTo(parentB.appendTo(masterParentB));
-      expect(invokeCount).to.equal(0);
-      parentA.appendTo(sandbox);
-      expect(invokeCount).to.equal(0);
-      div.appendTo(parentC);
-      expect(invokeCount).to.equal(1);
-      div.detach();
-      div.appendTo(parentB.appendTo(sandbox));
-      expect(invokeCount).to.equal(1);
-      expect(div.parent).to.equal(parentB);
-      div.on('inserted', function() {
-        return expect(invokeCount++).to.equal(1);
-      });
-      expect(invokeCount).to.equal(2);
-      expect(div.parent).to.equal(parentB);
-      div.appendTo(parentC);
-      expect(invokeCount).to.equal(2);
-      expect(div.parent).to.equal(parentC);
-      div.detach();
-      div.appendTo(parentA);
-      div.on('inserted', function() {
-        return invokeCount++;
-      });
-      expect(invokeCount).to.equal(3);
-      div.detach();
-      div.appendTo(parentB);
-      return expect(invokeCount).to.equal(3);
-    });
-    test("QuickElement.replace will trigger the inserted event", function() {
-      var A, B, invokeCount, parent;
-      invokeCount = 0;
-      parent = Dom.section().appendTo(sandbox);
-      A = Dom.div();
-      B = Dom.div();
-      B.on('inserted', function(el) {
-        expect(this).to.equal(B);
-        expect(el).to.equal(B.parent);
-        return expect(invokeCount++).to.equal(0);
-      });
-      expect(invokeCount).to.equal(0);
-      expect(A.parent).to.equal(void 0);
-      expect(B.parent).to.equal(void 0);
-      parent.append(A);
-      expect(invokeCount).to.equal(0);
-      expect(A.parent).to.equal(parent);
-      expect(B.parent).to.equal(void 0);
-      A.replace(B);
-      expect(invokeCount).to.equal(1);
-      expect(A.parent).to.equal(void 0);
-      return expect(B.parent).to.equal(parent);
-    });
     test("QuickElement.pipeState can be used to redirect all state toggles to the provided target element", function() {
       var childA, childB, divA, divB, parentA, parentB;
       parentA = Dom.div();
@@ -2351,7 +2353,7 @@ suite("QuickDom", function() {
       divB.state('relaxed+funny', true);
       return expect(divB.text).to.equal('Funny & Relaxed');
     });
-    return test("state changes will emit a private stateChange:<state> event", function() {
+    test("state changes will emit a private stateChange:<state> event", function() {
       var div, results;
       results = [];
       div = Dom.div({
@@ -2390,6 +2392,122 @@ suite("QuickDom", function() {
       expect(results).to.deep.equal([['happy', true], ['happy', false], ['happy', true], ['relaxed', true], ['arbitrary', true]]);
       div.state('relaxed', true);
       return expect(results).to.deep.equal([['happy', true], ['happy', false], ['happy', true], ['relaxed', true], ['arbitrary', true]]);
+    });
+    return test("state-based styles can be updated via QuickElement.updateStateStyles", function() {
+      var div, getStyles;
+      div = Dom.div({
+        style: {
+          width: 5,
+          height: 5,
+          marginTop: 5,
+          $happy: {
+            marginTop: 10
+          },
+          $relaxed: {
+            marginTop: 20,
+            width: 20,
+            $happy: {
+              height: 40,
+              marginTop: 40
+            }
+          },
+          $somethingElse: {
+            width: 60,
+            marginTop: 60
+          }
+        }
+      }).appendTo(sandbox);
+      getStyles = function() {
+        return {
+          width: div.style('width'),
+          height: div.style('height'),
+          marginTop: div.style('marginTop')
+        };
+      };
+      expect(getStyles()).to.eql({
+        width: '5px',
+        height: '5px',
+        marginTop: '5px'
+      });
+      div.state('happy', true);
+      expect(getStyles()).to.eql({
+        width: '5px',
+        height: '5px',
+        marginTop: '10px'
+      });
+      div.updateStateStyles({
+        width: 7,
+        height: 8,
+        $happy: {
+          marginTop: 12,
+          height: 12
+        }
+      });
+      expect(getStyles()).to.eql({
+        width: '5px',
+        height: '5px',
+        marginTop: '10px'
+      });
+      div.state('happy', false);
+      expect(getStyles()).to.eql({
+        width: '5px',
+        height: '8px',
+        marginTop: '5px'
+      });
+      div.state('happy', true);
+      expect(getStyles()).to.eql({
+        width: '5px',
+        height: '12px',
+        marginTop: '12px'
+      });
+      div.state('happy', false);
+      div.updateStateStyles({
+        $base: {
+          width: 2,
+          height: 9
+        },
+        $relaxed: {
+          height: 20,
+          $happy: {
+            width: 40,
+            marginTop: function() {
+              return 45;
+            }
+          }
+        }
+      });
+      expect(getStyles()).to.eql({
+        width: '5px',
+        height: '8px',
+        marginTop: '5px'
+      });
+      div.state('relaxed', true);
+      expect(getStyles()).to.eql({
+        width: '20px',
+        height: '20px',
+        marginTop: '20px'
+      });
+      div.state('happy', true);
+      expect(getStyles()).to.eql({
+        width: '40px',
+        height: '40px',
+        marginTop: '45px'
+      });
+      div.state({
+        happy: false,
+        relaxed: false
+      });
+      expect(getStyles()).to.eql({
+        width: '2px',
+        height: '9px',
+        marginTop: '5px'
+      });
+      div.state('somethingElse', true);
+      return expect(getStyles()).to.eql({
+        width: '60px',
+        height: '9px',
+        marginTop: '60px'
+      });
     });
   });
   suite("Media Queries", function() {
