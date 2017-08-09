@@ -922,9 +922,9 @@ suite("QuickDom", function() {
       expect(divB.styleSafe('height')).to.equal('100%');
       expect(divA.style('zIndex')).to.equal('');
       expect(divB.style('zIndex')).to.equal('');
-      expect(divA.styleSafe('zIndex')).to.equal('12');
-      expect(divA.styleSafe('zIndex', true)).to.equal('12');
-      expect(divB.styleSafe('zIndex')).to.equal('29');
+      expect(String(divA.styleSafe('zIndex'))).to.equal('12');
+      expect(String(divA.styleSafe('zIndex', true))).to.equal('12');
+      expect(String(divB.styleSafe('zIndex'))).to.equal('29');
       divB.appendTo(sandbox);
       expect(divB.style('height')).not.to.equal('');
       expect(divB.style('height')).not.to.equal('100%');

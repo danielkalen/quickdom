@@ -36,8 +36,9 @@ QuickElement::style = (property)->
 ###
 QuickElement::styleSafe = (property, skipComputed)->
 	return if @type is 'text'
+	sample = @el.style[property]
 
-	if IS.string(@el.style[property])
+	if IS.string(sample) or IS.number(sample)
 		computed = if skipComputed then 0 else @style(property)
 		result = computed or @el.style[property] or @_styles.base?[property] or ''
 		return if typeof result is 'function' then result.call(@, @related) else result
