@@ -1525,11 +1525,12 @@ QuickElement.prototype.style = function(property) {
  */
 
 QuickElement.prototype.styleSafe = function(property, skipComputed) {
-  var computed, ref, result;
+  var computed, ref, result, sample;
   if (this.type === 'text') {
     return;
   }
-  if (IS.string(this.el.style[property])) {
+  sample = this.el.style[property];
+  if (IS.string(sample) || IS.number(sample)) {
     computed = skipComputed ? 0 : this.style(property);
     result = computed || this.el.style[property] || ((ref = this._styles.base) != null ? ref[property] : void 0) || '';
     if (typeof result === 'function') {
@@ -1943,11 +1944,13 @@ QuickElement.prototype.updateOptions = function(options) {
 };
 
 QuickElement.prototype.updateStateStyles = function(styles) {
-  return extend.deep.concat(this, this._parseStyles(styles));
+  extend.deep.concat(this, this._parseStyles(styles));
+  return this;
 };
 
 QuickElement.prototype.updateStateTexts = function(texts) {
-  return extend.deep.concat(this, this._parseTexts(texts));
+  extend.deep.concat(this, this._parseTexts(texts));
+  return this;
 };
 
 QuickElement.prototype.applyData = function(data) {
@@ -2586,7 +2589,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.64";
+QuickDom.version = "1.0.65";
 
 module.exports = QuickDom;
 
