@@ -9,8 +9,9 @@ helpers.removeItem = (target, item)->
 	return target
 
 helpers.normalizeGivenEl = (targetEl)-> switch
-	when IS.domNode(targetEl) then QuickDom(targetEl)
 	when IS.string(targetEl) then QuickDom.text(targetEl)
+	when IS.domNode(targetEl) then QuickDom(targetEl)
+	when IS.template(targetEl) then targetEl.spawn()
 	else targetEl
 
 
