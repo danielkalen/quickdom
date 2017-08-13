@@ -3063,7 +3063,7 @@ suite("QuickDom", function() {
       return expect(C.siblings).to.eql([A, B, D, E]);
     });
     test("Child (by ref)", function() {
-      var divA, divB, newChild, newChildChild, newParent, sandBox;
+      var divA, divB, divC, newChild, newChildChild, newParent, sandBox;
       divA = Dom.div({
         id: 'divA'
       }, Dom.div({
@@ -3105,6 +3105,43 @@ suite("QuickDom", function() {
           ]
         ]
       ]).spawn();
+      divC = Dom.template([
+        'div', {
+          ref: 'divC'
+        }, [
+          'div', {
+            ref: 'childA'
+          }, [
+            'div', {
+              ref: 'divB'
+            }
+          ], [
+            'div', {
+              ref: 'divC'
+            }
+          ]
+        ], [
+          'div', {
+            ref: 'childB'
+          }, [
+            'div', {
+              ref: 'divB'
+            }
+          ], [
+            'div', {
+              ref: 'divC'
+            }
+          ], [
+            'div', {
+              ref: 'divD'
+            }, [
+              'div', {
+                ref: 'childB'
+              }
+            ]
+          ]
+        ]
+      ]).spawn();
       expect(divA.child.childA).to.equal(divA.children[0]);
       expect(divA.child.childA_1).to.equal(divA.children[0].children[0]);
       expect(divA.child.childA_2).to.equal(divA.children[0].children[1]);
@@ -3129,6 +3166,17 @@ suite("QuickDom", function() {
       expect(divA.child.childA_1.raw.getAttribute('data-ref')).to.equal('childA_1');
       expect(divA.child.childA_2.raw.getAttribute('id')).to.equal('childA_2');
       expect(divA.child.childA_2.raw.getAttribute('data-ref')).to.equal('childA_2');
+      expect(divC.child.childA).to.equal(divC.children[0]);
+      expect(divC.child.childB).to.equal(divC.children[1]);
+      expect(divC.child.divB).to.equal(divC.children[0].children[0]);
+      expect(divC.child.divC).to.equal(divC);
+      expect(divC.child.divD).to.equal(divC.children[1].children[2]);
+      expect(divC.children[0].child.divB).to.equal(divC.children[0].children[0]);
+      expect(divC.children[0].child.divC).to.equal(divC.children[0].children[1]);
+      expect(divC.children[1].child.divB).to.equal(divC.children[1].children[0]);
+      expect(divC.children[1].child.divC).to.equal(divC.children[1].children[1]);
+      expect(divC.children[1].child.divD).to.equal(divC.children[1].children[2]);
+      expect(divC.children[1].child.childB).to.equal(divC.children[1]);
       sandBox = Dom(sandbox);
       expect(sandBox.child.childA).to.equal(void 0);
       expect(sandBox.child.childB_2).to.equal(void 0);

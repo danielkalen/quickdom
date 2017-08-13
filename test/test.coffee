@@ -2590,8 +2590,8 @@ suite "QuickDom", ()->
 						Dom.text {id:'childB_2'}, 'The Text'
 
 
-			divB = 
-				Dom.template(['div', {id:'divB'},
+			divB = Dom.template(
+				['div', {id:'divB'},
 					['div', {id:'childA', style:{color:'pink'}},
 						['span', {ref:'childA_1'}]
 						['div', {ref:'childA_3', id:'childA_2'}]
@@ -2599,7 +2599,24 @@ suite "QuickDom", ()->
 					['div', null, 
 						['span', {ref:'childB_1'}]
 					]
-				]).spawn()
+				]
+			).spawn()
+
+			divC = Dom.template(
+				['div', ref:'divC',
+					['div',	ref:'childA',
+						['div', ref:'divB']
+						['div', ref:'divC']
+					]
+					['div',	ref:'childB',
+						['div', ref:'divB']
+						['div', ref:'divC']
+						['div', ref:'divD',
+							['div', ref:'childB']
+						]
+					]
+				]
+			).spawn()
 
 			
 			expect(divA.child.childA).to.equal(divA.children[0])
@@ -2630,6 +2647,18 @@ suite "QuickDom", ()->
 			expect(divA.child.childA_1.raw.getAttribute('data-ref')).to.equal('childA_1')
 			expect(divA.child.childA_2.raw.getAttribute('id')).to.equal('childA_2')
 			expect(divA.child.childA_2.raw.getAttribute('data-ref')).to.equal('childA_2')
+
+			expect(divC.child.childA).to.equal(divC.children[0])
+			expect(divC.child.childB).to.equal(divC.children[1])
+			expect(divC.child.divB).to.equal(divC.children[0].children[0])
+			expect(divC.child.divC).to.equal(divC)
+			expect(divC.child.divD).to.equal(divC.children[1].children[2])
+			expect(divC.children[0].child.divB).to.equal(divC.children[0].children[0])
+			expect(divC.children[0].child.divC).to.equal(divC.children[0].children[1])
+			expect(divC.children[1].child.divB).to.equal(divC.children[1].children[0])
+			expect(divC.children[1].child.divC).to.equal(divC.children[1].children[1])
+			expect(divC.children[1].child.divD).to.equal(divC.children[1].children[2])
+			expect(divC.children[1].child.childB).to.equal(divC.children[1])
 
 			sandBox = Dom(sandbox)
 			expect(sandBox.child.childA).to.equal(undefined)

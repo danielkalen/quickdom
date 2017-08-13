@@ -103,9 +103,11 @@ _getChildRefs = (target, freshCopy)->
 	children = target.children
 
 	if children.length
-		extend target._childRefs, children.map((child)-> _getChildRefs(child, freshCopy))...
+		for child in children
+			childRefs = _getChildRefs(child, freshCopy)
+			refs[ref] ||= el for ref,el of childRefs
 
-	return target._childRefs
+	return refs
 
 
 _getIndexByProp = (main, prop)->
