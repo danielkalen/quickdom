@@ -36,6 +36,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 	
 	
 	else if IS.object(newChildren)
+		newChildren = extend.allowNull.clone newChildren
 		output.children = extendByRef(newChildren, currentChildren, globalOpts)
 		remainingNewChildren = newChildren
 		

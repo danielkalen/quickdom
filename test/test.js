@@ -4684,6 +4684,49 @@ suite("QuickDom", function() {
       expect(Object.keys(templateMain.spawn().child).length).to.equal(7);
       return expect(Object.keys(templateCopy.spawn().child).length).to.equal(10);
     });
+    test("ref-children maps shouldn't be modified by the template extender", function() {
+      var config, spawnA, spawnB, spawnC, spawnD, templateA, templateB, templateC, templateD;
+      config = {
+        children: {
+          childA_1: {
+            type: 'div',
+            options: {
+              style: {
+                display: 'none'
+              }
+            }
+          }
+        }
+      };
+      templateA = Dom.template([
+        'div', {
+          ref: 'divA'
+        }, [
+          'div', {
+            ref: 'childA'
+          }, [
+            'span', {
+              ref: 'childA_1'
+            }
+          ]
+        ]
+      ]);
+      templateB = templateA.extend();
+      templateC = templateA.extend(config);
+      templateD = templateA.extend(config);
+      spawnA = templateA.spawn().appendTo(sandbox);
+      spawnB = templateB.spawn().appendTo(sandbox);
+      spawnC = templateC.spawn().appendTo(sandbox);
+      spawnD = templateD.spawn().appendTo(sandbox);
+      expect(spawnA.child.childA_1.type).to.equal('span');
+      expect(spawnA.child.childA_1.style('display')).to.equal('inline');
+      expect(spawnB.child.childA_1.type).to.equal('span');
+      expect(spawnB.child.childA_1.style('display')).to.equal('inline');
+      expect(spawnC.child.childA_1.type).to.equal('div');
+      expect(spawnC.child.childA_1.style('display')).to.equal('none');
+      expect(spawnD.child.childA_1.type).to.equal('div');
+      return expect(spawnD.child.childA_1.style('display')).to.equal('none');
+    });
     test("Null values in ref-children map will remove the child from the template", function() {
       var templateCopy, templateMain;
       templateMain = Dom.template([
