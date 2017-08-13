@@ -2377,6 +2377,7 @@ extendTemplate = function(currentOpts, newOpts, globalOpts) {
       output.children.push(newChildProcessed);
     }
   } else if (IS.object(newChildren)) {
+    newChildren = extend.allowNull.clone(newChildren);
     output.children = extendByRef(newChildren, currentChildren, globalOpts);
     remainingNewChildren = newChildren;
     for (ref in remainingNewChildren) {
@@ -2600,7 +2601,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.68";
+QuickDom.version = "1.0.69";
 
 module.exports = QuickDom;
 
