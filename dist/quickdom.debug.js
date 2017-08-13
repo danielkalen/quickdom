@@ -543,10 +543,12 @@ helpers.removeItem = function(target, item) {
 
 helpers.normalizeGivenEl = function(targetEl) {
   switch (false) {
-    case !IS.domNode(targetEl):
-      return QuickDom(targetEl);
     case !IS.string(targetEl):
       return QuickDom.text(targetEl);
+    case !IS.domNode(targetEl):
+      return QuickDom(targetEl);
+    case !IS.template(targetEl):
+      return targetEl.spawn();
     default:
       return targetEl;
   }
@@ -2593,7 +2595,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.66";
+QuickDom.version = "1.0.67";
 
 module.exports = QuickDom;
 
