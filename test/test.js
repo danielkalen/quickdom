@@ -4867,6 +4867,23 @@ suite("QuickDom", function() {
       expect(spawnB.options.style).not.to.equal(templateB.options.style);
       return expect(templateB.options.style.$base).to.equal(void 0);
     });
+    test("Templates will be spawned when appended to DOM elements", function() {
+      var div, template;
+      template = Dom.template([
+        'span', {
+          ref: 'theSpan'
+        }, 'someText'
+      ]);
+      div = Dom.div(null, 'label: ');
+      expect(div.children.length).to.equal(1);
+      expect(div.text).to.equal('label: ');
+      div.append(template);
+      expect(div.children.length).to.equal(2);
+      expect(div.text).to.equal('label: someText');
+      div.prepend(template);
+      expect(div.children.length).to.equal(3);
+      return expect(div.text).to.equal('someTextlabel: someText');
+    });
     return suite("Data computers", function() {
       test("Templates accept options.computers fn map which will be invoked with provided options.data upon spawning", function() {
         var receivedData, template;

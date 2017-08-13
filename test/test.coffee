@@ -4090,6 +4090,20 @@ suite "QuickDom", ()->
 			expect(templateB.options.style.$base).to.equal(undefined)
 
 
+		test "Templates will be spawned when appended to DOM elements", ()->
+			template = Dom.template(['span', {ref:'theSpan'}, 'someText'])
+			div = Dom.div(null, 'label: ')
+
+			expect(div.children.length).to.equal 1
+			expect(div.text).to.equal 'label: '
+			div.append template
+			expect(div.children.length).to.equal 2
+			expect(div.text).to.equal 'label: someText'
+			div.prepend template
+			expect(div.children.length).to.equal 3
+			expect(div.text).to.equal 'someTextlabel: someText'
+
+
 		suite "Data computers", ()->
 			test "Templates accept options.computers fn map which will be invoked with provided options.data upon spawning", ()->
 				receivedData = null
