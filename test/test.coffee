@@ -257,6 +257,8 @@ suite "QuickDom", ()->
 			expect(div[0]).to.equal(div.el)
 			expect(div.css).to.equal(div.style)
 			expect(div.replaceWith).to.equal(div.replace)
+			expect(div.removeListener).to.equal(div.off)
+			expect(div.removeListener('eventA'))
 
 
 

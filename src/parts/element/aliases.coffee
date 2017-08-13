@@ -3,4 +3,5 @@ Object.defineProperties QuickElement::,
 	'0': get: ()-> @el
 	'css': get: ()-> @style
 	'replaceWith': get: ()-> @replace
+	'removeListener': get: ()-> @off
 

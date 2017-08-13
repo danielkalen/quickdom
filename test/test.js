@@ -379,7 +379,9 @@ suite("QuickDom", function() {
       expect(div.raw).to.equal(div.el);
       expect(div[0]).to.equal(div.el);
       expect(div.css).to.equal(div.style);
-      return expect(div.replaceWith).to.equal(div.replace);
+      expect(div.replaceWith).to.equal(div.replace);
+      expect(div.removeListener).to.equal(div.off);
+      return expect(div.removeListener('eventA'));
     });
   });
   suite("Events", function() {
