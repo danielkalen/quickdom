@@ -646,8 +646,7 @@ Object.defineProperties(QuickElement.prototype, {
 
 ;
 
-var _getChildRefs, _getIndexByProp, _getParents,
-  slice = [].slice;
+var _getChildRefs, _getIndexByProp, _getParents;
 
 QuickElement.prototype.parentsUntil = function(filterFn) {
   return _getParents(this, filterFn);
@@ -684,12 +683,12 @@ QuickElement.prototype.queryAll = function(selector) {
 Object.defineProperties(QuickElement.prototype, {
   'children': {
     get: function() {
-      var child, i, len, ref;
+      var child, i, len, ref1;
       if (this.el.childNodes.length !== this._children.length) {
         this._children.length = 0;
-        ref = this.el.childNodes;
-        for (i = 0, len = ref.length; i < len; i++) {
-          child = ref[i];
+        ref1 = this.el.childNodes;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          child = ref1[i];
           if (child.nodeType < 4) {
             this._children.push(QuickDom(child));
           }
@@ -800,7 +799,7 @@ _getParents = function(targetEl, filterFn) {
 };
 
 _getChildRefs = function(target, freshCopy) {
-  var children, refs;
+  var child, childRefs, children, el, i, len, ref, refs;
   if (freshCopy || !target._childRefs) {
     target._childRefs = {};
   }
@@ -810,11 +809,16 @@ _getChildRefs = function(target, freshCopy) {
   }
   children = target.children;
   if (children.length) {
-    extend.apply(null, [target._childRefs].concat(slice.call(children.map(function(child) {
-      return _getChildRefs(child, freshCopy);
-    }))));
+    for (i = 0, len = children.length; i < len; i++) {
+      child = children[i];
+      childRefs = _getChildRefs(child, freshCopy);
+      for (ref in childRefs) {
+        el = childRefs[ref];
+        refs[ref] || (refs[ref] = el);
+      }
+    }
   }
-  return target._childRefs;
+  return refs;
 };
 
 _getIndexByProp = function(main, prop) {
@@ -2589,7 +2593,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.65";
+QuickDom.version = "1.0.66";
 
 module.exports = QuickDom;
 
