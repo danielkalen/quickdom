@@ -643,6 +643,11 @@ Object.defineProperties(QuickElement.prototype, {
     get: function() {
       return this.replace;
     }
+  },
+  'removeListener': {
+    get: function() {
+      return this.off;
+    }
   }
 });
 
@@ -2595,7 +2600,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.67";
+QuickDom.version = "1.0.68";
 
 module.exports = QuickDom;
 
