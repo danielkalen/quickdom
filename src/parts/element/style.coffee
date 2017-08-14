@@ -67,6 +67,15 @@ QuickElement::recalcStyle = (recalcChildren)->
 QuickElement::show = (display)->
 	display ?= @_styles.base?.display or 'block'
 	@style 'display', display
+QuickElement::currentStateStyle = (property)-> if property
+	if @_state.length
+		states = @_state.slice()
+		i = states.length
+		while state = states[--i]
+			return @_styles[state][property] if @_styles[state] and IS.defined(@_styles[state][property])
+
+	return @_styles.base[property] if @_styles.base
+
 
 QuickElement::hide = ()->
 	@style 'display', 'none'
