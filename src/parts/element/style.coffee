@@ -64,9 +64,6 @@ QuickElement::recalcStyle = (recalcChildren)->
 	return @
 
 
-QuickElement::show = (display)->
-	display ?= @_styles.base?.display or 'block'
-	@style 'display', display
 QuickElement::currentStateStyle = (property)-> if property
 	if @_state.length
 		states = @_state.slice()
@@ -79,6 +76,15 @@ QuickElement::currentStateStyle = (property)-> if property
 
 QuickElement::hide = ()->
 	@style 'display', 'none'
+
+
+QuickElement::show = (display)->
+	if not display
+		display = @currentStateStyle('display')
+		display = 'block' if display is 'none' or not display
+	
+	display ?= @_styles.base?.display or 'block'
+	@style 'display', display
 
 
 Object.defineProperties QuickElement::,
