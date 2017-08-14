@@ -1,7 +1,6 @@
 extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
 	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
-	newOpts = newOpts._config if IS.template(newOpts)
 
 	output = extend.deep.nullDeletes.notKeys('children').notDeep(['relatedInstance','data']).transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children
@@ -70,7 +69,7 @@ extendByRef = (newChildrenRefs, currentChildren, globalOpts)-> if not currentChi
 				when Object.keys(newChildrenRefs).length then currentChild.extend()
 				else currentChild
 
-		newChildProcessed._config.children = extendByRef(newChildrenRefs, newChildProcessed.children)
+		newChildProcessed.children = extendByRef(newChildrenRefs, newChildProcessed.children)
 		output.push(newChildProcessed)
 
 	return output

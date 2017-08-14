@@ -5,16 +5,17 @@ import './schema'
 class QuickTemplate
 	constructor: (config, isTree)->
 		return config if IS.template(config)
-		@_config = if isTree then parseTree(config) else config
-		@_hasComputers = !!@_config.options.computers
+		config = if isTree then parseTree(config) else config
+		extend @, config
+		@_hasComputers = !!@options.computers
 
-		if not @_hasComputers and @_config.children.length
-			for child in @_config.children when child._hasComputers or child._config.options.computers
+		if not @_hasComputers and @children.length
+			for child in @children when child._hasComputers or child.options.computers
 				@_hasComputers = true
 				break
 	
 	extend: (newValues, globalOpts)->
-		new QuickTemplate extendTemplate(@_config, newValues, globalOpts)
+		new QuickTemplate extendTemplate(@, newValues, globalOpts)
 
 	spawn: (newValues, globalOpts)->
 		if newValues and newValues.data
@@ -22,9 +23,9 @@ class QuickTemplate
 			newValues = null if Object.keys(newValues).length is 1
 		
 		if newValues or globalOpts
-			opts = extendTemplate(@_config, newValues, globalOpts)
+			opts = extendTemplate(@, newValues, globalOpts)
 		else
-			opts = extend.clone(@_config)
+			opts = extend.clone(@)
 			opts.options = extend.deepOnly('style').clone(opts.options)
 	
 
@@ -43,8 +44,8 @@ class QuickTemplate
 QuickTemplate.name ?= 'QuickTemplate'
 
 
-Object.keys(schema).forEach (key)->
-	Object.defineProperty QuickTemplate::, key, get:()-> @_config[key]
+# Object.keys(schema).forEach (key)->
+# 	Object.defineProperty QuickTemplate::, key, get:()-> @_config[key]
 
 Object.defineProperty QuickTemplate::, 'child', get: ()->
 	@_childRefs or _getChildRefs(@) # source in /src/parts/element/traversing.coffee

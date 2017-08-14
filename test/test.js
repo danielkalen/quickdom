@@ -4054,30 +4054,6 @@ suite("QuickDom", function() {
       expect(templateSpawn.el.className).to.equal('singleSection');
       return expect(templateSpawn.text).to.equal('Some Inner Text');
     });
-    test("Templates are immutable", function() {
-      var template;
-      template = Dom.template([
-        'div', {
-          className: 'some-div'
-        }, 'Some Inner Text'
-      ]);
-      expect(template.type).to.equal('div');
-      expect(template.options).to.eql({
-        className: 'some-div'
-      });
-      expect(template.children.length).to.equal(1);
-      template.type = 'span';
-      template.options = {
-        className: 'some-div',
-        id: 'tag'
-      };
-      template.children = ['another', 'one'];
-      expect(template.type).to.equal('div');
-      expect(template.options).to.eql({
-        className: 'some-div'
-      });
-      return expect(template.children.length).to.equal(1);
-    });
     test("Templates can be extended via template.extend", function() {
       var spawn, spawnA, spawnB;
       window.template = Dom.template([
