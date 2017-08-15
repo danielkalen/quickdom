@@ -44,9 +44,6 @@ class QuickTemplate
 QuickTemplate.name ?= 'QuickTemplate'
 
 
-# Object.keys(schema).forEach (key)->
-# 	Object.defineProperty QuickTemplate::, key, get:()-> @_config[key]
-
 Object.defineProperty QuickTemplate::, 'child', get: ()->
 	@_childRefs or _getChildRefs(@) # source in /src/parts/element/traversing.coffee
 
