@@ -141,7 +141,10 @@ QuickElement = (function() {
   function QuickElement(type, options) {
     this.type = type;
     this.options = options;
-    this.el = this.options.existing || (this.type === 'text' ? document.createTextNode(typeof this.options.text === 'string' ? this.options.text : '') : this.type[0] === '*' ? document.createElementNS(svgNamespace, this.type.slice(1)) : document.createElement(this.type));
+    if (this.type[0] === '*') {
+      this.svg = true;
+    }
+    this.el = this.options.existing || (this.type === 'text' ? document.createTextNode(typeof this.options.text === 'string' ? this.options.text : '') : this.svg ? document.createElementNS(svgNamespace, this.type.slice(1)) : document.createElement(this.type));
     if (this.type === 'text') {
       this.append = this.prepend = this.attr = function() {};
     }
@@ -1516,7 +1519,7 @@ QuickElement.prototype.addClass = function(target) {
   targetIndex = classList.indexOf(target);
   if (targetIndex === -1) {
     classList.push(target);
-    this.raw.className = classList.length > 1 ? classList.join(' ') : classList[0];
+    this.className = classList.length > 1 ? classList.join(' ') : classList[0];
   }
   return this;
 };
@@ -1527,7 +1530,7 @@ QuickElement.prototype.removeClass = function(target) {
   targetIndex = classList.indexOf(target);
   if (targetIndex !== -1) {
     classList.splice(targetIndex, 1);
-    this.raw.className = classList.length ? classList.join(' ') : '';
+    this.className = classList.length ? classList.join(' ') : '';
   }
   return this;
 };
@@ -1577,10 +1580,26 @@ Object.defineProperties(QuickElement.prototype, {
       return this.el.textContent = newValue;
     }
   },
+  'className': {
+    get: function() {
+      if (this.svg) {
+        return this.attr('class') || '';
+      } else {
+        return this.raw.className;
+      }
+    },
+    set: function(newValue) {
+      if (this.svg) {
+        return this.attr('class', newValue);
+      } else {
+        return this.raw.className = newValue;
+      }
+    }
+  },
   'classList': {
     get: function() {
       var list;
-      list = this.raw.className.split(/\s+/);
+      list = this.className.split(/\s+/);
       if (list[list.length - 1] === '') {
         list.pop();
       }
@@ -2263,7 +2282,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.71";
+QuickDom.version = "1.0.72";
 
 QuickDom.CSS = CSS;
 
