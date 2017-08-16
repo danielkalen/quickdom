@@ -54,12 +54,13 @@
   "homepage": "https://github.com/danielkalen/quickdom#readme",
   "dependencies": {
     "@danielkalen/is": "^2.0.0",
-    "quickcss": "^1.3.0",
+    "quickcss": "^1.3.2",
     "smart-extend": "^1.7.3"
   },
   "devDependencies": {
     "bluebird": "^3.4.7",
     "chai": "^3.5.0",
+    "chai-style": "github:danielkalen/chai-style",
     "closure-compiler-service": "^0.6.1",
     "coffee-script": "^1.12.2",
     "electron": "^1.6.2",
