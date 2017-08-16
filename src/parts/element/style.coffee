@@ -12,17 +12,17 @@ QuickElement::style = (property)->
 	args = arguments
 	
 	if IS.string(property)
-		returnValue = CSS(@el, property, args[1])
+		value = if typeof args[1] is 'function' then args[1].call(@, @related) else args[1]
+		value = CSS.UNSET if args[1] is null and IS.defined(@currentStateStyle(property)) and not IS.function(@currentStateStyle(property))
+		result = CSS(@el, property, value)
+		
 		if args.length is 1
 			### istanbul ignore next ###
-			return if @_inserted then returnValue else if not returnValue then returnValue else ''
+			return if @_inserted then result else if not result then result else ''
 
 	else if IS.object(property)
-		keys = Object.keys(property)
-		i = -1
-		while key=keys[++i]
-			value = if typeof property[key] is 'function' then property[key].call(@, @related) else property[key]
-			CSS(@el, key, value)
+		keys = Object.keys(property); i = -1
+		@style(key, property[key]) while key=keys[++i]
 
 	return @
 
@@ -40,7 +40,7 @@ QuickElement::styleSafe = (property, skipComputed)->
 
 	if IS.string(sample) or IS.number(sample)
 		computed = if skipComputed then 0 else @style(property)
-		result = computed or @el.style[property] or @_styles.base?[property] or ''
+		result = computed or @el.style[property] or @currentStateStyle(property) or ''
 		return if typeof result is 'function' then result.call(@, @related) else result
 
 	return @
@@ -51,10 +51,7 @@ QuickElement::styleParsed = (property, skipComputed)->
 
 
 QuickElement::recalcStyle = (recalcChildren)->
-	activeStyles = @_getStateStyles @_getActiveStates()
-	targetStyles = extend.clone.filter(
-		(value)-> typeof value is 'function'
-	)(@_styles.base, activeStyles...)
+	targetStyles = @_resolveFnStyles(@_getActiveStates(), true)
 
 	@style(targetStyles)
 	
@@ -67,11 +64,12 @@ QuickElement::recalcStyle = (recalcChildren)->
 QuickElement::currentStateStyle = (property)-> if property
 	if @_state.length
 		states = @_state.slice()
+		states.push(@_stateShared...) if @_stateShared and @_stateShared.length
 		i = states.length
 		while state = states[--i]
-			return @_styles[state][property] if @_styles[state] and IS.defined(@_styles[state][property])
+			return @_styles[state].rule[property] if @_styles[state] and IS.defined(@_styles[state].rule[property])
 
-	return @_styles.base[property] if @_styles.base
+	return @_styles.base.rule[property] if @_styles.base
 
 
 QuickElement::hide = ()->

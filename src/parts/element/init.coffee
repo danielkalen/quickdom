@@ -33,41 +33,37 @@ QuickElement::_parseStyles = (styles, store)->
 	_styles = store or {}
 	_stateShared = _providedStatesShared = undefined
 
-	if not helpers.includes(states, '$base')
-		if states.length # Indicates other states were provided but the $base state has no styling
-			_styles.base = extend.clone.notKeys(states)(styles)
-		else
-			_styles.base = styles
-	else
-		_styles.base = styles.$base
+	base = if not helpers.includes(states, '$base') then styles else styles.$base
+	_styles.base = helpers.registerStyle(base)
 
 
-	flattenNestedStates = (styleObject, chain)=>
-		styleKeys = Object.keys(styleObject)
-		output = {}
-		hasNonStateProps = false
-		
-		for state in styleKeys
-			if not helpers.isStateStyle(state)
-				hasNonStateProps = true
-				output[state] = styleObject[state]
-			else
-				chain.push(state_ = state.slice(1))
-				stateChain = new (import './stateChain')(chain)
-				_stateShared ?= []
-				_providedStatesShared ?= []
-				_providedStatesShared.push(stateChain)
-				_mediaStates.push(state_) if state[0] is '@'
-				_styles[stateChain.string] = flattenNestedStates(styleObject[state], chain)
-		
-		return if hasNonStateProps then output
+	if specialStates.length
+		flattenNestedStates = (styleObject, chain, level)->
+			styleKeys = Object.keys(styleObject)
+			output = {}
+			hasNonStateProps = false
+			
+			for state in styleKeys
+				if not helpers.isStateStyle(state)
+					hasNonStateProps = true
+					output[state] = styleObject[state]
+				else
+					chain.push(state_ = state.slice(1))
+					stateChain = new (import './stateChain')(chain)
+					_stateShared ?= []
+					_providedStatesShared ?= []
+					_providedStatesShared.push(stateChain)
+					_mediaStates.push(state_) if state[0] is '@'
+					_styles[stateChain.string] = helpers.registerStyle flattenNestedStates(styleObject[state], chain, level+1), level+1
+			
+			return if hasNonStateProps then output
 
+		for state in specialStates
+			state_ = state.slice(1)
+			
+			stateStyles = flattenNestedStates(styles[state], [state_], 1)
+			_styles[state_] = helpers.registerStyle(stateStyles, 1) if stateStyles
 
-	for state in specialStates
-		state_ = state.slice(1)
-		
-		stateStyles = flattenNestedStates(styles[state], [state_])
-		_styles[state_] = stateStyles if stateStyles
 
 	return {_styles, _mediaStates, _stateShared, _providedStates, _providedStatesShared}
 
@@ -97,11 +93,12 @@ QuickElement::_applyOptions = ()->
 	if @options.checked then @el.checked = @options.checked
 	if @options.props then @prop(key,value) for key,value of @options.props
 	if @options.attrs then @attr(key,value) for key,value of @options.attrs
-	@style(@_styles.base) if not @options.styleAfterInsert
+	@_applyRegisteredStyle(@_styles.base, null, null, @options.styleAfterInsert)
 	@text = @_texts.base if @_texts
+
 	@on 'inserted', ()->
 		if @options.styleAfterInsert
-			@style(extend.clone @_styles.base, @_getStateStyles(@_getActiveStates())...)
+			@recalcStyle()
 
 		_ = @_inserted = @
 

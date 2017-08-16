@@ -26,7 +26,7 @@ class QuickTemplate
 			opts = extendTemplate(@, newValues, globalOpts)
 		else
 			opts = extend.clone(@)
-			opts.options = extend.deepOnly('style').clone(opts.options)
+			opts.options = extend.clone(opts.options)
 	
 
 		element = QuickDom(opts.type, opts.options, opts.children...)

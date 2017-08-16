@@ -7,12 +7,19 @@ QuickElement::updateOptions = (options)->
 	return @
 
 
-QuickElement::updateStateStyles = (styles)->
-	extend.deep.concat @, @_parseStyles(styles)
+QuickElement::updateStateStyles = (styles)-> if IS.objectPlain(styles)
+	extend.deep.concat @, parsed = @_parseStyles(styles)
+
+	if parsed._styles
+		updatedStates = Object.keys(parsed._styles)
+		
+		for state in updatedStates when @state(state) or state is 'base'
+			@_applyRegisteredStyle(@_styles[state], @_getActiveStates(state), false)
+	
 	return @
 
-QuickElement::updateStateTexts = (texts)->
-	extend.deep.concat @, @_parseTexts(texts)
+QuickElement::updateStateTexts = (texts)-> if IS.objectPlain(texts)
+	extend.deep.concat @, parsed = @_parseTexts(texts)
 	return @
 
 

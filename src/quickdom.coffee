@@ -81,6 +81,7 @@ import './parts/batch'
 import './parts/template'
 import './parts/shortcuts'
 QuickDom.version = import '../package.json $ version'
+QuickDom.CSS = CSS
 module.exports = QuickDom
 
 

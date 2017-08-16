@@ -56,6 +56,8 @@ task 'watch', ()->
 task 'watch:js', (options)->
 	require('simplywatch')
 		globs: "src/*.coffee"
+		bufferTimeout: 1
+		haltSerial: true
 		command: (file, params)->
 			Promise.resolve()
 				.then ()->
@@ -68,6 +70,8 @@ task 'watch:js', (options)->
 task 'watch:test', (options)->
 	require('simplywatch')
 		globs: "test/*.coffee"
+		bufferTimeout: 1
+		haltSerial: true
 		command: (file, params)->
 			Promise.resolve()
 				.then ()->

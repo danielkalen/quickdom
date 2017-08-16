@@ -92,6 +92,8 @@ if (!window.location.hostname) {
   mocha.bail();
 }
 
+chai.use(require(2));
+
 chai.config.truncateThreshold = 1e3;
 
 expect = chai.expect;
@@ -256,9 +258,9 @@ suite("QuickDom", function() {
             display: 'inline'
           }
         }, ['div', null, 'childA'], ['span', null, ['strong', null, 'childB']], ['div', null, 'childC', ['span', null, 'childC_1'], ['span', null, 'childC_2']]
-      ]);
+      ]).appendTo(sandbox);
       expect(section).not.to.equal(void 0);
-      expect(section.raw.style.display).to.equal('inline');
+      expect(section.raw).to.have.style('display', 'inline');
       expect(section.children.length).to.equal(3);
       expect(section.children[0].children.length).to.equal(1);
       expect(section.children[1].children.length).to.equal(1);
@@ -817,24 +819,26 @@ suite("QuickDom", function() {
       expect(computedStyle.width).to.equal('25px');
       return expect(computedStyle.height).to.equal('33px');
     });
-    test("A null value can be passed for a property in order to delete that style", function() {
-      var div;
-      div = Dom.div({
+    test("Styles defined in the options object will be applied via classNames and not inline style", function() {
+      var divA, divB;
+      divA = Dom.div({
         style: {
-          width: '15px'
+          width: 15,
+          height: 30
         }
       }).appendTo(sandbox);
-      expect(div.el.style.width).to.equal('15px');
-      expect(div.el.style.height).to.equal('');
-      div.style({
-        width: null,
-        height: 12
+      divB = Dom.div().appendTo(sandbox).style({
+        width: 15,
+        height: 30
       });
-      expect(div.el.style.width).to.equal('');
-      expect(div.el.style.height).to.equal('12px');
-      div.css('height', null);
-      expect(div.el.style.width).to.equal('');
-      return expect(div.el.style.height).to.equal('');
+      expect(divA.raw).to.have.style('width', '15px');
+      expect(divB.raw).to.have.style('width', '15px');
+      expect(divA.raw).to.have.style('height', '30px');
+      expect(divB.raw).to.have.style('height', '30px');
+      expect(divA.raw.style.width).to.equal('');
+      expect(divB.raw.style.width).to.equal('15px');
+      expect(divA.raw.style.height).to.equal('');
+      return expect(divB.raw.style.height).to.equal('30px');
     });
     test("If passed a property name without a value, the computed value for that property will be returned", function() {
       var computedStyle, div;
@@ -875,10 +879,70 @@ suite("QuickDom", function() {
       div.options.rate = 250;
       div.related = anotherObj = {};
       applyWidth(anotherObj);
-      return expect(div.style('width')).to.equal('250px');
+      expect(div.style('width')).to.equal('250px');
+      div = Dom.div({
+        style: {
+          width: 30,
+          height: (function() {
+            return 50;
+          }),
+          fontSize: (function() {
+            return 20;
+          })
+        }
+      }).appendTo(sandbox);
+      expect(div.raw).to.have.style('width', '30px');
+      expect(div.raw).to.have.style('height', '50px');
+      return expect(div.raw).to.have.style('fontSize', '20px');
+    });
+    test("A null value can be passed for a property in order to delete that style", function() {
+      var div;
+      div = Dom.div({
+        style: {
+          width: '15px',
+          fontSize: function() {
+            return 30;
+          }
+        }
+      }).appendTo(sandbox);
+      div.style('height', 20);
+      expect(div.el).to.have.style('width', '15px');
+      expect(div.el).to.have.style('height', '20px');
+      expect(div.el.style.width).to.equal('');
+      expect(div.el.style.height).to.equal('20px');
+      div.style({
+        width: null,
+        height: 12
+      });
+      expect(div.el).not.to.have.style('width', '15px');
+      expect(div.el).to.have.style('height', '12px');
+      expect(['unset', 'inherit', 'initial'].some(function(s) {
+        return s === div.el.style.width;
+      })).to.be["true"];
+      expect(div.el.style.height).to.equal('12px');
+      div.css('height', null);
+      expect(div.el.style.height).to.equal('');
+      expect(div.el.style.width).not.to.equal('');
+      div.el.style.width = null;
+      expect(div.el.style.width).to.equal('');
+      expect(div.el).to.have.style('width', '15px');
+      div.css('width', null);
+      expect(div.el.style.width).not.to.equal('');
+      expect(div.el).not.to.have.style('width', '15px');
+      div.style('height', function() {
+        return 30;
+      });
+      expect(div.el.style.height).to.equal('30px');
+      div.style('height', function() {
+        return null;
+      });
+      expect(div.el.style.height).to.equal('');
+      expect(div.el.style.fontSize).to.equal('30px');
+      div.style('fontSize', null);
+      return expect(div.el.style.fontSize).to.equal('');
     });
     test(".styleSafe() can be used to obtain the value for a given property even for non-inserted elements or elements with options.styleAfterInsert", function() {
-      var divA, divB, style, text;
+      var divA, divB, heightA, heightB, prop, style, text;
       style = {
         width: '8px',
         height: '9px',
@@ -886,7 +950,10 @@ suite("QuickDom", function() {
           return field.options.theIndex;
         },
         $happy: {
-          width: '18px'
+          width: '18px',
+          zIndex: function(field) {
+            return field.options.theIndex * 2;
+          }
         },
         $relaxed: {
           height: '100%'
@@ -901,37 +968,127 @@ suite("QuickDom", function() {
         theIndex: '29',
         styleAfterInsert: true
       });
-      expect(divA.style('width')).to.equal('');
-      expect(divA.raw.style.width).to.equal('8px');
-      expect(divA.styleSafe('width')).to.equal('8px');
+      divA.style({
+        fontSize: 10,
+        position: 'relative'
+      });
+      divB.style({
+        fontSize: 10,
+        position: 'relative'
+      });
+      prop = function(el, target) {
+        return {
+          computed: el.style(target),
+          inline: el.raw.style[target],
+          safe: '' + el.styleSafe(target)
+        };
+      };
+      expect(prop(divA, 'fontSize')).to.eql({
+        computed: '',
+        inline: '10px',
+        safe: '10px'
+      });
+      expect(prop(divB, 'fontSize')).to.eql({
+        computed: '',
+        inline: '10px',
+        safe: '10px'
+      });
+      expect(prop(divA, 'width')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '8px'
+      });
+      expect(prop(divB, 'width')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '8px'
+      });
+      expect(prop(divA, 'height')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '9px'
+      });
+      expect(prop(divB, 'height')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '9px'
+      });
+      expect(prop(divA, 'zIndex')).to.eql({
+        computed: '',
+        inline: '12',
+        safe: '12'
+      });
+      expect(prop(divB, 'zIndex')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '29'
+      });
       divA.state('happy', true);
-      expect(divA.style('width')).to.equal('');
-      expect(divA.raw.style.width).to.equal('18px');
-      expect(divA.styleSafe('width')).to.equal('18px');
-      expect(divB.style('width')).to.equal('');
-      expect(divB.raw.style.width).to.equal('');
-      expect(divB.styleSafe('width')).to.equal('8px');
       divB.state('happy', true);
-      expect(divB.style('width')).to.equal('');
-      expect(divB.raw.style.width).to.equal('18px');
-      expect(divB.styleSafe('width')).to.equal('18px');
-      expect(divB.style('height')).to.equal('');
-      expect(divB.raw.style.height).to.equal('');
-      expect(divB.styleSafe('height')).to.equal('9px');
+      expect(prop(divA, 'width')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '18px'
+      });
+      expect(prop(divB, 'width')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '18px'
+      });
+      expect(prop(divA, 'zIndex')).to.eql({
+        computed: '',
+        inline: '24',
+        safe: '24'
+      });
+      expect(prop(divB, 'zIndex')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '58'
+      });
+      divA.state('relaxed', true);
       divB.state('relaxed', true);
-      expect(divB.style('height')).to.equal('');
-      expect(divB.raw.style.height).to.equal('100%');
-      expect(divB.styleSafe('height')).to.equal('100%');
-      expect(divA.style('zIndex')).to.equal('');
-      expect(divB.style('zIndex')).to.equal('');
-      expect(String(divA.styleSafe('zIndex'))).to.equal('12');
-      expect(String(divA.styleSafe('zIndex', true))).to.equal('12');
-      expect(String(divB.styleSafe('zIndex'))).to.equal('29');
+      expect(prop(divA, 'height')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '100%'
+      });
+      expect(prop(divB, 'height')).to.eql({
+        computed: '',
+        inline: '',
+        safe: '100%'
+      });
+      divA.appendTo(sandbox);
+      divB.appendTo(sandbox);
+      heightA = getComputedStyle(divA.raw).height;
+      heightB = getComputedStyle(divB.raw).height;
+      expect(prop(divA, 'zIndex')).to.eql({
+        computed: '24',
+        inline: '24',
+        safe: '24'
+      });
+      expect(prop(divB, 'zIndex')).to.eql({
+        computed: '58',
+        inline: '58',
+        safe: '58'
+      });
+      expect(prop(divA, 'height')).to.eql({
+        computed: heightA,
+        inline: '',
+        safe: heightA
+      });
+      expect(prop(divB, 'height')).to.eql({
+        computed: heightB,
+        inline: '',
+        safe: heightB
+      });
+      expect(divA.styleSafe('height')).to.equal(heightA);
+      expect(divA.styleSafe('height', true)).to.equal('100%');
+      expect(divB.styleSafe('height')).to.equal(heightB);
+      expect(divB.styleSafe('height', true)).to.equal('100%');
       divB.appendTo(sandbox);
       expect(divB.style('height')).not.to.equal('');
       expect(divB.style('height')).not.to.equal('100%');
       expect(divB.style('height')).to.contain('px');
-      expect(divB.raw.style.height).to.equal('100%');
       expect(divB.styleSafe('height')).to.equal(divB.style('height'));
       expect(divB.styleSafe('height', true)).not.to.equal(divB.style('height'));
       expect(divB.styleSafe('height', true)).to.equal('100%');
@@ -1577,7 +1734,7 @@ suite("QuickDom", function() {
       return expect(divB.state('focus')).to.equal(false);
     });
     test("The hover and focus states will be listened for and toggled by default by their appropriate events", function() {
-      var computedStyle, div;
+      var div;
       div = Dom.div({
         style: {
           $base: {
@@ -1597,37 +1754,36 @@ suite("QuickDom", function() {
         }
       });
       div.appendTo(sandbox);
-      computedStyle = getComputedStyle(div.el);
-      expect(computedStyle.width).to.equal('15px');
-      expect(computedStyle.height).to.equal('15px');
-      expect(computedStyle.marginTop).to.equal('0px');
+      expect(div.el).to.have.style('width', '15px');
+      expect(div.el).to.have.style('height', '15px');
+      expect(div.el).to.have.style('marginTop', '0px');
+      expect(div.el).to.have.style('backgroundColor', 'rgb(45, 45, 45)');
       expect(div.el.style.marginTop).to.equal('');
-      expect(computedStyle.backgroundColor).to.equal('rgb(45, 45, 45)');
       div.emit('mouseenter');
-      expect(computedStyle.width).to.equal('25px');
-      expect(computedStyle.height).to.equal('15px');
-      expect(computedStyle.marginTop).to.equal('20px');
-      expect(div.el.style.marginTop).to.equal('20px');
-      expect(computedStyle.backgroundColor).to.equal('rgb(155, 155, 155)');
-      div.emit('mouseleave');
-      expect(computedStyle.width).to.equal('15px');
-      expect(computedStyle.height).to.equal('15px');
-      expect(computedStyle.marginTop).to.equal('0px');
+      expect(div.el).to.have.style('width', '25px');
+      expect(div.el).to.have.style('height', '15px');
+      expect(div.el).to.have.style('marginTop', '20px');
+      expect(div.el).to.have.style('backgroundColor', 'rgb(155, 155, 155)');
       expect(div.el.style.marginTop).to.equal('');
-      expect(computedStyle.backgroundColor).to.equal('rgb(45, 45, 45)');
+      div.emit('mouseleave');
+      expect(div.el).to.have.style('width', '15px');
+      expect(div.el).to.have.style('height', '15px');
+      expect(div.el).to.have.style('marginTop', '0px');
+      expect(div.el).to.have.style('backgroundColor', 'rgb(45, 45, 45)');
+      expect(div.el.style.marginTop).to.equal('');
       div.emit('mouseenter');
       div.emit('focus');
-      expect(computedStyle.width).to.equal('35px');
-      expect(computedStyle.height).to.equal('15px');
-      expect(computedStyle.marginTop).to.equal('20px');
-      expect(div.el.style.marginTop).to.equal('20px');
-      expect(computedStyle.backgroundColor).to.equal('rgb(200, 200, 200)');
-      div.emit('mouseleave');
-      expect(computedStyle.width).to.equal('35px');
-      expect(computedStyle.height).to.equal('15px');
-      expect(computedStyle.marginTop).to.equal('0px');
+      expect(div.el).to.have.style('width', '35px');
+      expect(div.el).to.have.style('height', '15px');
+      expect(div.el).to.have.style('marginTop', '20px');
+      expect(div.el).to.have.style('backgroundColor', 'rgb(200, 200, 200)');
       expect(div.el.style.marginTop).to.equal('');
-      return expect(computedStyle.backgroundColor).to.equal('rgb(200, 200, 200)');
+      div.emit('mouseleave');
+      expect(div.el).to.have.style('width', '35px');
+      expect(div.el).to.have.style('height', '15px');
+      expect(div.el).to.have.style('marginTop', '0px');
+      expect(div.el).to.have.style('backgroundColor', 'rgb(200, 200, 200)');
+      return expect(div.el.style.marginTop).to.equal('');
     });
     test("If not passed a style map under the 'base' state, all non-state properties on the style object will be considered as 'base' state properties", function() {
       var computedStyle, div;
@@ -1665,16 +1821,16 @@ suite("QuickDom", function() {
       });
       div.appendTo(sandbox);
       computedStyle = getComputedStyle(div.el);
-      expect(computedStyle.width).to.equal('15px');
-      expect(computedStyle.height).to.equal('0px');
+      expect(div.el).to.have.style('width', '15px');
+      expect(div.el).to.have.style('height', '0px');
       expect(div.el.style.height).to.equal('');
       div.emit('mouseenter');
-      expect(computedStyle.width).to.equal('25px');
-      expect(computedStyle.height).to.equal('30px');
-      expect(div.el.style.height).to.equal('30px');
+      expect(div.el).to.have.style('width', '25px');
+      expect(div.el).to.have.style('height', '30px');
+      expect(div.el.style.height).to.equal('');
       div.emit('mouseleave');
-      expect(computedStyle.width).to.equal('15px');
-      expect(computedStyle.height).to.equal('0px');
+      expect(div.el).to.have.style('width', '15px');
+      expect(div.el).to.have.style('height', '0px');
       return expect(div.el.style.height).to.equal('');
     });
     test("Higher order state styles will have a higher precedence than the 'base' style to be used as replacments for pending-removal state-styles", function() {
@@ -1919,8 +2075,8 @@ suite("QuickDom", function() {
       });
       return expect(div.aspectRatio).to.equal(0.33333333333333333333333333);
     });
-    test("If options.styleAfterInsert is passed, base styles will be applied only after the element is inserted into the DOM", function() {
-      var divA, divB, divC, divReg, parentOpacityGetter;
+    test("If options.styleAfterInsert is passed, function styles will be applied only after the element is inserted into the DOM", function() {
+      var className, divA, divB, divC, divReg, parentOpacityGetter;
       parentOpacityGetter = function() {
         if (this.parent) {
           return this.parent.style('opacity');
@@ -1955,39 +2111,28 @@ suite("QuickDom", function() {
         },
         styleAfterInsert: true
       });
-      expect(divReg.el.style.height).to.equal('19px');
+      className = divReg.raw.className || 'no className';
+      expect(divReg.raw.className).to.equal(className);
+      expect(divA.raw.className).to.equal(className);
+      expect(divB.raw.className).to.equal(className);
+      expect(divC.raw.className).to.equal(className);
       expect(divReg.el.style.opacity).to.equal('0.5');
-      expect(divA.el.style.height).to.equal('');
-      expect(divB.el.style.height).to.equal('');
-      expect(divC.el.style.height).to.equal('');
       expect(divA.el.style.opacity).to.equal('');
       expect(divB.el.style.opacity).to.equal('');
       expect(divC.el.style.opacity).to.equal('');
       divA.appendTo(sandbox);
-      expect(divA.el.style.height).to.equal('19px');
-      expect(divB.el.style.height).to.equal('');
-      expect(divC.el.style.height).to.equal('');
       expect(divA.el.style.opacity).to.equal('1');
       expect(divB.el.style.opacity).to.equal('');
       expect(divC.el.style.opacity).to.equal('');
       divB.insertBefore(sandbox);
-      expect(divA.el.style.height).to.equal('19px');
-      expect(divB.el.style.height).to.equal('19px');
-      expect(divC.el.style.height).to.equal('');
       expect(divA.el.style.opacity).to.equal('1');
       expect(divB.el.style.opacity).to.equal('1');
       expect(divC.el.style.opacity).to.equal('');
       sandbox.appendChild(divC.el);
-      expect(divA.el.style.height).to.equal('19px');
-      expect(divB.el.style.height).to.equal('19px');
-      expect(divC.el.style.height).to.equal('');
       expect(divA.el.style.opacity).to.equal('1');
       expect(divB.el.style.opacity).to.equal('1');
       expect(divC.el.style.opacity).to.equal('');
       divC.parent;
-      expect(divA.el.style.height).to.equal('19px');
-      expect(divB.el.style.height).to.equal('19px');
-      expect(divC.el.style.height).to.equal('19px');
       expect(divA.el.style.opacity).to.equal('1');
       expect(divB.el.style.opacity).to.equal('1');
       expect(divC.el.style.opacity).to.equal('1');
@@ -1998,26 +2143,38 @@ suite("QuickDom", function() {
       divReg = Dom.div({
         style: {
           $base: {
-            height: '19px'
+            height: function() {
+              return '19px';
+            }
           },
           $funny: {
-            height: '29px'
+            height: function() {
+              return '29px';
+            }
           },
           $happy: {
-            height: '39px'
+            height: function() {
+              return '39px';
+            }
           }
         }
       });
       divA = Dom.div({
         style: {
           $base: {
-            height: '19px'
+            height: function() {
+              return '19px';
+            }
           },
           $funny: {
-            height: '29px'
+            height: function() {
+              return '29px';
+            }
           },
           $happy: {
-            height: '39px'
+            height: function() {
+              return '39px';
+            }
           }
         },
         styleAfterInsert: true
@@ -2027,11 +2184,11 @@ suite("QuickDom", function() {
       divReg.state('funny', true);
       divA.state('funny', true);
       expect(divReg.el.style.height).to.equal('29px');
-      expect(divA.el.style.height).to.equal('29px');
+      expect(divA.el.style.height).to.equal('');
       divReg.state('happy', true);
       divA.state('happy', true);
       expect(divReg.el.style.height).to.equal('39px');
-      expect(divA.el.style.height).to.equal('39px');
+      expect(divA.el.style.height).to.equal('');
       divReg.appendTo(sandbox);
       divA.appendTo(sandbox);
       expect(divReg.el.style.height).to.equal('39px');
@@ -2042,20 +2199,28 @@ suite("QuickDom", function() {
       detachedParent = Dom.div();
       divReg = Dom.div({
         style: {
-          height: '19px',
+          height: (function() {
+            return '19px';
+          }),
           $happy: {
             $relaxed: {
-              width: '31px'
+              width: function() {
+                return '31px';
+              }
             }
           }
         }
       });
       divA = Dom.div({
         style: {
-          height: '19px',
+          height: (function() {
+            return '19px';
+          }),
           $happy: {
             $relaxed: {
-              width: '31px'
+              width: function() {
+                return '31px';
+              }
             }
           }
         },
@@ -2070,11 +2235,11 @@ suite("QuickDom", function() {
       expect(divReg.el.style.height).to.equal('19px');
       expect(divReg.el.style.width).to.equal('31px');
       expect(divA.el.style.height).to.equal('');
-      expect(divA.el.style.width).to.equal('31px');
+      expect(divA.el.style.width).to.equal('');
       expect(divA.el.style.visibility).to.equal('hidden');
       divA.appendTo(detachedParent);
       expect(divA.el.style.height).to.equal('');
-      expect(divA.el.style.width).to.equal('31px');
+      expect(divA.el.style.width).to.equal('');
       expect(divA.el.style.visibility).to.equal('hidden');
       detachedParent.appendTo(sandbox);
       expect(divA.el.style.height).to.equal('19px');
@@ -2446,19 +2611,19 @@ suite("QuickDom", function() {
         }
       });
       expect(getStyles()).to.eql({
-        width: '5px',
-        height: '5px',
-        marginTop: '10px'
+        width: '7px',
+        height: '12px',
+        marginTop: '12px'
       });
       div.state('happy', false);
       expect(getStyles()).to.eql({
-        width: '5px',
+        width: '7px',
         height: '8px',
         marginTop: '5px'
       });
       div.state('happy', true);
       expect(getStyles()).to.eql({
-        width: '5px',
+        width: '7px',
         height: '12px',
         marginTop: '12px'
       });
@@ -2479,8 +2644,8 @@ suite("QuickDom", function() {
         }
       });
       expect(getStyles()).to.eql({
-        width: '5px',
-        height: '8px',
+        width: '2px',
+        height: '9px',
         marginTop: '5px'
       });
       div.state('relaxed', true);
@@ -2499,6 +2664,7 @@ suite("QuickDom", function() {
         happy: false,
         relaxed: false
       });
+      div.el.style.marginTop = null;
       expect(getStyles()).to.eql({
         width: '2px',
         height: '9px',
@@ -2525,6 +2691,14 @@ suite("QuickDom", function() {
         return this.skip();
       }
     });
+    teardown(function() {
+      var i, level, results1;
+      results1 = [];
+      for (level = i = 0; i <= 3; level = ++i) {
+        results1.push(Dom.CSS.clearRegistered(level));
+      }
+      return results1;
+    });
     test("Window dimensions", function() {
       var div;
       dimensions.simulate(1000, 1000);
@@ -2537,10 +2711,10 @@ suite("QuickDom", function() {
           fontSize: '30px',
           lineHeight: '30px',
           '@window(orientation:landscape)': {
-            fontWeight: 600
+            marginTop: 6
           },
           '@window(orientation:portrait)': {
-            fontWeight: 700
+            marginTop: 7
           },
           '@window(max-width:800)': {
             zIndex: 3,
@@ -2567,55 +2741,55 @@ suite("QuickDom", function() {
         }
       });
       div.appendTo(sandbox);
-      expect(div.raw.style.zIndex).to.equal('2');
-      expect(div.raw.style.width).to.equal('300px');
-      expect(div.raw.style.height).to.equal('300px');
-      expect(div.raw.style.fontSize).to.equal('23px');
-      expect(div.raw.style.fontWeight).to.equal('700');
+      expect(div.style('zIndex')).to.equal('2');
+      expect(div.style('width')).to.equal('300px');
+      expect(div.style('height')).to.equal('300px');
+      expect(div.style('fontSize')).to.equal('23px');
+      expect(div.style('marginTop')).to.equal('7px');
       dimensions.simulate(900);
-      expect(div.raw.style.fontSize).to.equal('23px');
+      expect(div.style('fontSize')).to.equal('23px');
       dimensions.simulate(899);
-      expect(div.raw.style.fontSize).to.equal('25px');
+      expect(div.style('fontSize')).to.equal('25px');
       dimensions.simulate(899, 1100);
-      expect(div.raw.style.fontSize).to.equal('30px');
+      expect(div.style('fontSize')).to.equal('30px');
       dimensions.simulate(950);
-      expect(div.raw.style.fontSize).to.equal('23px');
+      expect(div.style('fontSize')).to.equal('23px');
       dimensions.simulate(950, 1900);
-      expect(div.raw.style.fontSize).to.equal('20px');
-      expect(div.raw.style.lineHeight).to.equal('12px');
+      expect(div.style('fontSize')).to.equal('20px');
+      expect(div.style('lineHeight')).to.equal('12px');
       dimensions.simulate(950, 1899);
-      expect(div.raw.style.fontSize).to.equal('20px');
-      expect(div.raw.style.lineHeight).to.equal('30px');
+      expect(div.style('fontSize')).to.equal('20px');
+      expect(div.style('lineHeight')).to.equal('30px');
       dimensions.simulate(790);
-      expect(div.raw.style.zIndex).to.equal('3');
-      expect(div.raw.style.width).to.equal('280px');
+      expect(div.style('zIndex')).to.equal('3');
+      expect(div.style('width')).to.equal('280px');
       dimensions.simulate(810);
-      expect(div.raw.style.zIndex).to.equal('2');
-      expect(div.raw.style.width).to.equal('300px');
+      expect(div.style('zIndex')).to.equal('2');
+      expect(div.style('width')).to.equal('300px');
       dimensions.simulate(791);
-      expect(div.raw.style.zIndex).to.equal('3');
-      expect(div.raw.style.width).to.equal('280px');
+      expect(div.style('zIndex')).to.equal('3');
+      expect(div.style('width')).to.equal('280px');
       dimensions.simulate(701, 900);
-      expect(div.raw.style.zIndex).to.equal('3');
-      expect(div.raw.style.width).to.equal('280px');
-      expect(div.raw.style.height).to.equal('300px');
+      expect(div.style('zIndex')).to.equal('3');
+      expect(div.style('width')).to.equal('280px');
+      expect(div.style('height')).to.equal('300px');
       dimensions.simulate(700, 900);
-      expect(div.raw.style.zIndex).to.equal('4');
-      expect(div.raw.style.width).to.equal('250px');
-      expect(div.raw.style.height).to.equal('250px');
+      expect(div.style('zIndex')).to.equal('4');
+      expect(div.style('width')).to.equal('250px');
+      expect(div.style('height')).to.equal('250px');
       dimensions.simulate(700, 1001);
-      expect(div.raw.style.zIndex).to.equal('3');
-      expect(div.raw.style.width).to.equal('280px');
-      expect(div.raw.style.height).to.equal('300px');
+      expect(div.style('zIndex')).to.equal('3');
+      expect(div.style('width')).to.equal('280px');
+      expect(div.style('height')).to.equal('300px');
       dimensions.simulate(700, 1000);
-      expect(div.raw.style.zIndex).to.equal('4');
-      expect(div.raw.style.width).to.equal('250px');
-      expect(div.raw.style.height).to.equal('250px');
-      expect(div.raw.style.fontWeight).to.equal('700');
+      expect(div.style('zIndex')).to.equal('4');
+      expect(div.style('width')).to.equal('250px');
+      expect(div.style('height')).to.equal('250px');
+      expect(div.style('marginTop')).to.equal('7px');
       dimensions.simulate(1100, 1000);
-      expect(div.raw.style.fontWeight).to.equal('600');
+      expect(div.style('marginTop')).to.equal('6px');
       dimensions.simulate(1100, 1101);
-      return expect(div.raw.style.fontWeight).to.equal('700');
+      return expect(div.style('marginTop')).to.equal('7px');
     });
     test("Self dimensions/styles", function() {
       var div, parent, simulateParent;
@@ -2639,10 +2813,10 @@ suite("QuickDom", function() {
           fontSize: '30px',
           lineHeight: '30px',
           '@self(orientation:landscape)': {
-            fontWeight: 600
+            marginTop: 6
           },
           '@self(orientation:portrait)': {
-            fontWeight: 700
+            marginTop: 7
           },
           '@self(position:relative)': {
             top: '20px'
@@ -2669,7 +2843,7 @@ suite("QuickDom", function() {
             fontSize: '19px'
           },
           '@self(aspect-ratio:2.25)': {
-            fontSize: '21px',
+            fontSize: '22px',
             lineHeight: '12px'
           },
           '@self(min-height:700)': {
@@ -2684,7 +2858,7 @@ suite("QuickDom", function() {
       expect(div.style('height')).to.equal('300px');
       expect(div.style('fontSize')).to.equal('30px');
       expect(div.style('lineHeight')).to.equal('30px');
-      expect(div.style('fontWeight')).to.equal('600');
+      expect(div.style('marginTop')).to.equal('6px');
       expect(div.style('top')).to.equal('20px');
       simulateParent(349, 420);
       expect(div.style('zIndex')).to.equal('4');
@@ -2712,14 +2886,14 @@ suite("QuickDom", function() {
       simulateParent(900);
       expect(div.style('lineHeight')).to.equal('19px');
       simulateParent(900, 400);
-      expect(div.style('fontSize')).to.equal('21px');
+      expect(div.style('fontSize')).to.equal('22px');
       expect(div.style('lineHeight')).to.equal('12px');
       simulateParent(2025, 900);
       expect(div.style('fontSize')).to.equal('40px');
       expect(div.style('lineHeight')).to.equal('12px');
-      expect(div.raw.style.fontWeight).to.equal('600');
+      expect(div.style('marginTop')).to.equal('6px');
       simulateParent(2025, 2026);
-      return expect(div.raw.style.fontWeight).to.equal('700');
+      return expect(div.style('marginTop')).to.equal('7px');
     });
     test("Parent dimensions/styles", function() {
       var div, parent, simulateParent;
@@ -2747,17 +2921,17 @@ suite("QuickDom", function() {
           fontSize: '30px',
           lineHeight: '30px',
           '@parent(orientation:landscape)': {
-            fontWeight: 600
+            marginBottom: 6
           },
           '@parent(orientation:portrait)': {
-            fontWeight: 700
+            marginBottom: 7
           },
           '@parent(position:relative)': {
-            top: '20px'
+            top: '21px'
           },
           '@parent(max-width:350)': {
             zIndex: 3,
-            fontSize: '33px'
+            fontSize: '34px'
           },
           '@parent(max-width:500, min-height:400)': {
             zIndex: 4,
@@ -2765,7 +2939,7 @@ suite("QuickDom", function() {
             lineHeight: '37px'
           },
           '@parent(zIndex:7)': {
-            lineHeight: '15px'
+            lineHeight: '16px'
           }
         }
       });
@@ -2776,24 +2950,24 @@ suite("QuickDom", function() {
       expect(div.style('height')).to.equal('300px');
       expect(div.style('fontSize')).to.equal('30px');
       expect(div.style('lineHeight')).to.equal('30px');
-      expect(div.style('fontWeight')).to.equal('600');
+      expect(div.style('marginBottom')).to.equal('6px');
       expect(div.style('top')).to.equal('30px');
       parent.style('position', 'relative');
       expect(div.style('top')).to.equal('30px');
       simulateParent();
-      expect(div.style('top')).to.equal('20px');
+      expect(div.style('top')).to.equal('21px');
       simulateParent(349, 420);
       expect(div.style('zIndex')).to.equal('4');
       expect(div.style('fontSize')).to.equal('27px');
       expect(div.style('lineHeight')).to.equal('37px');
       simulateParent(349, 399);
       expect(div.style('zIndex')).to.equal('3');
-      expect(div.style('fontSize')).to.equal('33px');
+      expect(div.style('fontSize')).to.equal('34px');
       parent.style('zIndex', '7');
       simulateParent(349, 401);
       expect(div.style('zIndex')).to.equal('4');
       expect(div.style('fontSize')).to.equal('27px');
-      expect(div.style('lineHeight')).to.equal('15px');
+      expect(div.style('lineHeight')).to.equal('16px');
       return expect(div.style('opacity')).to.equal('1');
     });
     test("Parent Ref dimensions/styles", function() {
@@ -2902,32 +3076,32 @@ suite("QuickDom", function() {
         style: {
           zIndex: 2,
           $happy: {
-            fontWeight: 500,
+            marginRight: 5,
             '@window(orientation:landscape)': {
-              fontWeight: 600
+              marginRight: 6
             }
           },
           '@window(orientation:portrait)': {
             $relaxed: {
-              fontWeight: 700
+              marginRight: 7
             }
           }
         }
       });
       div.appendTo(sandbox);
-      expect(div.raw.style.fontWeight).to.equal('');
+      expect(div.style('marginRight')).to.equal('0px');
       div.state('happy', true);
-      expect(div.raw.style.fontWeight).to.equal('600');
+      expect(div.style('marginRight')).to.equal('6px');
       dimensions.simulate(900, 1000);
-      expect(div.raw.style.fontWeight).to.equal('500');
+      expect(div.style('marginRight')).to.equal('5px');
       dimensions.simulate(1000, 900);
-      expect(div.raw.style.fontWeight).to.equal('600');
+      expect(div.style('marginRight')).to.equal('6px');
       div.state('relaxed', true);
-      expect(div.raw.style.fontWeight).to.equal('600');
+      expect(div.style('marginRight')).to.equal('6px');
       dimensions.simulate(900, 1000);
-      expect(div.raw.style.fontWeight).to.equal('700');
+      expect(div.style('marginRight')).to.equal('7px');
       dimensions.simulate(1000, 900);
-      return expect(div.raw.style.fontWeight).to.equal('600');
+      return expect(div.style('marginRight')).to.equal('6px');
     });
   });
   suite("Traversal", function() {
@@ -4106,7 +4280,7 @@ suite("QuickDom", function() {
           }, ' - Bolded Text'
         ]
       ]);
-      spawnRaw = template.spawn();
+      spawnRaw = template.spawn().appendTo(sandbox);
       spawnA = template.spawn({
         type: 'section',
         options: {
@@ -4115,7 +4289,7 @@ suite("QuickDom", function() {
             opacity: 0.7
           }
         }
-      });
+      }).appendTo(sandbox);
       spawnB = template.spawn({
         options: {
           className: 'main-div',
@@ -4157,38 +4331,38 @@ suite("QuickDom", function() {
             }
           }
         ]
-      });
+      }).appendTo(sandbox);
       expect(spawnRaw.el.nodeName.toLowerCase()).to.equal('div');
       expect(spawnRaw.el.className).to.equal('some-div');
       expect(spawnRaw.el.id).to.equal('');
       expect(spawnRaw.text).to.equal('Some Inner Text - Bolded Text');
-      expect(spawnRaw.el.style.opacity).to.equal('');
+      expect(spawnRaw.el).to.have.style('opacity', '1');
       expect(spawnRaw.el.childNodes.length).to.equal(2);
       expect(spawnRaw.el.childNodes[0].nodeName).to.equal('#text');
       expect(spawnRaw.el.childNodes[1].nodeName.toLowerCase()).to.equal('strong');
-      expect(spawnRaw.el.childNodes[1].className).to.equal('highlighted');
-      expect(spawnRaw.el.childNodes[1].style.opacity).to.equal('0.9');
+      expect(spawnRaw.el.childNodes[1].className).to.include('highlighted');
+      expect(spawnRaw.el.childNodes[1]).to.have.style('opacity', '0.9');
       expect(spawnA.el.nodeName.toLowerCase()).to.equal('section');
-      expect(spawnA.el.className).to.equal('some-section');
+      expect(spawnA.el.className).to.include('some-section');
       expect(spawnA.el.id).to.equal('');
       expect(spawnA.text).to.equal('Some Inner Text - Bolded Text');
-      expect(spawnA.el.style.opacity).to.equal('0.7');
+      expect(spawnA.el).to.have.style('opacity', '0.7');
       expect(spawnA.el.childNodes.length).to.equal(2);
       expect(spawnA.el.childNodes[0].nodeName).to.equal('#text');
       expect(spawnA.el.childNodes[1].nodeName.toLowerCase()).to.equal('strong');
-      expect(spawnA.el.childNodes[1].className).to.equal('highlighted');
-      expect(spawnA.el.childNodes[1].style.opacity).to.equal('0.9');
+      expect(spawnA.el.childNodes[1].className).to.include('highlighted');
+      expect(spawnA.el.childNodes[1]).to.have.style('opacity', '0.9');
       expect(spawnB.el.nodeName.toLowerCase()).to.equal('div');
-      expect(spawnB.el.className).to.equal('main-div');
+      expect(spawnB.el.className).to.include('main-div');
       expect(spawnB.el.id).to.equal('theMainDiv');
       expect(spawnB.text).to.equal('Main Inner Text - Very Bolded Text + Other Text');
-      expect(spawnB.el.style.opacity).to.equal('0.5');
+      expect(spawnB.el).to.have.style('opacity', '0.5');
       expect(spawnB.el.childNodes.length).to.equal(3);
       expect(spawnB.el.childNodes[0].nodeName.toLowerCase()).to.equal('span');
       expect(spawnB.el.childNodes[0].childNodes.length).to.equal(1);
       expect(spawnB.el.childNodes[1].nodeName.toLowerCase()).to.equal('b');
-      expect(spawnB.el.childNodes[1].className).to.equal('super-highlighted');
-      return expect(spawnB.el.childNodes[1].style.opacity).to.equal('0.2');
+      expect(spawnB.el.childNodes[1].className).to.include('super-highlighted');
+      return expect(spawnB.el.childNodes[1]).to.have.style('opacity', '0.2');
     });
     test("Template.extend/spawn() can accept a template tree array", function() {
       var cloneA, cloneB, cloneC, spawn, template;
@@ -4219,10 +4393,10 @@ suite("QuickDom", function() {
         'span', {
           style: {
             'width': 190,
-            'opacity': 1
+            'opacity': 0.4
           }
         }, 'so nice'
-      ]);
+      ]).appendTo(sandbox);
       expect(template.type).to.equal('div');
       expect(template.options).to.eql({
         style: {
@@ -4276,9 +4450,10 @@ suite("QuickDom", function() {
       expect(cloneC.children[0].children[0].options.text).to.equal('text of subsection');
       expect(cloneC.children[1].type).to.equal('text');
       expect(cloneC.children[1].options.text).to.equal('just a text node');
+      spawn.style('display', 'block');
       expect(spawn.el.nodeName.toLowerCase()).to.equal('span');
-      expect(spawn.el.style.opacity).to.equal('1');
-      expect(spawn.el.style.width).to.equal('190px');
+      expect(spawn.el).to.have.style('opacity', '0.4');
+      expect(spawn.el).to.have.style('width', '190px');
       expect(spawn.el.childNodes.length).to.equal(2);
       expect(spawn.el.childNodes[0].nodeType).to.equal(3);
       expect(spawn.el.childNodes[0].textContent).to.equal('so nice');
@@ -4312,40 +4487,40 @@ suite("QuickDom", function() {
           }
         }, childA, childB, childC
       ]);
-      spawnedA = template.spawn();
-      spawnedB = templateCopy.spawn();
+      spawnedA = template.spawn().appendTo(sandbox);
+      spawnedB = templateCopy.spawn().appendTo(sandbox);
       spawnedC = template.spawn([
         'span', {
           style: {
             fontSize: '77px'
           }
         }, childA, childB, childC
-      ]);
+      ]).appendTo(sandbox);
       expect(spawnedA.type).to.equal('div');
       expect(spawnedA.children.length).to.equal(2);
       expect(spawnedA.children[0].type).to.equal('span');
-      expect(spawnedA.children[0].raw.style.opacity).to.equal('0.5');
-      expect(spawnedA.children[0].raw.style.fontFamily).to.equal('');
+      expect(spawnedA.children[0].raw).to.have.style('opacity', '0.5');
+      expect(spawnedA.children[0].raw).to.have.style('fontFamily', '');
       expect(spawnedA.children[1].type).to.equal('text');
       expect(spawnedA.text).to.equal('original text');
       expect(spawnedB.type).to.equal('span');
       expect(spawnedB.children.length).to.equal(3);
       expect(spawnedB.children[0].type).to.equal('div');
-      expect(spawnedB.children[0].raw.style.opacity).to.equal('');
-      expect(spawnedB.children[0].raw.style.fontFamily).to.equal('pink');
+      expect(spawnedB.children[0].raw).to.have.style('opacity', '');
+      expect(spawnedB.children[0].raw).to.have.style('fontFamily', 'pink');
       expect(spawnedB.children[1].type).to.equal('text');
       expect(spawnedB.text).to.equal('replaced text');
       expect(spawnedB.children[2].type).to.equal('section');
-      expect(spawnedB.raw.style.fontSize).to.equal('77px');
+      expect(spawnedB.raw).to.have.style('fontSize', '77px');
       expect(spawnedC.type).to.equal('span');
       expect(spawnedC.children.length).to.equal(3);
       expect(spawnedC.children[0].type).to.equal('div');
-      expect(spawnedC.children[0].raw.style.opacity).to.equal('');
-      expect(spawnedC.children[0].raw.style.fontFamily).to.equal('pink');
+      expect(spawnedC.children[0].raw).to.have.style('opacity', '');
+      expect(spawnedC.children[0].raw).to.have.style('fontFamily', 'pink');
       expect(spawnedC.children[1].type).to.equal('text');
       expect(spawnedC.text).to.equal('replaced text');
       expect(spawnedC.children[2].type).to.equal('section');
-      return expect(spawnedC.raw.style.fontSize).to.equal('77px');
+      return expect(spawnedC.raw).to.have.style('fontSize', '77px');
     });
     test("Templates can have other templates as their children", function() {
       var headerTemplate, headerTemplateClone, section, sectionTemplate;
@@ -4571,10 +4746,10 @@ suite("QuickDom", function() {
       expect(templateCopy.child.childB_2).to.equal(templateCopy.children[1].children[1]);
       expect(templateCopy.child.childC).to.equal(void 0);
       expect(templateCopy.child.childD).to.equal(templateCopy.children[2]);
-      rendered = templateCopy.spawn();
+      rendered = templateCopy.spawn().appendTo(sandbox);
       expect(Object.keys(rendered.child).length).to.equal(8);
       expect(rendered.child.childB_2).to.equal(rendered.children[1].children[1]);
-      expect(rendered.child.childA.raw.style.display).to.equal('inline-block');
+      expect(rendered.child.childA.raw).to.have.style('display', 'inline-block');
       expect(rendered.child.CHILDa_2.prop('href')).to.contain('http://google.com');
       expect(rendered.child.childB_1.prop('value')).to.equal('theValue');
       return expect(rendered.child.childD.attr('data-ref')).to.equal('childD');
@@ -5663,28 +5838,29 @@ suite("QuickDom", function() {
             }
           ]
         ]
-      ]);
+      ]).appendTo(sandbox);
       window.stringified = JSON.stringify(section, null, 2);
-      sectionCopy = Dom(JSON.parse(stringified));
+      sectionCopy = Dom(JSON.parse(stringified)).appendTo(sandbox);
       expect(sectionCopy.type).to.equal(section.type);
       expect(sectionCopy.ref).to.equal(section.ref);
       expect(sectionCopy.el.id).to.equal(section.el.id);
       expect(sectionCopy.el.className).to.equal(section.el.className);
-      expect(sectionCopy.el.style.position).to.equal(section.el.style.position);
-      expect(sectionCopy.el.style.opacity).to.equal(section.el.style.opacity);
-      expect(sectionCopy.el.style.fontSize).not.to.equal(section.el.style.fontSize);
+      expect(sectionCopy.style('position')).to.equal(section.style('position'));
+      expect(sectionCopy.style('opacity')).to.equal(section.style('opacity'));
+      expect(sectionCopy.style('fontSize')).not.to.equal(section.style('fontSize'));
+      section.style('fontSize', null);
       section.state('happy', true);
       sectionCopy.state('happy', true);
-      expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize);
+      expect(sectionCopy.style('fontSize')).to.equal(section.style('fontSize'));
       section.state('relaxed', true);
       sectionCopy.state('relaxed', true);
-      expect(sectionCopy.el.style.fontSize).to.equal(section.el.style.fontSize);
+      expect(sectionCopy.style('fontSize')).to.equal(section.style('fontSize'));
       expect(sectionCopy.children.length).to.equal(section.children.length);
       expect(Object.keys(sectionCopy.child).length).to.equal(Object.keys(section.child).length);
       expect(sectionCopy.text).to.equal(section.text);
       expect(sectionCopy.html).to.equal(section.html);
-      expect(sectionCopy.children[0].el.style.position).to.equal(section.children[0].el.style.position);
-      expect(sectionCopy.children[2].el.style.position).to.equal(section.children[2].el.style.position);
+      expect(sectionCopy.children[0].style('position')).to.equal(section.children[0].style('position'));
+      expect(sectionCopy.children[2].style('position')).to.equal(section.children[2].style('position'));
       return expect(sectionCopy.children[2].ref).to.equal(section.children[2].ref);
     });
     test("Chaining", function() {
@@ -5893,6 +6069,70 @@ if (window.ClientRect == null) {
   window.ClientRect = DOMRect;
 }
 
+;
+return module.exports;
+},
+2: function (require, module, exports) {
+module.exports = chaiStyle
+
+function chaiStyle(chai, utils) {
+  const {Assertion} = chai
+  const {flag} = utils
+  let sampleDiv, sampleStyle, sampleIframe
+
+  Assertion.addMethod('style', function(property, value = '') {
+    const element = flag(this, 'object')
+    const style = window.getComputedStyle(element)
+    value = value.trim()
+
+    const isNonColors = style[property] === 'rgba(0, 0, 0, 0)' // webkit
+      || style[property] === 'transparent' // firefox
+
+    const propertyValue = isNonColors
+      ? ''
+      : style[property]
+
+    const assertion = value
+      ? compareCSSValue(propertyValue, value)
+      : Boolean(propertyValue)
+
+    const elementTag = element.tagName.toLowerCase()
+
+    const throwMessage = `expect ${elementTag} to have {${property}: ${value}}, is receiving {${property}: ${propertyValue}}`
+    const throwMessageNegative = `expect ${elementTag} to not have {${property}: ${value}}, is receiving {${property}: ${propertyValue}}`
+
+    this.assert(assertion, throwMessage, throwMessageNegative, value)
+
+    function compareCSSValue(computed, expected) {
+      const propertyHifenCase = property.replace(/[A-Z]/g, (match) => '-' + match.toLowerCase())
+      if (!sampleDiv) {
+        sampleIframe = document.createElement('iframe')
+        sampleDiv = document.createElement('div')
+        sampleStyle = window.getComputedStyle(sampleDiv)
+
+        sampleIframe.appendChild(sampleDiv)
+        document.body.appendChild(sampleIframe)
+      }
+      sampleDiv.style.fontSize = style.fontSize
+      sampleDiv.style.setProperty(propertyHifenCase, expected, 'important')
+      const value = sampleStyle[property]
+
+      const hasAutoValue = value.includes('auto')
+      const reg = new RegExp(escapeRegExp(value).replace(/auto/g, '(\\d+(.\\d+)?px|auto)'))
+      sampleDiv.style.fontSize = null
+      sampleDiv.style[propertyHifenCase] = null
+
+      return hasAutoValue
+        ? reg.test(computed)
+        : computed === value
+    }
+  })
+}
+
+// https://github.com/benjamingr/RegExp.escape/blob/master/polyfill.js
+function escapeRegExp(value) {
+    return String(value).replace(/[\\^$*+?.()|[\]{}]/g, '\\$&')
+}
 ;
 return module.exports;
 }

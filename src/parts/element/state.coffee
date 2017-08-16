@@ -70,80 +70,66 @@ QuickElement::pipeState = (targetEl)->
 
 
 
-QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
-	return DUMMY_ARRAY if not @_providedStates
-	plainStates = @_providedStates.filter (state)=> helpers.includes(@_state, state) and state isnt stateToExclude
+QuickElement::_applyRegisteredStyle = (targetStyle, superiorStates, includeBase, skipFns)-> if targetStyle
+	@addClass(className) for className in targetStyle.className
 	
-	if not includeSharedStates or not @_providedStatesShared
-		return plainStates
-	else
-		return plainStates.concat(@_stateShared)
-
-
-QuickElement::_getSuperiorStates = (targetState, activeStates)->
-	targetStateIndex = @_providedStates.indexOf(targetState)
-	superior = activeStates.filter (state)=>
-		@_providedStates.indexOf(state) > targetStateIndex
-
-
-QuickElement::_getSharedStates = (targetState)->
-	activeStates = @_state
+	if targetStyle.fns.length and not skipFns
+		superiorStyles = @_resolveFnStyles(superiorStates, includeBase) if superiorStates
+		
+		for entry in targetStyle.fns
+			@style(entry[0], entry[1]) unless superiorStyles and superiorStyles[entry[0]]
 	
-	@_providedStatesShared.filter (stateChain)->
-		stateChain.includes(targetState) and
-		stateChain.isApplicable(targetState, activeStates)
+	return
 
 
-QuickElement::_getStateStyles = (states)->
-	states.map (state)=> @_styles[state]
+QuickElement::_removeRegisteredStyle = (targetStyle, superiorStates, includeBase)->
+	@removeClass(className) for className in targetStyle.className
+
+	if targetStyle.fns.length
+		superiorStyles = @_resolveFnStyles(superiorStates, includeBase) if superiorStates
+		
+		for entry in targetStyle.fns
+			resetValue = superiorStyles and superiorStyles[entry[0]] or null
+			@style(entry[0], resetValue)
+
+	return
+
+
 
 
 QuickElement::_turnStyleON = (targetState, activeStates)->
-	if targetStyle = @_styles[targetState]
-		superiorStyles = @_getStateStyles @_getSuperiorStates(targetState, activeStates)
-		@style extend.clone.keys(targetStyle)(targetStyle, superiorStyles...)
+	skipFns = @options.styleAfterInsert and not @_inserted
+	if @_styles[targetState]
+		@_applyRegisteredStyle(@_styles[targetState], @_getSuperiorStates(targetState, activeStates), false, skipFns)
+
 
 	if @_providedStatesShared
 		sharedStates = @_getSharedStates(targetState)
 		
 		for stateChain in sharedStates
 			@_stateShared.push(stateChain.string) unless helpers.includes(@_stateShared, stateChain.string)
-			targetStyle = @_styles[stateChain.string]
-			
-			if stateChain.length > 2
-				inferiorStateChains = @_styles[stateChain.without(targetState)]
-				@style extend.clone(inferiorStateChains, targetStyle)
-			else
-				@style targetStyle
+			@_applyRegisteredStyle(@_styles[stateChain.string], null, null, skipFns)
+
 	return
 
 
 QuickElement::_turnStyleOFF = (targetState, activeStates)->
-	if targetStyle = @_styles[targetState]
-		activeStyles = @_getStateStyles(activeStates)
-		stylesToKeep = extend.clone.keys(targetStyle)(@_styles.base, activeStyles...)
-		stylesToRemove = extend.transform(-> null).clone(targetStyle)
+	if @_styles[targetState]
+		@_removeRegisteredStyle(@_styles[targetState], activeStates, true)
 
-		@style extend(stylesToRemove, stylesToKeep)
-	
 	if @_providedStatesShared
 		sharedStates = @_getSharedStates(targetState)
-		activeStyles ?= @_getStateStyles(activeStates)
+		return if sharedStates.length is 0
 
 		for stateChain in sharedStates
 			helpers.removeItem(@_stateShared, stateChain.string)
 			targetStyle = @_styles[stateChain.string]
 			
-			if @_stateShared.length
-				activeStyles.push (
-					@_stateShared
-						.filter (state)-> not helpers.includes(state, targetState)
-						.map (state)=> @_styles[state]
-				)...
+			if targetStyle.fns.length and @_stateShared.length and not activeSharedStates
+				activeSharedStates = @_stateShared.filter (state)-> not helpers.includes(state, targetState)
+				activeStates = activeStates.concat(activeSharedStates)
 			
-			stylesToKeep = extend.clone.keys(targetStyle)(@_styles.base, activeStyles...)
-			stylesToRemove = extend.transform(-> null).clone(targetStyle)
-			@style extend(stylesToRemove, stylesToKeep)
+			@_removeRegisteredStyle(targetStyle, activeStates, true)
 
 	return
 
@@ -170,6 +156,58 @@ QuickElement::_turnTextOFF = (targetState, activeStates)->
 
 
 	
+
+
+
+
+QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
+	return DUMMY_ARRAY if not @_providedStates
+	activeStates = plainStates = @_state
+	if stateToExclude
+		plainStates = []
+		plainStates.push(state) for state in activeStates when state isnt stateToExclude
+	
+	if not includeSharedStates or not @_providedStatesShared
+		return plainStates
+	else
+		return plainStates.concat(@_stateShared)
+
+
+QuickElement::_getSuperiorStates = (targetState, activeStates)->
+	targetStateIndex = @_providedStates.indexOf(targetState)
+	return DUMMY_ARRAY if targetStateIndex is @_providedStates.length - 1
+	
+	superior = []
+	for candidate in activeStates
+		superior.push(candidate) if @_providedStates.indexOf(candidate) > targetStateIndex
+
+	return superior
+
+
+QuickElement::_getSharedStates = (targetState)->
+	activeStates = @_state
+	sharedStates = []
+
+	for stateChain in @_providedStatesShared
+		sharedStates.push(stateChain) if stateChain.includes(targetState) and stateChain.isApplicable(targetState, activeStates)
+
+	return sharedStates
+
+
+QuickElement::_resolveFnStyles = (states, includeBase)->
+	states = ['base'].concat(states) if includeBase
+	output = {}
+	
+	for state in states when @_styles[state] and @_styles[state].fns.length
+		output[entry[0]] = entry[1] for entry in @_styles[state].fns
+
+	return output
+
+
+
+
+
+
 
 
 
