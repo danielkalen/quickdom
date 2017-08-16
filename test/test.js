@@ -375,7 +375,7 @@ suite("QuickDom", function() {
       expect(batch.elements[2].text).to.include('textNode');
       return expect(batch.elements[3].text).to.equal('abc123');
     });
-    return test("Method/Property aliases", function() {
+    test("Method/Property aliases", function() {
       var div;
       div = Dom('div');
       expect(div.raw).to.equal(div.el);
@@ -384,6 +384,56 @@ suite("QuickDom", function() {
       expect(div.replaceWith).to.equal(div.replace);
       expect(div.removeListener).to.equal(div.off);
       return expect(div.removeListener('eventA'));
+    });
+    return test("user-defined methdods/getters/setters", function() {
+      var divA, divB;
+      divA = Dom.div();
+      divB = Dom.div({
+        methods: {
+          scrollTop: {
+            get: function() {
+              return this.raw.scrollTop;
+            }
+          },
+          weight: {
+            get: function() {
+              return this.raw.weight;
+            }
+          },
+          value: {
+            get: function() {
+              return this.raw.value;
+            },
+            set: function(value) {
+              return this.raw.value = value;
+            }
+          },
+          name: true,
+          bigIndex: function() {
+            return this.index * 10;
+          }
+        }
+      });
+      sandbox.append(divA);
+      sandbox.append(divB);
+      divA.raw.value = divB.raw.value = 'abc';
+      expect(typeof divA.scrollTop).to.equal('undefined');
+      expect(typeof divB.scrollTop).to.equal('number');
+      expect(typeof divA.value).to.equal('undefined');
+      expect(typeof divB.value).to.equal('string');
+      expect(typeof divA.name).to.equal('undefined');
+      expect(typeof divB.name).to.equal('undefined');
+      expect(typeof divA.bigIndex).to.equal('undefined');
+      expect(typeof divB.bigIndex).to.equal('function');
+      expect(divB.scrollTop).to.equal(divB.raw.scrollTop);
+      divB.raw.weight = '1';
+      expect(divB.weight).to.equal('1');
+      divB.weight = '2';
+      expect(divB.weight).to.equal('1');
+      expect(divB.value).to.equal('abc');
+      divB.value = '123';
+      expect(divB.value).to.equal('123');
+      return expect(divB.bigIndex()).to.equal(divB.index * 10);
     });
   });
   suite("Events", function() {

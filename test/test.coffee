@@ -251,7 +251,6 @@ suite "QuickDom", ()->
 			expect(batch.elements[3].text).to.equal 'abc123'
 
 
-
 		test "Method/Property aliases", ()->
 			div = Dom('div')
 			expect(div.raw).to.equal(div.el)
@@ -261,6 +260,46 @@ suite "QuickDom", ()->
 			expect(div.removeListener).to.equal(div.off)
 			expect(div.removeListener('eventA'))
 
+
+		test "user-defined methdods/getters/setters", ()->
+			divA = Dom.div()
+			divB = Dom.div methods:
+				scrollTop:
+					get: ()-> @raw.scrollTop
+				weight:
+					get: ()-> @raw.weight
+				value:
+					get: ()-> @raw.value
+					set: (value)-> @raw.value = value
+				name: true
+				bigIndex: ()-> @index * 10
+
+			sandbox.append divA
+			sandbox.append divB
+			divA.raw.value = divB.raw.value = 'abc'
+
+			expect(typeof divA.scrollTop).to.equal 'undefined'
+			expect(typeof divB.scrollTop).to.equal 'number'
+			expect(typeof divA.value).to.equal 'undefined'
+			expect(typeof divB.value).to.equal 'string'
+			expect(typeof divA.name).to.equal 'undefined'
+			expect(typeof divB.name).to.equal 'undefined'
+			expect(typeof divA.bigIndex).to.equal 'undefined'
+			expect(typeof divB.bigIndex).to.equal 'function'
+			
+			expect(divB.scrollTop).to.equal divB.raw.scrollTop
+			
+			divB.raw.weight = '1'
+			expect(divB.weight).to.equal '1'
+			
+			divB.weight = '2'
+			expect(divB.weight).to.equal '1'
+			
+			expect(divB.value).to.equal 'abc'
+			divB.value = '123'
+			expect(divB.value).to.equal '123'
+
+			expect(divB.bigIndex()).to.equal divB.index*10
 
 
 	suite "Events", ()->
