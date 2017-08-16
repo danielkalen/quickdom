@@ -4,9 +4,11 @@ mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
 mocha.bail() unless window.location.hostname
+chai = import 'chai'
 chai.use import 'chai-style'
 chai.config.truncateThreshold = 1e3
-expect = chai.expect
+{expect} = chai
+
 sandbox = null
 restartSandbox = ()->
 	sandbox.parentElement.removeChild(sandbox) if sandbox
