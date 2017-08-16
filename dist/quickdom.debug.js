@@ -7,500 +7,6 @@ exports: {}
 }, cache[r].exports = modules[r].call(cx, require, cache[r], cache[r].exports)));
 };
 })({}, {
-33: function (require, module, exports) {
-var StateChain;
-
-module.exports = StateChain = (function() {
-  function StateChain(states) {
-    this.string = states.join('+');
-    this.array = states.slice();
-    this.length = states.length;
-  }
-
-  StateChain.prototype.includes = function(target) {
-    var i, len, ref, state;
-    ref = this.array;
-    for (i = 0, len = ref.length; i < len; i++) {
-      state = ref[i];
-      if (state === target) {
-        return true;
-      }
-    }
-    return false;
-  };
-
-  StateChain.prototype.without = function(target) {
-    return this.array.filter(function(state) {
-      return state !== target;
-    }).join('+');
-  };
-
-  StateChain.prototype.isApplicable = function(target, otherActive) {
-    var active;
-    active = this.array.filter(function(state) {
-      return state === target || otherActive.indexOf(state) !== -1;
-    });
-    return active.length === this.array.length;
-  };
-
-  return StateChain;
-
-})();
-
-;
-return module.exports;
-},
-2: function (require, module, exports) {
-var exports, extend, modifiers, newBuilder, normalizeKeys;
-
-extend = require(16);
-
-normalizeKeys = function(keys) {
-  var i, key, len, output;
-  if (keys) {
-    output = {};
-    if (typeof keys !== 'object') {
-      output[keys] = true;
-    } else {
-      if (!Array.isArray(keys)) {
-        keys = Object.keys(keys);
-      }
-      for (i = 0, len = keys.length; i < len; i++) {
-        key = keys[i];
-        output[key] = true;
-      }
-    }
-    return output;
-  }
-};
-
-newBuilder = function(isBase) {
-  var builder;
-  builder = function(target) {
-    var theTarget;
-    var $_len = arguments.length, $_i = -1, sources = new Array($_len); while (++$_i < $_len) sources[$_i] = arguments[$_i];
-    if (builder.options.target) {
-      theTarget = builder.options.target;
-    } else {
-      theTarget = target;
-      sources.shift();
-    }
-    return extend(builder.options, theTarget, sources);
-  };
-  if (isBase) {
-    builder.isBase = true;
-  }
-  builder.options = {};
-  Object.defineProperties(builder, modifiers);
-  return builder;
-};
-
-modifiers = {
-  'deep': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      _.options.deep = true;
-      return _;
-    }
-  },
-  'own': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      _.options.own = true;
-      return _;
-    }
-  },
-  'allowNull': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      _.options.allowNull = true;
-      return _;
-    }
-  },
-  'nullDeletes': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      _.options.nullDeletes = true;
-      return _;
-    }
-  },
-  'concat': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      _.options.concat = true;
-      return _;
-    }
-  },
-  'clone': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      _.options.target = {};
-      return _;
-    }
-  },
-  'notDeep': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      return function(keys) {
-        _.options.notDeep = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'deepOnly': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      return function(keys) {
-        _.options.deepOnly = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'keys': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      return function(keys) {
-        _.options.keys = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'notKeys': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      return function(keys) {
-        _.options.notKeys = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'transform': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      return function(transform) {
-        if (typeof transform === 'function') {
-          _.options.globalTransform = transform;
-        } else if (transform && typeof transform === 'object') {
-          _.options.transforms = transform;
-        }
-        return _;
-      };
-    }
-  },
-  'filter': {
-    get: function() {
-      var _;
-      _ = this.isBase ? newBuilder() : this;
-      return function(filter) {
-        if (typeof filter === 'function') {
-          _.options.globalFilter = filter;
-        } else if (filter && typeof filter === 'object') {
-          _.options.filters = filter;
-        }
-        return _;
-      };
-    }
-  }
-};
-
-module.exports = exports = newBuilder(true);
-
-exports.version = "1.7.3";
-
-;
-return module.exports;
-},
-18: function (require, module, exports) {
-var Checks, availSets;
-
-availSets = {
-  natives: require(31),
-  dom: require(32)
-};
-
-Checks = (function() {
-  Checks.prototype.create = function() {
-    var args;
-    if (arguments.length) {
-      args = Array.prototype.slice.call(arguments);
-    }
-    return new Checks(args);
-  };
-
-  function Checks(sets) {
-    var i, len, set;
-    if (sets == null) {
-      sets = ['natives'];
-    }
-    for (i = 0, len = sets.length; i < len; i++) {
-      set = sets[i];
-      if (availSets[set]) {
-        this.load(availSets[set]);
-      }
-    }
-  }
-
-  Checks.prototype.load = function(set) {
-    var key, value;
-    if (availSets.natives.string(set)) {
-      set = availSets[set];
-    }
-    if (!availSets.natives.objectPlain(set)) {
-      return;
-    }
-    for (key in set) {
-      value = set[key];
-      this[key] = value;
-    }
-  };
-
-  return Checks;
-
-})();
-
-module.exports = Checks.prototype.create();
-
-;
-return module.exports;
-},
-32: function (require, module, exports) {
-var exports;
-
-module.exports = exports = {
-  domDoc: function(subject) {
-    return subject && subject.nodeType === 9;
-  },
-  domEl: function(subject) {
-    return subject && subject.nodeType === 1;
-  },
-  domText: function(subject) {
-    return subject && subject.nodeType === 3;
-  },
-  domNode: function(subject) {
-    return exports.domEl(subject) || exports.domText(subject);
-  },
-  domTextarea: function(subject) {
-    return subject && subject.nodeName === 'TEXTAREA';
-  },
-  domInput: function(subject) {
-    return subject && subject.nodeName === 'INPUT';
-  },
-  domSelect: function(subject) {
-    return subject && subject.nodeName === 'SELECT';
-  },
-  domField: function(subject) {
-    return exports.domInput(subject) || exports.domTextarea(subject) || exports.domSelect(subject);
-  }
-};
-
-;
-return module.exports;
-},
-1: function (require, module, exports) {
-var QuickCSS;
-
-var POSSIBLE_PREFIXES, QUAD_SHORTHANDS, REQUIRES_UNIT_VALUE, directions;
-
-POSSIBLE_PREFIXES = ['webkit', 'moz', 'ms', 'o'];
-
-REQUIRES_UNIT_VALUE = ['background-position-x', 'background-position-y', 'block-size', 'border-width', 'columnRule-width', 'cx', 'cy', 'font-size', 'grid-column-gap', 'grid-row-gap', 'height', 'inline-size', 'line-height', 'minBlock-size', 'min-height', 'min-inline-size', 'min-width', 'max-height', 'max-width', 'outline-offset', 'outline-width', 'perspective', 'shape-margin', 'stroke-dashoffset', 'stroke-width', 'text-indent', 'width', 'word-spacing', 'top', 'bottom', 'left', 'right', 'x', 'y'];
-
-QUAD_SHORTHANDS = ['margin', 'padding', 'border', 'border-radius'];
-
-directions = ['top', 'bottom', 'left', 'right'];
-
-QUAD_SHORTHANDS.forEach(function(property) {
-  var direction, i, len;
-  REQUIRES_UNIT_VALUE.push(property);
-  for (i = 0, len = directions.length; i < len; i++) {
-    direction = directions[i];
-    REQUIRES_UNIT_VALUE.push(property + '-' + direction);
-  }
-});
-
-;
-
-var REGEX_DIGITS, REGEX_KEBAB, REGEX_LEN_VAL, REGEX_SPACE, helpers, sampleStyle, styleContent, styleEl;
-
-sampleStyle = document.createElement('div').style;
-
-REGEX_LEN_VAL = /^\d+(?:[a-z]|\%)+$/i;
-
-REGEX_DIGITS = /\d+$/;
-
-REGEX_SPACE = /\s/;
-
-REGEX_KEBAB = /([A-Z])+/g;
-
-helpers = {};
-
-helpers.includes = function(target, item) {
-  return target && target.indexOf(item) !== -1;
-};
-
-helpers.isIterable = function(target) {
-  return target && typeof target === 'object' && typeof target.length === 'number' && !target.nodeType;
-};
-
-helpers.isPropSupported = function(property) {
-  return typeof sampleStyle[property] !== 'undefined';
-};
-
-helpers.toKebabCase = function(string) {
-  return string.replace(REGEX_KEBAB, function(e, letter) {
-    return "-" + (letter.toLowerCase());
-  });
-};
-
-helpers.normalizeProperty = function(property) {
-  property = helpers.toKebabCase(property);
-  if (helpers.isPropSupported(property)) {
-    return property;
-  } else {
-    return "" + (helpers.getPrefix(property, true)) + property;
-  }
-};
-
-helpers.getPrefix = function(property, skipInitialCheck) {
-  var i, len, prefix;
-  if (skipInitialCheck || !helpers.isPropSupported(property)) {
-    for (i = 0, len = POSSIBLE_PREFIXES.length; i < len; i++) {
-      prefix = POSSIBLE_PREFIXES[i];
-
-      /* istanbul ignore next */
-      if (helpers.isPropSupported("-" + prefix + "-" + property)) {
-        return "-" + prefix + "-";
-      }
-    }
-  }
-  return '';
-};
-
-helpers.normalizeValue = function(property, value) {
-  if (helpers.includes(REQUIRES_UNIT_VALUE, property) && value !== null) {
-    value = '' + value;
-    if (REGEX_DIGITS.test(value) && !REGEX_LEN_VAL.test(value) && !REGEX_SPACE.test(value)) {
-      value += property === 'line-height' ? 'em' : 'px';
-    }
-  }
-  return value;
-};
-
-styleEl = null;
-
-styleContent = '';
-
-helpers.inlineStyle = function(rule) {
-  if (!styleEl) {
-    styleEl = document.createElement('style');
-    styleEl.id = 'quickcss';
-    document.head.appendChild(styleEl);
-  }
-  if (!helpers.includes(styleContent, rule)) {
-    return styleEl.innerHTML = styleContent += rule;
-  }
-};
-
-;
-
-QuickCSS = function(targetEl, property, value) {
-  var computedStyle, i, len, subEl, subProperty, subValue;
-  if (helpers.isIterable(targetEl)) {
-    for (i = 0, len = targetEl.length; i < len; i++) {
-      subEl = targetEl[i];
-      QuickCSS(subEl, property, value);
-    }
-  } else if (typeof property === 'object') {
-    for (subProperty in property) {
-      subValue = property[subProperty];
-      QuickCSS(targetEl, subProperty, subValue);
-    }
-  } else {
-    property = helpers.normalizeProperty(property);
-    if (typeof value === 'undefined') {
-      computedStyle = targetEl._computedStyle || (targetEl._computedStyle = getComputedStyle(targetEl));
-      return computedStyle[property];
-    } else if (property) {
-      targetEl.style[property] = helpers.normalizeValue(property, value);
-    }
-  }
-};
-
-QuickCSS.animation = function(name, frames) {
-  var frame, generated, prefix, property, rules, value;
-  if (name && typeof name === 'string' && frames && typeof frames === 'object') {
-    prefix = helpers.getPrefix('animation');
-    generated = '';
-    for (frame in frames) {
-      rules = frames[frame];
-      generated += frame + " {";
-      for (property in rules) {
-        value = rules[property];
-        property = helpers.normalizeProperty(property);
-        value = helpers.normalizeValue(property, value);
-        generated += property + ": " + value + ";";
-      }
-      generated += "}";
-    }
-    generated = "@" + prefix + "keyframes " + name + " {" + generated + "}";
-    return helpers.inlineStyle(generated);
-  }
-};
-
-QuickCSS.version = "1.1.2";
-
-module.exports = QuickCSS;
-
-;
-return module.exports;
-},
-31: function (require, module, exports) {
-var exports;
-
-module.exports = exports = {
-  defined: function(subject) {
-    return subject !== void 0;
-  },
-  array: function(subject) {
-    return subject instanceof Array;
-  },
-  object: function(subject) {
-    return typeof subject === 'object' && subject;
-  },
-  objectPlain: function(subject) {
-    return exports.object(subject) && Object.prototype.toString.call(subject) === '[object Object]' && subject.constructor === Object;
-  },
-  string: function(subject) {
-    return typeof subject === 'string';
-  },
-  number: function(subject) {
-    return typeof subject === 'number' && !isNaN(subject);
-  },
-  numberLoose: function(subject) {
-    return exports.number(subject) || exports.string(subject) && exports.number(Number(subject));
-  },
-  "function": function(subject) {
-    return typeof subject === 'function';
-  },
-  iterable: function(subject) {
-    return exports.object(subject) && exports.number(subject.length);
-  }
-};
-
-;
-return module.exports;
-},
 0: function (require, module, exports) {
 var QuickDom, svgNamespace;
 
@@ -524,7 +30,7 @@ allowedOptions = ['id', 'ref', 'type', 'name', 'text', 'style', 'class', 'classN
 
 ;
 
-var helpers;
+var helpers, styleCache;
 
 helpers = {};
 
@@ -557,6 +63,58 @@ helpers.normalizeGivenEl = function(targetEl) {
 helpers.isStateStyle = function(string) {
   return string[0] === '$' || string[0] === '@';
 };
+
+helpers.registerStyle = function(rule, level) {
+  var cached, i, len, output, prop, props;
+  level || (level = 0);
+  cached = styleCache.get(rule, level);
+  if (cached) {
+    return cached;
+  }
+  output = {
+    className: [CSS.register(rule, level)],
+    fns: [],
+    rule: rule
+  };
+  props = Object.keys(rule);
+  for (i = 0, len = props.length; i < len; i++) {
+    prop = props[i];
+    if (typeof rule[prop] === 'function') {
+      output.fns.push([prop, rule[prop]]);
+    }
+  }
+  return styleCache.set(rule, output, level);
+};
+
+styleCache = new ((function() {
+  function _Class() {
+    this.keys = Object.create(null);
+    this.values = Object.create(null);
+  }
+
+  _Class.prototype.get = function(key, level) {
+    var index;
+    if (this.keys[level]) {
+      index = this.keys[level].indexOf(key);
+      if (index !== -1) {
+        return this.values[level][index];
+      }
+    }
+  };
+
+  _Class.prototype.set = function(key, value, level) {
+    if (!this.keys[level]) {
+      this.keys[level] = [];
+      this.values[level] = [];
+    }
+    this.keys[level].push(key);
+    this.values[level].push(value);
+    return value;
+  };
+
+  return _Class;
+
+})());
 
 ;
 
@@ -841,8 +399,7 @@ _getIndexByProp = function(main, prop) {
 
 ;
 
-var baseStateTriggers,
-  slice = [].slice;
+var baseStateTriggers;
 
 baseStateTriggers = {
   'hover': {
@@ -858,19 +415,19 @@ baseStateTriggers = {
 };
 
 QuickElement.prototype._normalizeOptions = function() {
-  var base, base1, base2;
+  var base1, base2, base3;
   if (this.options["class"]) {
     this.options.className = this.options["class"];
   }
   if (this.options.url) {
     this.options.href = this.options.url;
   }
-  this.related = (base = this.options).relatedInstance != null ? base.relatedInstance : base.relatedInstance = this;
-  if ((base1 = this.options).unpassableStates == null) {
-    base1.unpassableStates = [];
+  this.related = (base1 = this.options).relatedInstance != null ? base1.relatedInstance : base1.relatedInstance = this;
+  if ((base2 = this.options).unpassableStates == null) {
+    base2.unpassableStates = [];
   }
-  if ((base2 = this.options).passStateToChildren == null) {
-    base2.passStateToChildren = true;
+  if ((base3 = this.options).passStateToChildren == null) {
+    base3.passStateToChildren = true;
   }
   this.options.stateTriggers = this.options.stateTriggers ? extend.clone.deep(baseStateTriggers, this.options.stateTriggers) : baseStateTriggers;
   if (this.type === 'text') {
@@ -881,7 +438,7 @@ QuickElement.prototype._normalizeOptions = function() {
 };
 
 QuickElement.prototype._parseStyles = function(styles, store) {
-  var _mediaStates, _providedStates, _providedStatesShared, _stateShared, _styles, flattenNestedStates, i, keys, len, specialStates, state, stateStyles, state_, states;
+  var _mediaStates, _providedStates, _providedStatesShared, _stateShared, _styles, base, flattenNestedStates, i, keys, len, specialStates, state, stateStyles, state_, states;
   if (!IS.objectPlain(styles)) {
     return;
   }
@@ -900,17 +457,10 @@ QuickElement.prototype._parseStyles = function(styles, store) {
   });
   _styles = store || {};
   _stateShared = _providedStatesShared = void 0;
-  if (!helpers.includes(states, '$base')) {
-    if (states.length) {
-      _styles.base = extend.clone.notKeys(states)(styles);
-    } else {
-      _styles.base = styles;
-    }
-  } else {
-    _styles.base = styles.$base;
-  }
-  flattenNestedStates = (function(_this) {
-    return function(styleObject, chain) {
+  base = !helpers.includes(states, '$base') ? styles : styles.$base;
+  _styles.base = helpers.registerStyle(base);
+  if (specialStates.length) {
+    flattenNestedStates = function(styleObject, chain, level) {
       var hasNonStateProps, i, len, output, state, stateChain, state_, styleKeys;
       styleKeys = Object.keys(styleObject);
       output = {};
@@ -933,20 +483,20 @@ QuickElement.prototype._parseStyles = function(styles, store) {
           if (state[0] === '@') {
             _mediaStates.push(state_);
           }
-          _styles[stateChain.string] = flattenNestedStates(styleObject[state], chain);
+          _styles[stateChain.string] = helpers.registerStyle(flattenNestedStates(styleObject[state], chain, level + 1), level + 1);
         }
       }
       if (hasNonStateProps) {
         return output;
       }
     };
-  })(this);
-  for (i = 0, len = specialStates.length; i < len; i++) {
-    state = specialStates[i];
-    state_ = state.slice(1);
-    stateStyles = flattenNestedStates(styles[state], [state_]);
-    if (stateStyles) {
-      _styles[state_] = stateStyles;
+    for (i = 0, len = specialStates.length; i < len; i++) {
+      state = specialStates[i];
+      state_ = state.slice(1);
+      stateStyles = flattenNestedStates(styles[state], [state_], 1);
+      if (stateStyles) {
+        _styles[state_] = helpers.registerStyle(stateStyles, 1);
+      }
     }
   }
   return {
@@ -984,7 +534,7 @@ QuickElement.prototype._parseTexts = function(texts, store) {
 };
 
 QuickElement.prototype._applyOptions = function() {
-  var event, handler, key, ref, ref1, ref2, ref3, value;
+  var event, handler, key, method, ref, ref1, ref2, ref3, ref4, value;
   if (ref = this.options.id || this.options.ref) {
     this.attr('data-ref', this.ref = ref);
   }
@@ -1029,16 +579,14 @@ QuickElement.prototype._applyOptions = function() {
       this.attr(key, value);
     }
   }
-  if (!this.options.styleAfterInsert) {
-    this.style(this._styles.base);
-  }
+  this._applyRegisteredStyle(this._styles.base, null, null, this.options.styleAfterInsert);
   if (this._texts) {
     this.text = this._texts.base;
   }
   this.on('inserted', function() {
     var _, mediaStates;
     if (this.options.styleAfterInsert) {
-      this.style(extend.clone.apply(extend, [this._styles.base].concat(slice.call(this._getStateStyles(this._getActiveStates())))));
+      this.recalcStyle();
     }
     _ = this._inserted = this;
     if ((mediaStates = this._mediaStates) && this._mediaStates.length) {
@@ -1064,6 +612,23 @@ QuickElement.prototype._applyOptions = function() {
     for (event in ref3) {
       handler = ref3[event];
       this.on(event, handler);
+    }
+  }
+  if (this.options.methods) {
+    ref4 = this.options.methods;
+    for (method in ref4) {
+      value = ref4[method];
+      if (!this[method]) {
+        if (IS["function"](value)) {
+          this[method] = value;
+        } else if (IS.object(value)) {
+          Object.defineProperty(this, method, {
+            configurable: true,
+            get: value.get,
+            set: value.set
+          });
+        }
+      }
     }
   }
 };
@@ -1263,8 +828,7 @@ QuickElement.prototype._listenTo = function(eventName, callback, useCapture) {
 
 ;
 
-var DUMMY_ARRAY,
-  slice = [].slice;
+var DUMMY_ARRAY;
 
 DUMMY_ARRAY = [];
 
@@ -1350,57 +914,54 @@ QuickElement.prototype.pipeState = function(targetEl) {
   return this;
 };
 
-QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
-  var plainStates;
-  if (includeSharedStates == null) {
-    includeSharedStates = true;
-  }
-  if (!this._providedStates) {
-    return DUMMY_ARRAY;
-  }
-  plainStates = this._providedStates.filter((function(_this) {
-    return function(state) {
-      return helpers.includes(_this._state, state) && state !== stateToExclude;
-    };
-  })(this));
-  if (!includeSharedStates || !this._providedStatesShared) {
-    return plainStates;
-  } else {
-    return plainStates.concat(this._stateShared);
+QuickElement.prototype._applyRegisteredStyle = function(targetStyle, superiorStates, includeBase, skipFns) {
+  var className, entry, j, k, len, len1, ref, ref1, superiorStyles;
+  if (targetStyle) {
+    ref = targetStyle.className;
+    for (j = 0, len = ref.length; j < len; j++) {
+      className = ref[j];
+      this.addClass(className);
+    }
+    if (targetStyle.fns.length && !skipFns) {
+      if (superiorStates) {
+        superiorStyles = this._resolveFnStyles(superiorStates, includeBase);
+      }
+      ref1 = targetStyle.fns;
+      for (k = 0, len1 = ref1.length; k < len1; k++) {
+        entry = ref1[k];
+        if (!(superiorStyles && superiorStyles[entry[0]])) {
+          this.style(entry[0], entry[1]);
+        }
+      }
+    }
   }
 };
 
-QuickElement.prototype._getSuperiorStates = function(targetState, activeStates) {
-  var superior, targetStateIndex;
-  targetStateIndex = this._providedStates.indexOf(targetState);
-  return superior = activeStates.filter((function(_this) {
-    return function(state) {
-      return _this._providedStates.indexOf(state) > targetStateIndex;
-    };
-  })(this));
-};
-
-QuickElement.prototype._getSharedStates = function(targetState) {
-  var activeStates;
-  activeStates = this._state;
-  return this._providedStatesShared.filter(function(stateChain) {
-    return stateChain.includes(targetState) && stateChain.isApplicable(targetState, activeStates);
-  });
-};
-
-QuickElement.prototype._getStateStyles = function(states) {
-  return states.map((function(_this) {
-    return function(state) {
-      return _this._styles[state];
-    };
-  })(this));
+QuickElement.prototype._removeRegisteredStyle = function(targetStyle, superiorStates, includeBase) {
+  var className, entry, j, k, len, len1, ref, ref1, resetValue, superiorStyles;
+  ref = targetStyle.className;
+  for (j = 0, len = ref.length; j < len; j++) {
+    className = ref[j];
+    this.removeClass(className);
+  }
+  if (targetStyle.fns.length) {
+    if (superiorStates) {
+      superiorStyles = this._resolveFnStyles(superiorStates, includeBase);
+    }
+    ref1 = targetStyle.fns;
+    for (k = 0, len1 = ref1.length; k < len1; k++) {
+      entry = ref1[k];
+      resetValue = superiorStyles && superiorStyles[entry[0]] || null;
+      this.style(entry[0], resetValue);
+    }
+  }
 };
 
 QuickElement.prototype._turnStyleON = function(targetState, activeStates) {
-  var inferiorStateChains, j, len, sharedStates, stateChain, superiorStyles, targetStyle;
-  if (targetStyle = this._styles[targetState]) {
-    superiorStyles = this._getStateStyles(this._getSuperiorStates(targetState, activeStates));
-    this.style(extend.clone.keys(targetStyle).apply(null, [targetStyle].concat(slice.call(superiorStyles))));
+  var j, len, sharedStates, skipFns, stateChain;
+  skipFns = this.options.styleAfterInsert && !this._inserted;
+  if (this._styles[targetState]) {
+    this._applyRegisteredStyle(this._styles[targetState], this._getSuperiorStates(targetState, activeStates), false, skipFns);
   }
   if (this._providedStatesShared) {
     sharedStates = this._getSharedStates(targetState);
@@ -1409,50 +970,32 @@ QuickElement.prototype._turnStyleON = function(targetState, activeStates) {
       if (!helpers.includes(this._stateShared, stateChain.string)) {
         this._stateShared.push(stateChain.string);
       }
-      targetStyle = this._styles[stateChain.string];
-      if (stateChain.length > 2) {
-        inferiorStateChains = this._styles[stateChain.without(targetState)];
-        this.style(extend.clone(inferiorStateChains, targetStyle));
-      } else {
-        this.style(targetStyle);
-      }
+      this._applyRegisteredStyle(this._styles[stateChain.string], null, null, skipFns);
     }
   }
 };
 
 QuickElement.prototype._turnStyleOFF = function(targetState, activeStates) {
-  var activeStyles, j, len, sharedStates, stateChain, stylesToKeep, stylesToRemove, targetStyle;
-  if (targetStyle = this._styles[targetState]) {
-    activeStyles = this._getStateStyles(activeStates);
-    stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this._styles.base].concat(slice.call(activeStyles)));
-    stylesToRemove = extend.transform(function() {
-      return null;
-    }).clone(targetStyle);
-    this.style(extend(stylesToRemove, stylesToKeep));
+  var activeSharedStates, j, len, sharedStates, stateChain, targetStyle;
+  if (this._styles[targetState]) {
+    this._removeRegisteredStyle(this._styles[targetState], activeStates, true);
   }
   if (this._providedStatesShared) {
     sharedStates = this._getSharedStates(targetState);
-    if (activeStyles == null) {
-      activeStyles = this._getStateStyles(activeStates);
+    if (sharedStates.length === 0) {
+      return;
     }
     for (j = 0, len = sharedStates.length; j < len; j++) {
       stateChain = sharedStates[j];
       helpers.removeItem(this._stateShared, stateChain.string);
       targetStyle = this._styles[stateChain.string];
-      if (this._stateShared.length) {
-        activeStyles.push.apply(activeStyles, this._stateShared.filter(function(state) {
+      if (targetStyle.fns.length && this._stateShared.length && !activeSharedStates) {
+        activeSharedStates = this._stateShared.filter(function(state) {
           return !helpers.includes(state, targetState);
-        }).map((function(_this) {
-          return function(state) {
-            return _this._styles[state];
-          };
-        })(this)));
+        });
+        activeStates = activeStates.concat(activeSharedStates);
       }
-      stylesToKeep = extend.clone.keys(targetStyle).apply(null, [this._styles.base].concat(slice.call(activeStyles)));
-      stylesToRemove = extend.transform(function() {
-        return null;
-      }).clone(targetStyle);
-      this.style(extend(stylesToRemove, stylesToKeep));
+      this._removeRegisteredStyle(targetStyle, activeStates, true);
     }
   }
 };
@@ -1481,6 +1024,80 @@ QuickElement.prototype._turnTextOFF = function(targetState, activeStates) {
   }
 };
 
+QuickElement.prototype._getActiveStates = function(stateToExclude, includeSharedStates) {
+  var activeStates, j, len, plainStates, state;
+  if (includeSharedStates == null) {
+    includeSharedStates = true;
+  }
+  if (!this._providedStates) {
+    return DUMMY_ARRAY;
+  }
+  activeStates = plainStates = this._state;
+  if (stateToExclude) {
+    plainStates = [];
+    for (j = 0, len = activeStates.length; j < len; j++) {
+      state = activeStates[j];
+      if (state !== stateToExclude) {
+        plainStates.push(state);
+      }
+    }
+  }
+  if (!includeSharedStates || !this._providedStatesShared) {
+    return plainStates;
+  } else {
+    return plainStates.concat(this._stateShared);
+  }
+};
+
+QuickElement.prototype._getSuperiorStates = function(targetState, activeStates) {
+  var candidate, j, len, superior, targetStateIndex;
+  targetStateIndex = this._providedStates.indexOf(targetState);
+  if (targetStateIndex === this._providedStates.length - 1) {
+    return DUMMY_ARRAY;
+  }
+  superior = [];
+  for (j = 0, len = activeStates.length; j < len; j++) {
+    candidate = activeStates[j];
+    if (this._providedStates.indexOf(candidate) > targetStateIndex) {
+      superior.push(candidate);
+    }
+  }
+  return superior;
+};
+
+QuickElement.prototype._getSharedStates = function(targetState) {
+  var activeStates, j, len, ref, sharedStates, stateChain;
+  activeStates = this._state;
+  sharedStates = [];
+  ref = this._providedStatesShared;
+  for (j = 0, len = ref.length; j < len; j++) {
+    stateChain = ref[j];
+    if (stateChain.includes(targetState) && stateChain.isApplicable(targetState, activeStates)) {
+      sharedStates.push(stateChain);
+    }
+  }
+  return sharedStates;
+};
+
+QuickElement.prototype._resolveFnStyles = function(states, includeBase) {
+  var entry, j, k, len, len1, output, ref, state;
+  if (includeBase) {
+    states = ['base'].concat(states);
+  }
+  output = {};
+  for (j = 0, len = states.length; j < len; j++) {
+    state = states[j];
+    if (this._styles[state] && this._styles[state].fns.length) {
+      ref = this._styles[state].fns;
+      for (k = 0, len1 = ref.length; k < len1; k++) {
+        entry = ref[k];
+        output[entry[0]] = entry[1];
+      }
+    }
+  }
+  return output;
+};
+
 ;
 
 
@@ -1493,24 +1110,27 @@ QuickElement.prototype._turnTextOFF = function(targetState, activeStates) {
  * is returned
  * @return {[type]} [description]
  */
-var aspectRatioGetter, orientationGetter,
-  slice = [].slice;
+var aspectRatioGetter, orientationGetter;
 
 QuickElement.prototype.style = function(property) {
-  var args, i, key, keys, returnValue, value;
+  var args, i, key, keys, result, value;
   if (this.type === 'text') {
     return;
   }
   args = arguments;
   if (IS.string(property)) {
-    returnValue = CSS(this.el, property, args[1]);
+    value = typeof args[1] === 'function' ? args[1].call(this, this.related) : args[1];
+    if (args[1] === null && IS.defined(this.currentStateStyle(property)) && !IS["function"](this.currentStateStyle(property))) {
+      value = CSS.UNSET;
+    }
+    result = CSS(this.el, property, value);
     if (args.length === 1) {
 
       /* istanbul ignore next */
       if (this._inserted) {
-        return returnValue;
-      } else if (!returnValue) {
-        return returnValue;
+        return result;
+      } else if (!result) {
+        return result;
       } else {
         return '';
       }
@@ -1519,8 +1139,7 @@ QuickElement.prototype.style = function(property) {
     keys = Object.keys(property);
     i = -1;
     while (key = keys[++i]) {
-      value = typeof property[key] === 'function' ? property[key].call(this, this.related) : property[key];
-      CSS(this.el, key, value);
+      this.style(key, property[key]);
     }
   }
   return this;
@@ -1536,14 +1155,14 @@ QuickElement.prototype.style = function(property) {
  */
 
 QuickElement.prototype.styleSafe = function(property, skipComputed) {
-  var computed, ref, result, sample;
+  var computed, result, sample;
   if (this.type === 'text') {
     return;
   }
   sample = this.el.style[property];
   if (IS.string(sample) || IS.number(sample)) {
     computed = skipComputed ? 0 : this.style(property);
-    result = computed || this.el.style[property] || ((ref = this._styles.base) != null ? ref[property] : void 0) || '';
+    result = computed || this.el.style[property] || this.currentStateStyle(property) || '';
     if (typeof result === 'function') {
       return result.call(this, this.related);
     } else {
@@ -1558,11 +1177,8 @@ QuickElement.prototype.styleParsed = function(property, skipComputed) {
 };
 
 QuickElement.prototype.recalcStyle = function(recalcChildren) {
-  var activeStyles, child, j, len, ref, targetStyles;
-  activeStyles = this._getStateStyles(this._getActiveStates());
-  targetStyles = extend.clone.filter(function(value) {
-    return typeof value === 'function';
-  }).apply(null, [this._styles.base].concat(slice.call(activeStyles)));
+  var child, j, len, ref, targetStyles;
+  targetStyles = this._resolveFnStyles(this._getActiveStates(), true);
   this.style(targetStyles);
   if (recalcChildren) {
     ref = this._children;
@@ -1574,34 +1190,46 @@ QuickElement.prototype.recalcStyle = function(recalcChildren) {
   return this;
 };
 
-QuickElement.prototype.show = function(display) {
-  var ref;
-  if (display == null) {
-    display = ((ref = this._styles.base) != null ? ref.display : void 0) || 'block';
+QuickElement.prototype.currentStateStyle = function(property) {
+  var i, state, states;
+  if (property) {
+    if (this._state.length) {
+      states = this._state.slice();
+      if (this._stateShared && this._stateShared.length) {
+        states.push.apply(states, this._stateShared);
+      }
+      i = states.length;
+      while (state = states[--i]) {
+        if (this._styles[state] && IS.defined(this._styles[state].rule[property])) {
+          return this._styles[state].rule[property];
+        }
+      }
+    }
+    if (this._styles.base) {
+      return this._styles.base.rule[property];
+    }
   }
-  return this.style('display', display);
 };
 
 QuickElement.prototype.hide = function() {
   return this.style('display', 'none');
 };
 
+QuickElement.prototype.show = function(display) {
+  var ref;
+  if (!display) {
+    display = this.currentStateStyle('display');
+    if (display === 'none' || !display) {
+      display = 'block';
+    }
+  }
+  if (display == null) {
+    display = ((ref = this._styles.base) != null ? ref.display : void 0) || 'block';
+  }
+  return this.style('display', display);
+};
+
 Object.defineProperties(QuickElement.prototype, {
-  'rect': {
-    get: function() {
-      return this.el.getBoundingClientRect();
-    }
-  },
-  'width': {
-    get: function() {
-      return parseFloat(this.style('width'));
-    }
-  },
-  'height': {
-    get: function() {
-      return parseFloat(this.style('height'));
-    }
-  },
   'orientation': orientationGetter = {
     get: function() {
       if (this.width > this.height) {
@@ -1614,6 +1242,27 @@ Object.defineProperties(QuickElement.prototype, {
   'aspectRatio': aspectRatioGetter = {
     get: function() {
       return this.width / this.height;
+    }
+  },
+  'rect': {
+    get: function() {
+      return this.el.getBoundingClientRect();
+    }
+  },
+  'width': {
+    get: function() {
+      return parseFloat(this.style('width'));
+    },
+    set: function(value) {
+      return this.style('width', value);
+    }
+  },
+  'height': {
+    get: function() {
+      return parseFloat(this.style('height'));
+    },
+    set: function(value) {
+      return this.style('height', value);
     }
   }
 });
@@ -1955,12 +1604,27 @@ QuickElement.prototype.updateOptions = function(options) {
 };
 
 QuickElement.prototype.updateStateStyles = function(styles) {
-  extend.deep.concat(this, this._parseStyles(styles));
+  var i, len, parsed, state, updatedStates;
+  if (IS.objectPlain(styles)) {
+    extend.deep.concat(this, parsed = this._parseStyles(styles));
+    if (parsed._styles) {
+      updatedStates = Object.keys(parsed._styles);
+      for (i = 0, len = updatedStates.length; i < len; i++) {
+        state = updatedStates[i];
+        if (this.state(state) || state === 'base') {
+          this._applyRegisteredStyle(this._styles[state], this._getActiveStates(state), false);
+        }
+      }
+    }
+  }
   return this;
 };
 
 QuickElement.prototype.updateStateTexts = function(texts) {
-  extend.deep.concat(this, this._parseTexts(texts));
+  var parsed;
+  if (IS.objectPlain(texts)) {
+    extend.deep.concat(this, parsed = this._parseTexts(texts));
+  }
   return this;
 };
 
@@ -2232,6 +1896,14 @@ QuickDom.html = function(innerHTML) {
   return QuickDom.batch(children);
 };
 
+QuickDom.query = function(target) {
+  return QuickDom(document).query(target);
+};
+
+QuickDom.queryAll = function(target) {
+  return QuickDom(document).queryAll(target);
+};
+
 QuickDom.isTemplate = function(target) {
   return IS.template(target);
 };
@@ -2336,9 +2008,6 @@ extendTemplate = function(currentOpts, newOpts, globalOpts) {
   if (IS.array(newOpts)) {
     newOpts = parseTree(newOpts, false);
   }
-  if (IS.template(newOpts)) {
-    newOpts = newOpts._config;
-  }
   output = extend.deep.nullDeletes.notKeys('children').notDeep(['relatedInstance', 'data']).transform(globalOptsTransform).clone(currentOpts, newOpts);
   currentChildren = currentOpts.children;
   newChildren = (newOpts != null ? newOpts.children : void 0) || [];
@@ -2417,7 +2086,7 @@ extendByRef = function(newChildrenRefs, currentChildren, globalOpts) {
           }
         })();
       }
-      newChildProcessed._config.children = extendByRef(newChildrenRefs, newChildProcessed.children);
+      newChildProcessed.children = extendByRef(newChildrenRefs, newChildProcessed.children);
       output.push(newChildProcessed);
     }
     return output;
@@ -2505,13 +2174,14 @@ QuickTemplate = (function() {
     if (IS.template(config)) {
       return config;
     }
-    this._config = isTree ? parseTree(config) : config;
-    this._hasComputers = !!this._config.options.computers;
-    if (!this._hasComputers && this._config.children.length) {
-      ref = this._config.children;
+    config = isTree ? parseTree(config) : config;
+    extend(this, config);
+    this._hasComputers = !!this.options.computers;
+    if (!this._hasComputers && this.children.length) {
+      ref = this.children;
       for (i = 0, len = ref.length; i < len; i++) {
         child = ref[i];
-        if (!(child._hasComputers || child._config.options.computers)) {
+        if (!(child._hasComputers || child.options.computers)) {
           continue;
         }
         this._hasComputers = true;
@@ -2521,7 +2191,7 @@ QuickTemplate = (function() {
   }
 
   QuickTemplate.prototype.extend = function(newValues, globalOpts) {
-    return new QuickTemplate(extendTemplate(this._config, newValues, globalOpts));
+    return new QuickTemplate(extendTemplate(this, newValues, globalOpts));
   };
 
   QuickTemplate.prototype.spawn = function(newValues, globalOpts) {
@@ -2533,10 +2203,10 @@ QuickTemplate = (function() {
       }
     }
     if (newValues || globalOpts) {
-      opts = extendTemplate(this._config, newValues, globalOpts);
+      opts = extendTemplate(this, newValues, globalOpts);
     } else {
-      opts = extend.clone(this._config);
-      opts.options = extend.deepOnly('style').clone(opts.options);
+      opts = extend.clone(this);
+      opts.options = extend.clone(opts.options);
     }
     element = QuickDom.apply(null, [opts.type, opts.options].concat(slice.call(opts.children)));
     if (this._hasComputers) {
@@ -2560,14 +2230,6 @@ QuickTemplate = (function() {
 if (QuickTemplate.name == null) {
   QuickTemplate.name = 'QuickTemplate';
 }
-
-Object.keys(schema).forEach(function(key) {
-  return Object.defineProperty(QuickTemplate.prototype, key, {
-    get: function() {
-      return this._config[key];
-    }
-  });
-});
 
 Object.defineProperty(QuickTemplate.prototype, 'child', {
   get: function() {
@@ -2601,9 +2263,595 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.69";
+QuickDom.version = "1.0.70";
+
+QuickDom.CSS = CSS;
 
 module.exports = QuickDom;
+
+;
+return module.exports;
+},
+33: function (require, module, exports) {
+var StateChain;
+
+module.exports = StateChain = (function() {
+  function StateChain(states) {
+    this.string = states.join('+');
+    this.array = states.slice();
+    this.length = states.length;
+  }
+
+  StateChain.prototype.includes = function(target) {
+    var i, len, ref, state;
+    ref = this.array;
+    for (i = 0, len = ref.length; i < len; i++) {
+      state = ref[i];
+      if (state === target) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  StateChain.prototype.without = function(target) {
+    return this.array.filter(function(state) {
+      return state !== target;
+    }).join('+');
+  };
+
+  StateChain.prototype.isApplicable = function(target, otherActive) {
+    var active;
+    active = this.array.filter(function(state) {
+      return state === target || otherActive.indexOf(state) !== -1;
+    });
+    return active.length === this.array.length;
+  };
+
+  return StateChain;
+
+})();
+
+;
+return module.exports;
+},
+1: function (require, module, exports) {
+var QuickCSS, constants, helpers;
+
+constants = require(13);
+
+helpers = require(14);
+
+QuickCSS = function(targetEl, property, value) {
+  var computedStyle, i, len, subEl, subProperty, subValue;
+  if (helpers.isIterable(targetEl)) {
+    for (i = 0, len = targetEl.length; i < len; i++) {
+      subEl = targetEl[i];
+      QuickCSS(subEl, property, value);
+    }
+  } else if (typeof property === 'object') {
+    for (subProperty in property) {
+      subValue = property[subProperty];
+      QuickCSS(targetEl, subProperty, subValue);
+    }
+  } else {
+    property = helpers.normalizeProperty(property);
+    if (typeof value === 'undefined') {
+      computedStyle = targetEl._computedStyle || (targetEl._computedStyle = getComputedStyle(targetEl));
+      return computedStyle[property];
+    } else if (property) {
+      targetEl.style[property] = helpers.normalizeValue(property, value);
+    }
+  }
+};
+
+QuickCSS.animation = function(name, frames) {
+  var frame, generated, prefix, rules;
+  if (name && typeof name === 'string' && frames && typeof frames === 'object') {
+    prefix = helpers.getPrefix('animation');
+    generated = '';
+    for (frame in frames) {
+      rules = frames[frame];
+      generated += frame + " {" + (helpers.ruleToString(rules)) + "}";
+    }
+    generated = "@" + prefix + "keyframes " + name + " {" + generated + "}";
+    return helpers.inlineStyle(generated, true, 0);
+  }
+};
+
+QuickCSS.register = function(rule, level) {
+  var className, ref, style;
+  if (rule && typeof rule === 'object') {
+    level || (level = 0);
+    rule = helpers.ruleToString(rule);
+    if (!(className = (ref = helpers.inlineStyleConfig[level]) != null ? ref[rule] : void 0)) {
+      className = helpers.hash(rule);
+      style = "." + className + " {" + rule + "}";
+      helpers.inlineStyle(style, className, level);
+    }
+    return className;
+  }
+};
+
+QuickCSS.clearRegistered = function(level) {
+  return helpers.clearInlineStyle(level || 0);
+};
+
+
+/* istanbul ignore next */
+
+QuickCSS.UNSET = (function() {
+  switch (false) {
+    case !helpers.isValueSupported('display', 'unset'):
+      return 'unset';
+    case !helpers.isValueSupported('display', 'initial'):
+      return 'initial';
+    case !helpers.isValueSupported('display', 'inherit'):
+      return 'inherit';
+  }
+})();
+
+QuickCSS.supports = helpers.isValueSupported;
+
+QuickCSS.supportsProperty = helpers.isPropSupported;
+
+QuickCSS.normalizeProperty = helpers.normalizeProperty;
+
+QuickCSS.normalizeValue = helpers.normalizeValue;
+
+QuickCSS.version = "1.3.2";
+
+module.exports = QuickCSS;
+
+;
+return module.exports;
+},
+2: function (require, module, exports) {
+var exports, extend, modifiers, newBuilder, normalizeKeys;
+
+extend = require(16);
+
+normalizeKeys = function(keys) {
+  var i, key, len, output;
+  if (keys) {
+    output = {};
+    if (typeof keys !== 'object') {
+      output[keys] = true;
+    } else {
+      if (!Array.isArray(keys)) {
+        keys = Object.keys(keys);
+      }
+      for (i = 0, len = keys.length; i < len; i++) {
+        key = keys[i];
+        output[key] = true;
+      }
+    }
+    return output;
+  }
+};
+
+newBuilder = function(isBase) {
+  var builder;
+  builder = function(target) {
+    var theTarget;
+    var $_len = arguments.length, $_i = -1, sources = new Array($_len); while (++$_i < $_len) sources[$_i] = arguments[$_i];
+    if (builder.options.target) {
+      theTarget = builder.options.target;
+    } else {
+      theTarget = target;
+      sources.shift();
+    }
+    return extend(builder.options, theTarget, sources);
+  };
+  if (isBase) {
+    builder.isBase = true;
+  }
+  builder.options = {};
+  Object.defineProperties(builder, modifiers);
+  return builder;
+};
+
+modifiers = {
+  'deep': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      _.options.deep = true;
+      return _;
+    }
+  },
+  'own': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      _.options.own = true;
+      return _;
+    }
+  },
+  'allowNull': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      _.options.allowNull = true;
+      return _;
+    }
+  },
+  'nullDeletes': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      _.options.nullDeletes = true;
+      return _;
+    }
+  },
+  'concat': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      _.options.concat = true;
+      return _;
+    }
+  },
+  'clone': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      _.options.target = {};
+      return _;
+    }
+  },
+  'notDeep': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      return function(keys) {
+        _.options.notDeep = normalizeKeys(keys);
+        return _;
+      };
+    }
+  },
+  'deepOnly': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      return function(keys) {
+        _.options.deepOnly = normalizeKeys(keys);
+        return _;
+      };
+    }
+  },
+  'keys': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      return function(keys) {
+        _.options.keys = normalizeKeys(keys);
+        return _;
+      };
+    }
+  },
+  'notKeys': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      return function(keys) {
+        _.options.notKeys = normalizeKeys(keys);
+        return _;
+      };
+    }
+  },
+  'transform': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      return function(transform) {
+        if (typeof transform === 'function') {
+          _.options.globalTransform = transform;
+        } else if (transform && typeof transform === 'object') {
+          _.options.transforms = transform;
+        }
+        return _;
+      };
+    }
+  },
+  'filter': {
+    get: function() {
+      var _;
+      _ = this.isBase ? newBuilder() : this;
+      return function(filter) {
+        if (typeof filter === 'function') {
+          _.options.globalFilter = filter;
+        } else if (filter && typeof filter === 'object') {
+          _.options.filters = filter;
+        }
+        return _;
+      };
+    }
+  }
+};
+
+module.exports = exports = newBuilder(true);
+
+exports.version = "1.7.3";
+
+;
+return module.exports;
+},
+18: function (require, module, exports) {
+var Checks, availSets;
+
+availSets = {
+  natives: require(31),
+  dom: require(32)
+};
+
+Checks = (function() {
+  Checks.prototype.create = function() {
+    var args;
+    if (arguments.length) {
+      args = Array.prototype.slice.call(arguments);
+    }
+    return new Checks(args);
+  };
+
+  function Checks(sets) {
+    var i, len, set;
+    if (sets == null) {
+      sets = ['natives'];
+    }
+    for (i = 0, len = sets.length; i < len; i++) {
+      set = sets[i];
+      if (availSets[set]) {
+        this.load(availSets[set]);
+      }
+    }
+  }
+
+  Checks.prototype.load = function(set) {
+    var key, value;
+    if (availSets.natives.string(set)) {
+      set = availSets[set];
+    }
+    if (!availSets.natives.objectPlain(set)) {
+      return;
+    }
+    for (key in set) {
+      value = set[key];
+      this[key] = value;
+    }
+  };
+
+  return Checks;
+
+})();
+
+module.exports = Checks.prototype.create();
+
+;
+return module.exports;
+},
+14: function (require, module, exports) {
+var constants, helpers, sampleStyle, styleConfig;
+
+constants = require(13);
+
+sampleStyle = document.createElement('div').style;
+
+helpers = exports;
+
+helpers.includes = function(target, item) {
+  return target && target.indexOf(item) !== -1;
+};
+
+helpers.isIterable = function(target) {
+  return target && typeof target === 'object' && typeof target.length === 'number' && !target.nodeType;
+};
+
+helpers.toKebabCase = function(string) {
+  return string.replace(constants.REGEX_KEBAB, function(e, letter) {
+    return "-" + (letter.toLowerCase());
+  });
+};
+
+helpers.isPropSupported = function(property) {
+  return typeof sampleStyle[property] !== 'undefined';
+};
+
+helpers.isValueSupported = function(property, value) {
+  if (window.CSS && window.CSS.supports) {
+    return window.CSS.supports(property, value);
+  } else {
+    sampleStyle[property] = value;
+    return sampleStyle[property] === '' + value;
+  }
+};
+
+helpers.getPrefix = function(property, skipInitialCheck) {
+  var j, len1, prefix, ref;
+  if (skipInitialCheck || !helpers.isPropSupported(property)) {
+    ref = constants.POSSIBLE_PREFIXES;
+    for (j = 0, len1 = ref.length; j < len1; j++) {
+      prefix = ref[j];
+
+      /* istanbul ignore next */
+      if (helpers.isPropSupported("-" + prefix + "-" + property)) {
+        return "-" + prefix + "-";
+      }
+    }
+  }
+  return '';
+};
+
+helpers.normalizeProperty = function(property) {
+  property = helpers.toKebabCase(property);
+  if (helpers.isPropSupported(property)) {
+    return property;
+  } else {
+    return "" + (helpers.getPrefix(property, true)) + property;
+  }
+};
+
+helpers.normalizeValue = function(property, value) {
+  if (helpers.includes(constants.REQUIRES_UNIT_VALUE, property) && value !== null) {
+    value = '' + value;
+    if (constants.REGEX_DIGITS.test(value) && !constants.REGEX_LEN_VAL.test(value) && !constants.REGEX_SPACE.test(value)) {
+      value += property === 'line-height' ? 'em' : 'px';
+    }
+  }
+  return value;
+};
+
+helpers.sort = function(array) {
+  var great, i, len, less, pivot;
+  if (array.length < 2) {
+    return array;
+  } else {
+    pivot = array[0];
+    less = [];
+    great = [];
+    len = array.length;
+    i = 0;
+    while (++i !== len) {
+      if (array[i] <= pivot) {
+        less.push(array[i]);
+      } else {
+        great.push(array[i]);
+      }
+    }
+    return helpers.sort(less).concat(pivot, helpers.sort(great));
+  }
+};
+
+helpers.hash = function(string) {
+  var hash, i, length;
+  hash = 5381;
+  i = -1;
+  length = string.length;
+  while (++i !== string.length) {
+    hash = ((hash << 5) - hash) + string.charCodeAt(i);
+    hash |= 0;
+  }
+  return '_' + (hash < 0 ? hash * -2 : hash);
+};
+
+helpers.ruleToString = function(rule) {
+  var j, len1, output, prop, property, props, value;
+  output = '';
+  props = helpers.sort(Object.keys(rule));
+  for (j = 0, len1 = props.length; j < len1; j++) {
+    prop = props[j];
+    if (typeof rule[prop] === 'string' || typeof rule[prop] === 'number') {
+      property = helpers.normalizeProperty(prop);
+      value = helpers.normalizeValue(property, rule[prop]);
+      output += property + ":" + value + ";";
+    }
+  }
+  return output;
+};
+
+helpers.inlineStyleConfig = styleConfig = Object.create(null);
+
+helpers.inlineStyle = function(rule, valueToStore, level) {
+  var config, styleEl;
+  if (!(config = styleConfig[level])) {
+    styleEl = document.createElement('style');
+    styleEl.id = "quickcss" + (level || '');
+    document.head.appendChild(styleEl);
+    styleConfig[level] = config = {
+      el: styleEl,
+      content: '',
+      cache: Object.create(null)
+    };
+  }
+  if (!config.cache[rule]) {
+    config.cache[rule] = valueToStore || true;
+    config.el.textContent = config.content += rule;
+  }
+};
+
+helpers.clearInlineStyle = function(level) {
+  var config, j, key, keys, len1;
+  if (config = styleConfig[level]) {
+    if (!config.content) {
+      return;
+    }
+    config.el.textContent = config.content = '';
+    keys = Object.keys(config.cache);
+    for (j = 0, len1 = keys.length; j < len1; j++) {
+      key = keys[j];
+      config.cache[key] = null;
+    }
+  }
+};
+
+;
+return module.exports;
+},
+32: function (require, module, exports) {
+var exports;
+
+module.exports = exports = {
+  domDoc: function(subject) {
+    return subject && subject.nodeType === 9;
+  },
+  domEl: function(subject) {
+    return subject && subject.nodeType === 1;
+  },
+  domText: function(subject) {
+    return subject && subject.nodeType === 3;
+  },
+  domNode: function(subject) {
+    return exports.domEl(subject) || exports.domText(subject);
+  },
+  domTextarea: function(subject) {
+    return subject && subject.nodeName === 'TEXTAREA';
+  },
+  domInput: function(subject) {
+    return subject && subject.nodeName === 'INPUT';
+  },
+  domSelect: function(subject) {
+    return subject && subject.nodeName === 'SELECT';
+  },
+  domField: function(subject) {
+    return exports.domInput(subject) || exports.domTextarea(subject) || exports.domSelect(subject);
+  }
+};
+
+;
+return module.exports;
+},
+31: function (require, module, exports) {
+var exports;
+
+module.exports = exports = {
+  defined: function(subject) {
+    return subject !== void 0;
+  },
+  array: function(subject) {
+    return subject instanceof Array;
+  },
+  object: function(subject) {
+    return typeof subject === 'object' && subject;
+  },
+  objectPlain: function(subject) {
+    return exports.object(subject) && Object.prototype.toString.call(subject) === '[object Object]' && subject.constructor === Object;
+  },
+  string: function(subject) {
+    return typeof subject === 'string';
+  },
+  number: function(subject) {
+    return typeof subject === 'number' && !isNaN(subject);
+  },
+  numberLoose: function(subject) {
+    return exports.number(subject) || exports.string(subject) && exports.number(Number(subject));
+  },
+  "function": function(subject) {
+    return typeof subject === 'function';
+  },
+  iterable: function(subject) {
+    return exports.object(subject) && exports.number(subject.length);
+  }
+};
 
 ;
 return module.exports;
@@ -2671,6 +2919,36 @@ module.exports = extend = function(options, target, sources, parentKey) {
   }
   return target;
 };
+
+;
+return module.exports;
+},
+13: function (require, module, exports) {
+exports.REGEX_LEN_VAL = /^\d+(?:[a-z]|\%)+$/i;
+
+exports.REGEX_DIGITS = /\d+$/;
+
+exports.REGEX_SPACE = /\s/;
+
+exports.REGEX_KEBAB = /([A-Z])+/g;
+
+exports.POSSIBLE_PREFIXES = ['webkit', 'moz', 'ms', 'o'];
+
+exports.REQUIRES_UNIT_VALUE = ['background-position-x', 'background-position-y', 'block-size', 'border-width', 'columnRule-width', 'cx', 'cy', 'font-size', 'grid-column-gap', 'grid-row-gap', 'height', 'inline-size', 'line-height', 'minBlock-size', 'min-height', 'min-inline-size', 'min-width', 'max-height', 'max-width', 'outline-offset', 'outline-width', 'perspective', 'shape-margin', 'stroke-dashoffset', 'stroke-width', 'text-indent', 'width', 'word-spacing', 'top', 'bottom', 'left', 'right', 'x', 'y'];
+
+exports.QUAD_SHORTHANDS = ['margin', 'padding', 'border', 'border-radius'];
+
+exports.DIRECTIONS = ['top', 'bottom', 'left', 'right'];
+
+exports.QUAD_SHORTHANDS.forEach(function(property) {
+  var direction, i, len, ref;
+  exports.REQUIRES_UNIT_VALUE.push(property);
+  ref = exports.DIRECTIONS;
+  for (i = 0, len = ref.length; i < len; i++) {
+    direction = ref[i];
+    exports.REQUIRES_UNIT_VALUE.push(property + '-' + direction);
+  }
+});
 
 ;
 return module.exports;
