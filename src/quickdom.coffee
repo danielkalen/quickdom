@@ -63,6 +63,12 @@ QuickDom.html = (innerHTML)->
 
 	return QuickDom.batch(children)
 
+QuickDom.query = (target)->
+	QuickDom(document).query(target)
+
+QuickDom.queryAll = (target)->
+	QuickDom(document).queryAll(target)
+
 QuickDom.isTemplate = (target)->
 	IS.template(target)
 
@@ -71,7 +77,6 @@ QuickDom.isQuickEl = (target)->
 
 QuickDom.isEl = (target)->
 	IS.domEl(target)
-
 
 
 
