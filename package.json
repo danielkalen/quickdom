@@ -5,7 +5,7 @@
   "main": "dist/quickdom.js",
   "browser": {
     "./debug": "dist/quickdom.debug.js",
-    "./dist/quickdom.js": "src/quickdom.coffee"
+    "./dist/quickdom.js": "src/index.coffee"
   },
   "browserify": {
     "transform": [
