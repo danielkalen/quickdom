@@ -2263,7 +2263,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.70";
+QuickDom.version = "1.0.71";
 
 QuickDom.CSS = CSS;
 
