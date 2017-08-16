@@ -59,7 +59,7 @@ task 'build:test', (options)->
 
 task 'watch', ()->
 	Promise.resolve()
-		.then ()-> invoke 'install:watch'
+		.then ()-> invoke 'install:build'
 		.then ()->
 			invoke 'watch:js'
 			invoke 'watch:test'
@@ -67,6 +67,7 @@ task 'watch', ()->
 
 
 task 'watch:js', (options)->
+	debug = if options.debug then '.debug' else ''
 	require('simplywatch')
 		globs: "src/*.coffee"
 		bufferTimeout: 1
@@ -74,7 +75,7 @@ task 'watch:js', (options)->
 		command: (file, params)->
 			Promise.resolve()
 				.then ()-> {src:"src/index.coffee", dest:"build/quickdom#{debug}.js"}
-				.then (file)-> compileJS(file, options, umd:'quickdom', target:'browser')
+				.then (file)-> compileJS(file, debug:options.debug, umd:'quickdom', target:'browser')
 
 
 task 'watch:test', (options)->
@@ -92,7 +93,6 @@ task 'watch:test', (options)->
 task 'install', ()->
 	Promise.resolve()
 		.then ()-> invoke 'install:build'
-		.then ()-> invoke 'install:watch'
 		.then ()-> invoke 'install:test'
 		.then ()-> invoke 'install:coverage'
 		.then ()-> invoke 'install:measure'
@@ -101,14 +101,6 @@ task 'install', ()->
 task 'install:build', ()->
 	Promise.resolve()
 		.then ()-> buildModules.filter (module)-> not moduleInstalled(module)
-		.tap (missingModules)-> promiseBreak() if missingModules.length is 0
-		.tap (missingModules)-> installModules(missingModules)
-		.catch promiseBreak.end
-
-
-task 'install:watch', ()->
-	Promise.resolve()
-		.then ()-> ['listr'].filter (module)-> not moduleInstalled(module)
 		.tap (missingModules)-> promiseBreak() if missingModules.length is 0
 		.tap (missingModules)-> installModules(missingModules)
 		.catch promiseBreak.end

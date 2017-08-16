@@ -1108,6 +1108,26 @@ suite "QuickDom", ()->
 			expect(div.style('display')).to.equal 'inline-block'
 
 
+		test "SVG elements", ()->
+			svg = Dom(
+				['*svg'
+					style:
+						display: 'block'
+						width: 10
+						height: 10
+						$happy:
+							width: 20
+							height: 20
+				]
+			).appendTo(sandbox)
+
+			expect(svg.style 'width').to.equal '10px'
+			expect(svg.style 'height').to.equal '10px'
+
+			svg.state 'happy', on
+			expect(svg.style 'width').to.equal '20px'
+			expect(svg.style 'height').to.equal '20px'
+
 
 
 

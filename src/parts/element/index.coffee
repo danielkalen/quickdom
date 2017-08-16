@@ -1,8 +1,9 @@
 class QuickElement
 	constructor: (@type, @options)->
+		@svg = true if @type[0] is '*'
 		@el = @options.existing or
 			if @type is 'text' then document.createTextNode(if typeof @options.text is 'string' then @options.text else '')
-			else if @type[0] is '*' then document.createElementNS(svgNamespace, @type.slice(1))
+			else if @svg then document.createElementNS(svgNamespace, @type.slice(1))
 			else document.createElement(@type)
 
 		if @type is 'text'

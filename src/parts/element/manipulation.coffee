@@ -180,7 +180,7 @@ QuickElement::addClass = (target)->
 
 	if targetIndex is -1
 		classList.push(target)
-		@raw.className = if classList.length > 1 then classList.join(' ') else classList[0]
+		@className = if classList.length > 1 then classList.join(' ') else classList[0]
 
 	return @
 
@@ -191,7 +191,7 @@ QuickElement::removeClass = (target)->
 	
 	if targetIndex isnt -1
 		classList.splice(targetIndex, 1)
-		@raw.className = if classList.length then classList.join(' ') else ''
+		@className = if classList.length then classList.join(' ') else ''
 
 	return @
 
@@ -232,9 +232,13 @@ Object.defineProperties QuickElement::,
 		get: ()-> @el.textContent
 		set: (newValue)-> @el.textContent = newValue
 
+	'className':
+		get: ()-> if @svg then (@attr('class') or '') else @raw.className
+		set: (newValue)-> if @svg then @attr('class', newValue) else @raw.className = newValue
+
 	'classList':
 		get: ()->
-			list = @raw.className.split(/\s+/)
+			list = @className.split(/\s+/)
 			list.pop() if list[list.length-1] is ''
 			list.shift() if list[0] is ''
 			return list
