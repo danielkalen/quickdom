@@ -116,6 +116,13 @@ QuickElement::_applyOptions = ()->
 	if @options.events
 		@on(event, handler) for event,handler of @options.events
 
+	if @options.methods
+		for method,value of @options.methods when not @[method]
+			if IS.function(value)
+				@[method] = value
+			else if IS.object(value)
+				Object.defineProperty @, method, {configurable:true, get:value.get, set:value.set}
+
 	return
 
 

@@ -19,6 +19,7 @@ QuickElement::updateStateStyles = (styles)->
 		
 	return @
 
+
 QuickElement::updateStateTexts = (texts)->
 	if IS.objectPlain(texts)
 		extend.deep.concat @, parsed = @_parseTexts(texts)
