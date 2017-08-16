@@ -5900,7 +5900,11 @@ suite("QuickDom", function() {
     test("Chaining", function() {
       var chainResult, div, head;
       div = Dom.div();
-      chainResult = div.state('abc', true).resetState().style().css('width', 12).attr('test', 123).prop('anotherTest', 123).append().appendTo().prepend().prependTo().before().after().insertBefore().insertAfter().detach().wrap(Dom.section()).unwrap().wrap(Dom.header()).replace().appendTo(sandbox).wrap(head = Dom.header()).on('abc', function() {}).emit('abc').off('abc').off();
+      chainResult = div.state('abc', true).resetState().style().css('width', 12).attr('test', 123).prop('anotherTest', 123).updateStateStyles({
+        height: 50
+      }).updateStateTexts({
+        $base: 'abc'
+      }).append().appendTo().prepend().prependTo().before().after().insertBefore().insertAfter().detach().wrap(Dom.section()).unwrap().wrap(Dom.header()).replace().appendTo(sandbox).wrap(head = Dom.header()).on('abc', function() {}).emit('abc').off('abc').off();
       expect(chainResult).to.equal(div);
       expect(sandbox.children[0]).to.equal(head.el);
       expect(div.parent).to.equal(head);
@@ -5954,6 +5958,16 @@ suite("QuickDom", function() {
       expect(div.state('another')).to.be["true"];
       expect(div.state('another', void 0)).to.equal(div);
       expect(div.state('another')).to.be["false"];
+      expect(div.updateStateStyles({
+        $base: {
+          width: 1
+        }
+      })).to.equal(div);
+      expect(div.updateStateStyles(null)).to.equal(div);
+      expect(div.updateStateTexts({
+        $base: 'abc'
+      })).to.equal(div);
+      expect(div.updateStateTexts(null)).to.equal(div);
       div.appendTo(Dom(sandbox));
       expect(div.parent).to.equal(Dom(sandbox));
       div.append(true);

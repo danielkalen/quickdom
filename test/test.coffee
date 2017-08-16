@@ -4657,8 +4657,6 @@ suite "QuickDom", ()->
 			expect(sectionCopy.children[2].ref).to.equal(section.children[2].ref)
 
 
-
-
 		test "Chaining", ()->
 			div = Dom.div()
 			chainResult = div
@@ -4668,6 +4666,8 @@ suite "QuickDom", ()->
 				.css('width', 12)
 				.attr('test', 123)
 				.prop('anotherTest', 123)
+				.updateStateStyles({height:50})
+				.updateStateTexts({$base:'abc'})
 				.append()
 				.appendTo()
 				.prepend()
@@ -4692,8 +4692,6 @@ suite "QuickDom", ()->
 			expect(sandbox.children[0]).to.equal(head.el)
 			expect(div.parent).to.equal(head)
 			expect(div.css 'width').to.equal('12px')
-
-
 
 
 		test "Invalid Arguments", ()->
@@ -4740,6 +4738,11 @@ suite "QuickDom", ()->
 			expect(div.state 'another').to.be.true
 			expect(div.state 'another', undefined).to.equal div
 			expect(div.state 'another').to.be.false
+
+			expect(div.updateStateStyles {$base:{width:1}}).to.equal div
+			expect(div.updateStateStyles null).to.equal div
+			expect(div.updateStateTexts {$base:'abc'}).to.equal div
+			expect(div.updateStateTexts null).to.equal div
 
 			div.appendTo(Dom sandbox)
 			expect(div.parent).to.equal(Dom sandbox)

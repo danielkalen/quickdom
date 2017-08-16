@@ -70,6 +70,7 @@ replacements = [
 	[/_proxyParent/g, '_pp']
 	[/_unproxyParent/g, '_up']
 	[/_hasComputers/g, 'hC']
+	[/_runComputer/g, 'rc']
 	[/__refs/g, '_R']
 	[/returnResults/g, 'rR']
 	[/lastResults/g, 'lR']
