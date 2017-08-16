@@ -1554,6 +1554,25 @@ suite "QuickDom", ()->
 			div.style height:'97px'
 			expect(div.height).to.equal(97)
 
+		
+		test "QuickElement.width/.height setters are shortcuts for .style() setters", ()->
+			parent = Dom.div().appendTo(sandbox)
+			div = Dom.div().appendTo(parent)
+			
+			parent.style width:'1000px', height:'1000px'
+			div.style width:'50%', height:'50%'
+			div.width = div.height = '50%'
+			expect(div.width).to.equal(500)
+			expect(div.height).to.equal(500)
+			
+			div.width = div.height = '10%'
+			expect(div.width).to.equal(100)
+			expect(div.height).to.equal(100)
+			
+			div.width = div.height = '97px'
+			expect(div.width).to.equal(97)
+			expect(div.height).to.equal(97)
+
 
 		test "QuickElement.orientation should return the updated version of an element's computed orientation", ()->
 			parent = Dom.div().appendTo(sandbox)
