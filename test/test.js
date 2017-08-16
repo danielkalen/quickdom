@@ -7,73 +7,6 @@ exports: {}
 }, cache[r].exports = modules[r].call(cx, require, cache[r], cache[r].exports)));
 };
 })({}, {
-1: function (require, module, exports) {
-var origDescriptors;
-
-origDescriptors = {
-  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
-  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
-};
-
-module.exports = new function() {
-  var current, getReal, overwrite, overwritten;
-  overwritten = false;
-  current = {
-    width: window.innerWidth,
-    height: window.innerHeight
-  };
-  getReal = function(dimension) {
-    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
-      return letter.toUpperCase();
-    });
-    return origDescriptors[dimension].get.call(window);
-  };
-  overwrite = function() {
-    if (!overwritten) {
-      overwritten = true;
-      Object.defineProperty(window, 'innerWidth', {
-        configurable: true,
-        get: function() {
-          return current.width;
-        },
-        set: function(newValue) {
-          return current.width = newValue;
-        }
-      });
-      return Object.defineProperty(window, 'innerHeight', {
-        configurable: true,
-        get: function() {
-          return current.height;
-        },
-        set: function(newValue) {
-          return current.height = newValue;
-        }
-      });
-    }
-  };
-  this.simulate = function(width, height) {
-    var event;
-    if (width) {
-      current.width = width;
-    }
-    if (height) {
-      current.height = height;
-    }
-    overwrite();
-    event = document.createEvent('Event');
-    event.initEvent('resize', true, false);
-    return window.dispatchEvent(event);
-  };
-  this.restore = function() {
-    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
-    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
-  };
-  return this;
-};
-
-;
-return module.exports;
-},
 0: function (require, module, exports) {
 var checkChildStructure, creator, elementSuffix, expect, i, j, len, len1, nonElementSuffix, ref, ref1, ref2, ref3, ref4, restartSandbox, sandbox,
   slice = [].slice;
@@ -3510,7 +3443,7 @@ suite("QuickDom", function() {
       expect(sandBox.query('div[name="abc123"]')).to.equal(div);
       return expect(sandBox.query('span[name="abc123"]')).to.equal(void 0);
     });
-    return test("QueryAll", function() {
+    test("QueryAll", function() {
       var div, sandBox;
       div = Dom.template([
         'div', {
@@ -3571,6 +3504,18 @@ suite("QuickDom", function() {
       expect(div.text).to.equal('');
       expect(sandBox.queryAll('.childB_1').text('abc123').elements).to.eql([div.children[1].children[0], div.children[2].children[0]]);
       return expect(div.text).to.equal('abc123abc123');
+    });
+    return test("Query/QueryAll shortcuts", function() {
+      var allA, allB, el, i, index, len;
+      expect(Dom.query('head')).to.equal(Dom(document).query('head'));
+      expect(Dom.query('body')).to.equal(Dom(document).query('body'));
+      allA = Dom.queryAll('section').elements;
+      allB = Dom(document).queryAll('section').elements;
+      expect(allA.length).to.equal(allB.length);
+      for (index = i = 0, len = allA.length; i < len; index = ++i) {
+        el = allA[index];
+        expect(allA[index]).to.equal(allB[index]);
+      }
     });
   });
   suite("Manipulation", function() {
@@ -6068,6 +6013,73 @@ if (HTMLElement.name !== 'HTMLElement') {
 if (window.ClientRect == null) {
   window.ClientRect = DOMRect;
 }
+
+;
+return module.exports;
+},
+1: function (require, module, exports) {
+var origDescriptors;
+
+origDescriptors = {
+  'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
+  'innerHeight': Object.getOwnPropertyDescriptor(window, 'innerHeight')
+};
+
+module.exports = new function() {
+  var current, getReal, overwrite, overwritten;
+  overwritten = false;
+  current = {
+    width: window.innerWidth,
+    height: window.innerHeight
+  };
+  getReal = function(dimension) {
+    dimension = 'inner' + dimension.replace(/\b./, function(letter) {
+      return letter.toUpperCase();
+    });
+    return origDescriptors[dimension].get.call(window);
+  };
+  overwrite = function() {
+    if (!overwritten) {
+      overwritten = true;
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        get: function() {
+          return current.width;
+        },
+        set: function(newValue) {
+          return current.width = newValue;
+        }
+      });
+      return Object.defineProperty(window, 'innerHeight', {
+        configurable: true,
+        get: function() {
+          return current.height;
+        },
+        set: function(newValue) {
+          return current.height = newValue;
+        }
+      });
+    }
+  };
+  this.simulate = function(width, height) {
+    var event;
+    if (width) {
+      current.width = width;
+    }
+    if (height) {
+      current.height = height;
+    }
+    overwrite();
+    event = document.createEvent('Event');
+    event.initEvent('resize', true, false);
+    return window.dispatchEvent(event);
+  };
+  this.restore = function() {
+    Object.defineProperty(window, 'innerWidth', origDescriptors.innerWidth);
+    return Object.defineProperty(window, 'innerHeight', origDescriptors.innerHeight);
+  };
+  return this;
+};
 
 ;
 return module.exports;

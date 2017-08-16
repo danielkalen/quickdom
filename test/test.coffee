@@ -2878,6 +2878,17 @@ suite "QuickDom", ()->
 			expect(div.text).to.equal('abc123abc123')
 
 
+		test "Query/QueryAll shortcuts", ()->
+			expect(Dom.query('head')).to.equal(Dom(document).query('head'))
+			expect(Dom.query('body')).to.equal(Dom(document).query('body'))
+			
+			allA = Dom.queryAll('section').elements
+			allB = Dom(document).queryAll('section').elements
+			expect(allA.length).to.equal(allB.length)
+			for el,index in allA
+				expect(allA[index]).to.equal(allB[index])
+			return
+
 
 
 	suite "Manipulation", ()->
