@@ -2640,38 +2640,60 @@ suite "QuickDom", ()->
 			expect(C.parents.slice(-1)[0].el).to.equal(document.documentElement)
 
 
-		test "Parents Until", ()->
-			A = Dom.section()
-			B = Dom.div().appendTo(A)
-			C = Dom.div().appendTo(B)
-			D = Dom.span().appendTo(C)
+		suite "Parent Matching", ()->
+			teardown ()-> @els.A.detach()
+			suiteSetup ()->
+				A = Dom.section(ref:'A')
+				B = Dom.div(ref:'B').appendTo(A)
+				C = Dom.div(ref:'C').appendTo(B)
+				D = Dom.span(ref:'D').appendTo(C)
+				@els = {A,B,C,D}
+				
+			test "function filter", ()->
+				{A,B,C,D} = @els
+				expect(D.parents).to.eql [C,B,A]
+				expect(D.parentMatching(null)).to.equal(undefined)
+				expect(D.parentMatching(B)).to.equal(undefined)
+				expect(D.parentMatching ()-> false).to.equal(undefined)
+				expect(D.parentMatching (el)-> el is B).to.equal(B)
+				expect(D.parentMatching (el)-> el is A).to.equal(A)
+				expect(D.parentMatching (el)-> el is C).to.equal(C)
 
-			expect(D.parents).to.eql [C,B,A]
-			expect(D.parentsUntil(null)).to.eql [C,B,A]
-			expect(D.parentsUntil()).to.eql [C,B,A]
-			expect(D.parentsUntil('someString')).to.eql [C,B,A]
-			expect(D.parentsUntil (el)-> el is A).to.eql [C,B]
-			expect(D.parentsUntil (el)-> el is B).to.eql [C]
-			expect(D.parentsUntil (el)-> false).to.eql [C,B,A]
+				A.appendTo(sandbox)
+				expect(D.parentMatching (el)-> el.raw is document.documentElement).to.equal(Dom(document.documentElement))
+
+			test "ref filter", ()->
+				{A,B,C,D} = @els
+				expect(D.parents).to.eql [C,B,A]
+				expect(D.parentMatching 'badRef').to.equal(undefined)
+				expect(D.parentMatching 'B').to.equal(B)
+				expect(D.parentMatching 'A').to.equal(A)
+				expect(D.parentMatching 'C').to.equal(C)
 
 
-		test "Parent Matching", ()->
-			A = Dom.section()
-			B = Dom.div().appendTo(A)
-			C = Dom.div().appendTo(B)
-			D = Dom.span().appendTo(C)
+		suite "Parents Until", ()->
+			suiteSetup ()->
+				A = Dom.section(ref:'A')
+				B = Dom.div(ref:'B').appendTo(A)
+				C = Dom.div(ref:'C').appendTo(B)
+				D = Dom.span(ref:'D').appendTo(C)
+				@els = {A,B,C,D}
+			
+			test "function filter", ()->
+				{A,B,C,D} = @els
+				expect(D.parents).to.eql [C,B,A]
+				expect(D.parentsUntil(null)).to.eql [C,B,A]
+				expect(D.parentsUntil()).to.eql [C,B,A]
+				expect(D.parentsUntil (el)-> el is A).to.eql [C,B]
+				expect(D.parentsUntil (el)-> el is B).to.eql [C]
+				expect(D.parentsUntil (el)-> false).to.eql [C,B,A]
+			
 
-			expect(D.parents).to.eql [C,B,A]
-			expect(D.parentMatching(null)).to.equal(undefined)
-			expect(D.parentMatching(B)).to.equal(undefined)
-			expect(D.parentMatching('string')).to.equal(undefined)
-			expect(D.parentMatching ()-> false).to.equal(undefined)
-			expect(D.parentMatching (el)-> el is B).to.equal(B)
-			expect(D.parentMatching (el)-> el is A).to.equal(A)
-			expect(D.parentMatching (el)-> el is C).to.equal(C)
-
-			A.appendTo(sandbox)
-			expect(D.parentMatching (el)-> el.raw is document.documentElement).to.equal(Dom(document.documentElement))
+			test "ref filter", ()-> 
+				{A,B,C,D} = @els
+				expect(D.parentsUntil 'A').to.eql [C,B]
+				expect(D.parentsUntil 'B').to.eql [C]
+				expect(D.parentsUntil 'badRef').to.eql [C,B,A]
 
 
 		test "Next", ()->
