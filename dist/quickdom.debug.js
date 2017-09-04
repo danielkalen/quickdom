@@ -216,17 +216,23 @@ Object.defineProperties(QuickElement.prototype, {
 
 var _getChildRefs, _getIndexByProp, _getParents;
 
-QuickElement.prototype.parentsUntil = function(filterFn) {
-  return _getParents(this, filterFn);
+QuickElement.prototype.parentsUntil = function(filter) {
+  return _getParents(this, filter);
 };
 
-QuickElement.prototype.parentMatching = function(filterFn) {
-  var nextParent;
-  if (IS["function"](filterFn)) {
+QuickElement.prototype.parentMatching = function(filter) {
+  var isRef, nextParent;
+  if (IS["function"](filter) || (isRef = IS.string(filter))) {
     nextParent = this.parent;
     while (nextParent) {
-      if (filterFn(nextParent)) {
-        return nextParent;
+      if (isRef) {
+        if (nextParent.ref === filter) {
+          return nextParent;
+        }
+      } else {
+        if (filter(nextParent)) {
+          return nextParent;
+        }
       }
       nextParent = nextParent.parent;
     }
@@ -327,6 +333,18 @@ Object.defineProperties(QuickElement.prototype, {
       return _getChildRefs(this, true);
     }
   },
+  'firstChild': {
+    get: function() {
+      return this.children[0];
+    }
+  },
+  'lastChild': {
+    get: function() {
+      var children;
+      children = this.children;
+      return children[children.length - 1];
+    }
+  },
   'index': {
     get: function() {
       var parent;
@@ -349,18 +367,24 @@ Object.defineProperties(QuickElement.prototype, {
   }
 });
 
-_getParents = function(targetEl, filterFn) {
-  var nextParent, parents;
-  if (!IS["function"](filterFn)) {
-    filterFn = void 0;
+_getParents = function(targetEl, filter) {
+  var isRef, nextParent, parents;
+  if (!IS["function"](filter) && !(isRef = IS.string(filter))) {
+    filter = void 0;
   }
   parents = [];
   nextParent = targetEl.parent;
   while (nextParent) {
     parents.push(nextParent);
     nextParent = nextParent.parent;
-    if (filterFn && filterFn(nextParent)) {
-      nextParent = null;
+    if (isRef) {
+      if (nextParent && nextParent.ref === filter) {
+        nextParent = null;
+      }
+    } else if (filter) {
+      if (filter(nextParent)) {
+        nextParent = null;
+      }
     }
   }
   return parents;
@@ -2282,7 +2306,7 @@ for (i = 0, len = shortcuts.length; i < len; i++) {
 
 ;
 
-QuickDom.version = "1.0.72";
+QuickDom.version = "1.0.73";
 
 QuickDom.CSS = CSS;
 
