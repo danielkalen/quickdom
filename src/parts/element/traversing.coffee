@@ -1,12 +1,17 @@
-QuickElement::parentsUntil = (filterFn)->
-	_getParents(@, filterFn)
+QuickElement::parentsUntil = (filter)->
+	_getParents(@, filter)
 
-QuickElement::parentMatching = (filterFn)-> if IS.function(filterFn)
-	nextParent = @parent
-	while nextParent
-		return nextParent if filterFn(nextParent)
-		nextParent = nextParent.parent
-	
+QuickElement::parentMatching = (filter)->
+	if IS.function(filter) or isRef=IS.string(filter)
+		nextParent = @parent
+		while nextParent
+			if isRef
+				return nextParent if nextParent.ref is filter
+			else
+				return nextParent if filter(nextParent)
+
+			nextParent = nextParent.parent
+		
 	return
 
 QuickElement::query = (selector)->
@@ -91,14 +96,17 @@ Object.defineProperties QuickElement::,
 
 
 
-_getParents = (targetEl, filterFn)->
-	filterFn = undefined if not IS.function(filterFn)
+_getParents = (targetEl, filter)->
+	filter = undefined if not IS.function(filter) and not isRef=IS.string(filter)
 	parents = []
 	nextParent = targetEl.parent
 	while nextParent
 		parents.push(nextParent)
 		nextParent = nextParent.parent
-		nextParent = null if filterFn and filterFn(nextParent)
+		if isRef
+			nextParent = null if nextParent and nextParent.ref is filter
+		else if filter
+			nextParent = null if filter(nextParent)
 
 	return parents
 
