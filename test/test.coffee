@@ -1,5 +1,5 @@
 @dimensions = import './simulate'
-@Dom = window.quickdom
+@Dom = @DOM = window.quickdom
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
@@ -2697,6 +2697,22 @@ suite "QuickDom", ()->
 
 			expect(C.siblings).to.eql(C.prevAll.reverse().concat(C.nextAll))
 			expect(C.siblings).to.eql([A,B,D,E])
+
+
+		test "First/Last Child", ()->
+			main = DOM.div(id:'main')
+			divA = DOM.div(id:'divA').appendTo(main)
+			divB = DOM.div(id:'divB').appendTo(main)
+			divC = DOM.div(id:'divC').appendTo(main)
+			divBA = DOM.div(id:'divBA').appendTo(divB)
+			divBB = DOM.div(id:'divBB').appendTo(divB)
+
+			expect(main.firstChild).to.equal divA
+			expect(main.lastChild).to.equal divC
+			expect(divA.firstChild).to.equal undefined
+			expect(divA.lastChild).to.equal undefined
+			expect(divB.firstChild).to.equal divBA
+			expect(divB.lastChild).to.equal divBB
 
 
 		test "Child (by ref)", ()->
