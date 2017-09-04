@@ -70,6 +70,13 @@ Object.defineProperties QuickElement::,
 	'childf': get: ()->
 		_getChildRefs(@, true)
 
+	'firstChild': get: ()->
+		@children[0]
+
+	'lastChild': get: ()->
+		children = @children
+		children[children.length-1]
+
 	'index': get: ()->
 		if not parent=@parent
 			return null
