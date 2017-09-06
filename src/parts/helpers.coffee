@@ -19,11 +19,11 @@ helpers.isStateStyle = (string)->
 	string[0] is '$' or string[0] is '@'
 
 
-helpers.registerStyle = (rule, level)->
+helpers.registerStyle = (rule, level, important)->
 	level ||= 0
 	cached = styleCache.get(rule, level)
 	return cached if cached
-	output = {className:[CSS.register(rule, level)], fns:[], rule}
+	output = {className:[CSS.register(rule, level, important)], fns:[], rule}
 	props = Object.keys(rule)
 	
 	for prop in props when typeof rule[prop] is 'function'

@@ -34,7 +34,7 @@ QuickElement::_parseStyles = (styles, store)->
 	_stateShared = _providedStatesShared = undefined
 
 	base = if not helpers.includes(states, '$base') then styles else styles.$base
-	_styles.base = helpers.registerStyle(base)
+	_styles.base = helpers.registerStyle(base, 0, forceStyle=@options.forceStyle)
 
 
 	if specialStates.length
@@ -54,7 +54,7 @@ QuickElement::_parseStyles = (styles, store)->
 					_providedStatesShared ?= []
 					_providedStatesShared.push(stateChain)
 					_mediaStates.push(state_) if state[0] is '@'
-					_styles[stateChain.string] = helpers.registerStyle flattenNestedStates(styleObject[state], chain, level+1), level+1
+					_styles[stateChain.string] = helpers.registerStyle flattenNestedStates(styleObject[state], chain, level+1), level+1, forceStyle
 			
 			return if hasNonStateProps then output
 
