@@ -1090,6 +1090,22 @@ suite "QuickDom", ()->
 			style.appendTo(document.head)
 			expect(divA.style 'width').to.equal '50px'
 			expect(divB.style 'width').to.equal '100px'
+			
+			expect(divA.attr('style') is '' or divA.attr('style') is null).to.be.true
+			expect(divB.attr('style') is '' or divB.attr('style') is null).to.be.true
+			
+			divA.style 'width', ()-> 75
+			divB.style 'width', ()-> 75
+			divA.style 'height', 85
+			divB.style 'height', 85
+			expect(divA.attr 'style').not.to.equal ''
+			expect(divB.attr 'style').not.to.equal ''
+			expect(divA.attr 'style').not.to.include '75px !important'
+			expect(divB.attr 'style').to.include '75px !important'
+			expect(divA.attr 'style').not.to.include '85px !important'
+			expect(divB.attr 'style').to.include '85px !important'
+			expect(divA.style 'width').to.equal '75px'
+			expect(divB.style 'width').to.equal '75px'
 			style.remove()
 
 
