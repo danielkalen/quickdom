@@ -175,6 +175,25 @@ suite "QuickDom", ()->
 			expect(divRaw.className).to.equal('def-456')
 
 
+		test "Existing Element from array-like objects", ()->
+			rawA = document.createElement('div')
+			rawB = document.createElement('div')
+			rawC = document.createElement('div')
+			parent = document.createElement('section')
+			parent.appendChild(rawA); parent.appendChild(rawB); parent.appendChild(rawC);
+			A = Dom([rawA, rawB, rawC])
+			B = Dom(parent.querySelectorAll('div'))
+			C = Dom(B)
+
+			expect(A.el).to.equal(rawA)
+			expect(B.el).to.equal(rawA)
+			expect(C.el).to.equal(rawA)
+			expect(A).to.equal(B)
+			expect(B).to.equal(C)
+			expect(C).to.equal(rawA._quickElement)
+
+
+
 		test "Document node", ()->
 			doc = Dom(document)
 			expect(doc).not.to.be.undefined

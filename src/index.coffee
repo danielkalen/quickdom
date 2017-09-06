@@ -51,6 +51,9 @@ QuickDom = ()-> args=arguments; switch
 
 		return element
 
+	when args[0] and (IS.domNode(args[0][0]) or IS.domDoc(args[0][0]))
+		return QuickDom(args[0][0])
+
 
 QuickDom.template = (tree)->
 	new QuickTemplate(tree, true)
