@@ -1079,6 +1079,20 @@ suite "QuickDom", ()->
 			expect(count).to.eql A:1,B:1,C:3,D:3
 
 
+		test "If options.forceStyle is set, all registered styles will have the '!important' flag set", ()->
+			style = DOM.style(props:innerHTML:".theDiv {width:50px}")
+			divA = DOM.div(className:'theDiv', style:{width:100, height:100}).appendTo(sandbox)
+			divB = DOM.div(className:'theDiv', style:{width:100, height:100}, forceStyle:true).appendTo(sandbox)
+
+			expect(divA.style 'width').to.equal '100px'
+			expect(divB.style 'width').to.equal '100px'
+			
+			style.appendTo(document.head)
+			expect(divA.style 'width').to.equal '50px'
+			expect(divB.style 'width').to.equal '100px'
+			style.remove()
+
+
 		test ".show()/.hide() will toggle the element's visibility", ()->
 			div = Dom.div().appendTo sandbox
 			expect(div.style('display')).to.equal 'block'

@@ -7,7 +7,7 @@ fs = require 'fs-jetpack'
 chalk = require 'chalk'
 Path = require 'path'
 process.env.SOURCE_MAPS ?= 1
-buildModules = ['google-closure-compiler-js','uglify-js@3.0.24', 'listr', 'simplywatch@3.0.0-l2', 'simplyimport@4.0.0-s27']
+buildModules = ['google-closure-compiler-js','uglify-js@3.0.24', 'listr', 'simplywatch@3.0.0-l2', 'simplyimport@4.0.0-s33']
 coverageModules = ['istanbul', 'badge-gen', 'coffee-coverage']
 testModules = [
 	'mocha', 'chai', 'github:danielkalen/chai-style'
@@ -36,7 +36,7 @@ task 'build:js', (options)->
 
 		.map (file)->
 			title: "Compiling quickdom"
-			task: ()-> compileJS(file, debug:options.debug, umd:'quickdom', target:'browser')
+			task: ()-> compileJS(file, debug:options.debug, sourceMap:false, umd:'quickdom', target:'browser')
 	
 		.then runTaskList
 
@@ -75,7 +75,7 @@ task 'watch:js', (options)->
 		command: (file, params)->
 			Promise.resolve()
 				.then ()-> {src:"src/index.coffee", dest:"build/quickdom#{debug}.js"}
-				.then (file)-> compileJS(file, debug:options.debug, umd:'quickdom', target:'browser')
+				.then (file)-> compileJS(file, debug:options.debug, sourceMap:false, umd:'quickdom', target:'browser')
 
 
 task 'watch:test', (options)->
