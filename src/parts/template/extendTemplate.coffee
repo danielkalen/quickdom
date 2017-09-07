@@ -9,7 +9,9 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 
 	### istanbul ignore next ###
 	if IS.array(newChildren)
-		for index in [0...Math.max(currentChildren.length, newChildren.length)]
+		maxLength = Math.max(currentChildren.length, newChildren.length)
+		index = -1
+		while ++index isnt maxLength
 			needsTemplateWrap = noChanges = false
 			currentChild = currentChildren[index]
 			newChild = newChildren[index]
