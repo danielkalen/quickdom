@@ -29,7 +29,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 					if currentChild
 						currentChild.extend(newChildProcessed, globalOpts)
 					else
-						new QuickTemplate(extend.deep.clone(schema, newChildProcessed))
+						new QuickTemplate(extend.clone(schema, newChildProcessed))
 
 			output.children.push newChildProcessed
 	

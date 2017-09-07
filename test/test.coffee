@@ -3790,15 +3790,26 @@ suite "QuickDom", ()->
 
 
 		test "Templates can be extended via template.extend", ()->
-			window.template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
-			window.templateCopyA = template.extend {type:'span', options:{className:'some-span'}, children:[]}
-			window.templateCopyB = template.extend {options:{id:'theMainDiv'}, children:['The Other Inner Text']}
+			template = Dom.template(['div', className:'some-div', 'Some Inner Text'])
+			templateCopyA = template.extend {type:'span', options:{className:'some-span'}, children:[]}
+			templateCopyB = template.extend {options:{id:'theMainDiv'}, children:['The Other Inner Text']}
+			templateCopyC = template.extend(
+				['section'
+					className:'some-section'
+					['div', null, 'Very ']
+					['div', null
+						['span', {style:fontWeight:500},'Nested ']
+						'Inner Text'
+					]
+				]
+			)
 
 			expect(templateCopyA).not.to.equal(template)
 			expect(templateCopyB).not.to.equal(template)
 			spawn = template.spawn()
 			spawnA = templateCopyA.spawn()
 			spawnB = templateCopyB.spawn()
+			spawnC = templateCopyC.spawn()
 
 			expect(spawn.el.nodeName.toLowerCase()).to.equal('div')
 			expect(spawn.el.className).to.equal('some-div')
@@ -3814,6 +3825,11 @@ suite "QuickDom", ()->
 			expect(spawnB.el.className).to.equal('some-div')
 			expect(spawnB.el.id).to.equal('theMainDiv')
 			expect(spawnB.text).to.equal('The Other Inner Text')
+
+			expect(spawnC.el.nodeName.toLowerCase()).to.equal('section')
+			expect(spawnC.el.className).to.equal('some-section')
+			expect(spawnC.el.id).to.equal('')
+			expect(spawnC.text).to.equal('Very Nested Inner Text')
 
 
 		test "Templates can be spawned via extended config by passing a new config object to template.spawn()", ()->
