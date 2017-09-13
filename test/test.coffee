@@ -406,6 +406,26 @@ suite "QuickDom", ()->
 			expect(emitCountC).to.equal(1)
 
 
+		test "A data object can be passed as the 4th arg of .emit which will be extended onto the event object", ()->
+			div = DOM.div()
+			event = null
+			div.on 'mousedown', (e)-> event = e
+
+			expect(event).to.equal null
+			div.emit 'mousedown'
+			expect(event.type).to.equal 'mousedown'
+			expect(event.custom).to.equal undefined
+			
+			div.emit 'mousedown', null, null, {custom:'custom', abc:123}
+			expect(event.type).to.equal 'mousedown'
+			expect(event.custom).to.equal 'custom'
+			expect(event.abc).to.equal 123
+			
+			div.emit 'mousedown', null, null, true
+			expect(event.type).to.equal 'mousedown'
+			expect(event.custom).to.equal undefined
+
+
 		test "Event listeners can be removed via the .off method", ()->
 			emitCountA = emitCountB = emitCountC = emitCountD = 0
 			div = Dom.div()
