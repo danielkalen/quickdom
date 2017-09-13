@@ -58,10 +58,11 @@ QuickElement::off = (eventNames, callback)->
 
 
 
-QuickElement::emit = (eventName, bubbles=true, cancelable=true)->
+QuickElement::emit = (eventName, bubbles=true, cancelable=true, data)->
 	if eventName and IS.string(eventName)
 		event = document.createEvent('Event')
 		event.initEvent(eventName, bubbles, cancelable)
+		extend(event, data) if data and typeof data is 'object'
 		@el.dispatchEvent(event)
 
 	return @
