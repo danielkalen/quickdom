@@ -33,7 +33,7 @@ Object.defineProperties QuickElement::,
 		return @_children
 
 	'elementChildren': get: ()->
-		_filterByType(@children, 'text', 0)
+		_filterElements(@children)
 
 	'parent': get: ()->
 		if (not @_parent or @_parent.el isnt @el.parentNode) and not IS.domDoc(@el.parentNode)
@@ -52,7 +52,7 @@ Object.defineProperties QuickElement::,
 		QuickDom(@el.nextElementSibling)
 	
 	'nextElAll': get: ()->
-		_filterByType(@nextAll, 'text', 0)
+		_filterElements(@nextAll)
 
 	'nextAll': get: ()->
 		siblings = []
@@ -70,7 +70,7 @@ Object.defineProperties QuickElement::,
 		QuickDom(@el.previousElementSibling)
 	
 	'prevElAll': get: ()->
-		_filterByType(@prevAll, 'text', 0)
+		_filterElements(@prevAll)
 
 	'prevAll': get: ()->
 		siblings = []
@@ -83,6 +83,9 @@ Object.defineProperties QuickElement::,
 
 	'siblings': get: ()->
 		@prevAll.reverse().concat(@nextAll)
+
+	'elementSiblings': get: ()->
+		_filterElements(@siblings)
 	
 	'child': get: ()->
 		@_childRefs or _getChildRefs(@)
@@ -149,15 +152,12 @@ _getIndexByProp = (main, prop)->
 			.indexOf(main)
 
 
-_filterByType = (array, type, match)->
+_filterElements = (array)->
 	if not array.length
 		return array
 	else
 		output = []
-		for item in array
-			continue if (match and item.type isnt type) or (not match and item.type is type)
-			output.push(item)
-
+		output.push(item) for item in array when item.type isnt 'text'
 		return output
 
 
