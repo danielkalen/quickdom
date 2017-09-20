@@ -32,6 +32,9 @@ Object.defineProperties QuickElement::,
 
 		return @_children
 
+	'elementChildren': get: ()->
+		_filterByType(@children, 'text', 0)
+
 	'parent': get: ()->
 		if (not @_parent or @_parent.el isnt @el.parentNode) and not IS.domDoc(@el.parentNode)
 			@_parent = QuickDom(@el.parentNode)
@@ -134,6 +137,16 @@ _getIndexByProp = (main, prop)->
 			.indexOf(main)
 
 
+_filterByType = (array, type, match)->
+	if not array.length
+		return array
+	else
+		output = []
+		for item in array
+			continue if (match and item.type isnt type) or (not match and item.type is type)
+			output.push(item)
+
+		return output
 
 
 
