@@ -47,9 +47,12 @@ Object.defineProperties QuickElement::,
 
 	'next': get: ()->
 		QuickDom(@el.nextSibling)
-
-	'prev': get: ()->
-		QuickDom(@el.previousSibling)
+	
+	'nextEl': get: ()->
+		QuickDom(@el.nextElementSibling)
+	
+	'nextElAll': get: ()->
+		_filterByType(@nextAll, 'text', 0)
 
 	'nextAll': get: ()->
 		siblings = []
@@ -59,6 +62,15 @@ Object.defineProperties QuickElement::,
 			nextSibling = nextSibling.next
 
 		return siblings
+
+	'prev': get: ()->
+		QuickDom(@el.previousSibling)
+	
+	'prevEl': get: ()->
+		QuickDom(@el.previousElementSibling)
+	
+	'prevElAll': get: ()->
+		_filterByType(@prevAll, 'text', 0)
 
 	'prevAll': get: ()->
 		siblings = []
