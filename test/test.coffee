@@ -2638,14 +2638,17 @@ suite "QuickDom", ()->
 			div = Dom.div(null, Dom.div(), 'Some Text')
 
 			expect(div.children.length).to.equal(2)
+			expect(div.elementChildren.length).to.equal(1)
 			expect(div.el.childNodes.length).to.equal(2)
 
 			div.append(Dom.span())
 			expect(div.children.length).to.equal(3)
+			expect(div.elementChildren.length).to.equal(2)
 			expect(div.el.childNodes.length).to.equal(3)
 			
 			div.el.appendChild(document.createElement('div'))
 			expect(div.children.length).to.equal(4)
+			expect(div.elementChildren.length).to.equal(3)
 			expect(div.el.childNodes.length).to.equal(4)
 
 			div = document.createElement('div')
@@ -2663,6 +2666,7 @@ suite "QuickDom", ()->
 
 			div$ = Dom(div)
 			expect(div$.children.length).to.equal(3)
+			expect(div$.elementChildren.length).to.equal(2)
 			expect(div$.children[0].raw).to.equal(spanA)
 			expect(div$.children[1].raw).to.equal(spanB)
 			expect(div$.children[2].raw).to.equal(text)
@@ -2773,6 +2777,17 @@ suite "QuickDom", ()->
 			expect(E.next).to.equal(undefined)
 			expect(B.nextAll).to.eql([C,D,E])
 
+		
+		test "Next Element", ()->
+			div = Dom.div(null, A=Dom.div(), B=Dom.text(), C=Dom.div(), D=Dom.text(), E=Dom.div())
+
+			expect(A.next).to.equal(B)
+			expect(A.nextEl).to.equal(C)
+			expect(B.nextEl).to.equal(C)
+			expect(C.nextEl).to.equal(E)
+			expect(E.nextEl).to.equal(undefined)
+			expect(A.nextElAll).to.eql([C,E])
+
 
 		test "Prev", ()->
 			div = Dom.div(null, A=Dom.div(), B=Dom.div(), C=Dom.div(), D=Dom.div(), E=Dom.div())
@@ -2782,12 +2797,25 @@ suite "QuickDom", ()->
 			expect(A.prev).to.equal(undefined)
 			expect(D.prevAll).to.eql([C,B,A])
 
+		
+		test "Prev Element", ()->
+			div = Dom.div(null, A=Dom.div(), B=Dom.text(), C=Dom.div(), D=Dom.text(), E=Dom.div())
+
+			expect(E.prev).to.equal(D)
+			expect(E.prevEl).to.equal(C)
+			expect(D.prevEl).to.equal(C)
+			expect(C.prevEl).to.equal(A)
+			expect(A.prevEl).to.equal(undefined)
+			expect(E.prevElAll).to.eql([C,A])
+
 
 		test "Siblings", ()->
-			div = Dom.div(null, A=Dom.div(), B=Dom.div(), C=Dom.div(), D=Dom.div(), E=Dom.div())
+			div = Dom.div(null, A=Dom.div(), B=Dom.text(), C=Dom.div(), D=Dom.text(), E=Dom.div())
 
 			expect(C.siblings).to.eql(C.prevAll.reverse().concat(C.nextAll))
 			expect(C.siblings).to.eql([A,B,D,E])
+			expect(C.elementSiblings).to.eql([A,E])
+			expect(B.elementSiblings).to.eql([A,C,E])
 
 
 		test "First/Last Child", ()->
