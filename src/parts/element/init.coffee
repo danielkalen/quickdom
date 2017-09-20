@@ -123,6 +123,8 @@ QuickElement::_applyOptions = ()->
 			else if IS.object(value)
 				Object.defineProperty @, method, {configurable:true, get:value.get, set:value.set}
 
+	if @type isnt 'text' and IS.object(@options.text)
+		@append QuickDom('text', text:@options.text)
 	return
 
 

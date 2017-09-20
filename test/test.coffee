@@ -2081,18 +2081,25 @@ suite "QuickDom", ()->
 					]
 				]
 			)
+			divC = Dom.div(text:{$base:'def456', $happy:'ghi789'})
+			
 			expect(divA.text).to.equal 'abc123'
 			expect(divB.text).to.equal ''
+			expect(divC.text).to.equal 'def456'
 			
 			divA.state 'happy', on
 			divB.state 'happy', on
+			divC.state 'happy', on
 			expect(divA.text).to.equal 'Happy'
 			expect(divB.text).to.equal 'Happy'
+			expect(divC.text).to.equal 'ghi789'
 			
 			divA.state 'happy', off
 			divB.state 'happy', off
+			divC.state 'happy', off
 			expect(divA.text).to.equal 'abc123'
 			expect(divB.text).to.equal ''
+			expect(divC.text).to.equal 'def456'
 			
 			divA.state 'relaxed', on
 			divB.state 'relaxed', on
