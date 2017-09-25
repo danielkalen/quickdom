@@ -1,6 +1,10 @@
 extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
-	newOpts = parseTree(newOpts, false) if IS.array(newOpts)
+	if IS.array(newOpts)
+		newOpts = parseTree(newOpts, false)
+	else if newOpts and not matchesSchema(newOpts)
+		newOpts = options:newOpts
+
 
 	output = extend.deep.nullDeletes.notKeys('children').notDeep(['relatedInstance','data']).transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children

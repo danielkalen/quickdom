@@ -4060,6 +4060,28 @@ suite "QuickDom", ()->
 			expect(spawnedC.raw).to.have.style('fontSize', '77px')
 
 
+		test "Template.extend/spawn() will consider the passed object as the options object if it doesn't contain template-related props", ()->
+			template = DOM.template(
+				['div'
+					defaults: text: 'default'
+					computers: text: (text)-> @text = text
+					
+					['span', ref:'theSpan']
+				]
+			)
+
+			expect(template.options.style).to.equal undefined
+			expect(template.options.label).to.equal undefined
+			expect(template.extend(options:label:'abc123').options.label).to.equal 'abc123'
+			expect(template.extend(label:'def456').options.label).to.equal 'def456'
+			expect(template.extend(style:'def456').options.style).to.equal 'def456'
+			expect(template.extend(style:'def456', type:'section').options.style).to.equal undefined
+			expect(template.extend(children:theSpan:style:'ghi789').child.theSpan.options.style).to.equal 'ghi789'
+			expect(template.extend(children:[defaults:'ghi789']).child.theSpan.options.defaults).to.equal 'ghi789'
+			expect(template.spawn(children:theSpan:className:'GHI789').child.theSpan.raw.className).to.equal 'GHI789'
+			expect(template.spawn().text).to.equal 'default'
+			expect(template.spawn(defaults:text:'diff').text).to.equal 'diff'
+
 
 		test "Templates can have other templates as their children", ()->
 			headerTemplate = Dom.template ['header', {style:'height':'200px'},
