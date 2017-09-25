@@ -1260,6 +1260,20 @@ suite "QuickDom", ()->
 			expect(div.state 'relaxed').to.be.false
 
 
+		test "A state can be toggled on/off via .toggleState", ()->
+			div = DOM.div()
+			expect(div.state 'happy').to.equal off
+
+			div.toggleState('happy')
+			expect(div.state 'happy').to.equal on
+			
+			div.toggleState('happy')
+			expect(div.state 'happy').to.equal off
+			
+			div.toggleState('happy')
+			expect(div.state 'happy').to.equal on
+
+
 		test "Styles can be passed under specific states using a '$' prefix before the state name", ()->
 			div = Dom.div style:
 				$base:
