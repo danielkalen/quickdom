@@ -47,6 +47,10 @@ QuickElement::state = (targetState, value, bubbles, source)->
 		return @
 
 
+QuickElement::toggleState = (targetState)->
+	@state(targetState, !@state(targetState))
+
+
 QuickElement::resetState = ()->
 	for activeState in @_state.slice()
 		@state(activeState, off)
