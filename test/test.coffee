@@ -4822,6 +4822,25 @@ suite "QuickDom", ()->
 				expect(result).to.eql {divB:expected}
 
 
+			test "Data can be specified via options object", ()->
+				receivedData = null
+				template = Dom.template(
+					['div'
+						computers: 'someLabel': (data)-> receivedData = data or 'nothing'
+					]
+				)
+				templateCopy = template.extend(options:data:{'someLabel':'works'})
+
+				template.spawn()
+				expect(receivedData).to.equal(null)
+				
+				templateCopy.spawn()
+				expect(receivedData).to.equal('works')
+				
+				template.spawn(options:data:{'someLabel':'also works'})
+				expect(receivedData).to.equal('also works')
+
+
 
 	suite "Misc", ()->
 		test "QuickDom.isTemplate", ()->
