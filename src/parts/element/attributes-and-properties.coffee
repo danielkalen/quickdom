@@ -1,14 +1,17 @@
-QuickElement::attr = (attrName, newValue)-> switch newValue
-	when undefined then @el.getAttribute(attrName)
-	when null then @el.removeAttribute(attrName)
-	else
-		@el.setAttribute(attrName, newValue)
-		return @
+QuickElement::attr = (attrName, newValue)->
+	if newValue is undefined
+		return @el.getAttribute(attrName)
+	if newValue is null
+		return @el.removeAttribute(attrName)
+
+	@el.setAttribute(attrName, newValue)
+	return @
 
 
 
-QuickElement::prop = (propName, newValue)-> switch newValue
-	when undefined then @el[propName]
-	else
-		@el[propName] = newValue
-		return @
+QuickElement::prop = (propName, newValue)->
+	if newValue is undefined
+		return @el[propName]
+	
+	@el[propName] = newValue
+	return @

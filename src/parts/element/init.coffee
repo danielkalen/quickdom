@@ -96,19 +96,7 @@ QuickElement::_applyOptions = ()->
 	@_applyRegisteredStyle(@_styles.base, null, null, @options.styleAfterInsert)
 	@text = @_texts.base if @_texts
 
-	@on 'inserted', ()->
-		if @options.styleAfterInsert
-			@recalcStyle()
-
-		_ = @_inserted = @
-
-		if (mediaStates=@_mediaStates) and @_mediaStates.length
-			@_mediaStates = new ()->
-				for queryString in mediaStates
-					@[queryString] = MediaQuery.register(_, queryString)
-				
-				return @
-	, false, true
+	@on('inserted', CACHED_FN_INSERTED, false, true)
 
 	if @options.recalcOnResize
 		window.addEventListener 'resize', ()=> @recalcStyle()
@@ -129,7 +117,9 @@ QuickElement::_applyOptions = ()->
 
 
 QuickElement::_attachStateEvents = (force)->
-	for state,trigger of @options.stateTriggers then do (state,trigger)=>
+	states = Object.keys(@options.stateTriggers)
+	states.forEach (state)=>
+		trigger = @options.stateTriggers[state]	
 		return if not helpers.includes(@_providedStates, state) and not force and not trigger.force
 		enabler = if IS.string(trigger) then trigger else trigger.on
 		disabler = trigger.off if IS.object(trigger)
@@ -160,6 +150,22 @@ QuickElement::_unproxyParent = (newParent)->
 	@_parent = newParent
 	@emitPrivate('inserted', newParent)
 	return
+
+
+
+CACHED_FN_INSERTED = ()->
+	@_inserted = @
+	@recalcStyle() if @options.styleAfterInsert
+
+	if (mediaStates=@_mediaStates) and @_mediaStates.length
+		@_mediaStates = Object.create(null)
+		
+		for queryString in mediaStates
+			@_mediaStates[queryString] = MediaQuery.register(@, queryString)
+
+
+
+
 
 
 
