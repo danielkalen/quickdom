@@ -1,3 +1,6 @@
+notDeepKeys = ['relatedInstance','data']
+notKeys = ['children','_hasComputers','_childRefs']
+
 extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
 	if IS.array(newOpts)
@@ -6,7 +9,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 		newOpts = options:newOpts
 
 
-	output = extend.deep.nullDeletes.notKeys('children').notDeep(['relatedInstance','data']).transform(globalOptsTransform).clone(currentOpts, newOpts)
+	output = extend.deep.nullDeletes.notKeys(notKeys).notDeep(notDeepKeys).transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children
 	newChildren = newOpts?.children or []
 	output.children = []

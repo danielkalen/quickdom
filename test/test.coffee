@@ -4286,6 +4286,7 @@ suite "QuickDom", ()->
 					]
 				]
 			)
+			templateA.child.childA_1
 			templateB = templateA.extend()
 			templateC = templateA.extend(config)
 			templateD = templateA.extend(config)
