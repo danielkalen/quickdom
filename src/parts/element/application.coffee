@@ -40,8 +40,9 @@ QuickElement::applyData = (data)->
 			else if defaults and defaults.hasOwnProperty(key)
 				@_runComputer(key, defaults[key])
 
-
-	child.applyData(data) for child in @_children
+	if @options.passDataToChildren
+		child.applyData(data) for child in @_children
+	
 	return
 
 

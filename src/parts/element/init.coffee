@@ -9,6 +9,7 @@ QuickElement::_normalizeOptions = ()->
 	@related = @options.relatedInstance ?= @
 	@options.unpassableStates ?= []
 	@options.passStateToChildren ?= true
+	@options.passDataToChildren ?= true
 	@options.stateTriggers =
 		if @options.stateTriggers
 			extend.clone.deep(baseStateTriggers, @options.stateTriggers)
