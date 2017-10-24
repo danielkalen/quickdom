@@ -41,7 +41,9 @@ QuickElement::applyData = (data)->
 				@_runComputer(key, defaults[key])
 
 	if @options.passDataToChildren
-		child.applyData(data) for child in @_children
+		for child in @_children
+			childData = if child.options.data then extend.clone(child.options.data, data) else data
+			child.applyData(childData)
 	
 	return @
 
