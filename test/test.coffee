@@ -4842,6 +4842,37 @@ suite "QuickDom", ()->
 				expect(receivedData).to.equal('also works')
 
 
+			test "Data specified in children's options object will be merged with the parent's data", ()->
+				receivedData = abc:null, def:null
+				template = Dom.template(
+					['div', null
+
+						['span'
+							data: abc: 123
+							computers:
+								'abc': (data)-> receivedData.abc = data or 'nothing'
+								'def': (data)-> receivedData.def = data or 'nothing'
+						]
+					]
+				)
+				templateCopy = template.extend(options:data:{def:456})
+
+				template.spawn()
+				expect(receivedData).to.eql(abc:123, def:null)
+				receivedData = abc:null, def:null
+				
+				templateCopy.spawn()
+				expect(receivedData).to.eql(abc:123, def:456)
+				receivedData = abc:null, def:null
+				
+				template.spawn(options:data:{def:789})
+				expect(receivedData).to.eql(abc:123, def:789)
+				receivedData = abc:null, def:null
+				
+				template.spawn(options:data:{abc:789})
+				expect(receivedData).to.eql(abc:789, def:null)
+
+
 
 	suite "Misc", ()->
 		test "QuickDom.isTemplate", ()->

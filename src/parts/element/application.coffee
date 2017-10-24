@@ -30,7 +30,7 @@ QuickElement::updateStateTexts = (texts)->
 
 QuickElement::applyData = (data)->
 	if computers = @options.computers
-		defaults = @options.defaults
+		defaults = @options.defaults or @options.data
 		keys = Object.keys(computers)
 		
 		for key in keys
@@ -43,7 +43,7 @@ QuickElement::applyData = (data)->
 	if @options.passDataToChildren
 		child.applyData(data) for child in @_children
 	
-	return
+	return @
 
 
 QuickElement::_runComputer = (computer, arg)->
