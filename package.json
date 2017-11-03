@@ -19,9 +19,7 @@
       ".config/transforms/minify-simple"
     ]
   },
-  "directories": {
-    "test": "test"
-  },
+  "directories": {"test": "test"},
   "scripts": {
     "postversion": "npm run build && git add . && git commit -a -m '[Build]'",
     "prepublishOnly": "npm run test:travis",
