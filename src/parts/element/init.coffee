@@ -128,6 +128,9 @@ QuickElement::_postCreation = (data)->
 		
 		if @options.computers._init
 			@_runComputer('_init', data)
+
+	if @options.state
+		@state(@options.state)
 	
 	return
 
