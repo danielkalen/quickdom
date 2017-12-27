@@ -1,6 +1,6 @@
 {
   "name": "quickdom",
-  "version": "1.0.84-c",
+  "version": "1.0.84",
   "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
   "main": "dist/quickdom.js",
   "browser": {
@@ -19,7 +19,9 @@
       ".config/transforms/minify-simple"
     ]
   },
-  "directories": {"test": "test"},
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "postversion": "npm run build && git add . && git commit -a -m '[Build]'",
     "prepublishOnly": "npm run test:travis",
