@@ -3677,6 +3677,18 @@ suite "QuickDom", ()->
 			expect(div.raw.className).to.equal 'anotherSelector some-selector period'
 
 
+		test ".setRef", ()->
+			el = DOM.div(ref:'name1')
+			expect(el.ref).to.equal 'name1'
+			expect(el.options.ref).to.equal 'name1'
+			expect(el.attr 'data-ref').to.equal 'name1'
+
+			el.setRef 'name2'
+			expect(el.ref).to.equal 'name2'
+			expect(el.options.ref).to.equal 'name2'
+			expect(el.attr 'data-ref').to.equal 'name2'
+
+
 
 
 		test "Appending/prepending elements to a text node should do nothing", ()->
