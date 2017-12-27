@@ -4678,14 +4678,10 @@ suite "QuickDom", ()->
 				)
 				
 				template.spawn(data:'third':'third value')
-				expect(count.parent).to.equal(1)
-				expect(count.child).to.equal(1)
-				expect(count.childChild).to.equal(1)
+				expect(count).to.eql parent:1, child:1, childChild:1
 				
 				template.spawn()
-				expect(count.parent).to.equal(2)
-				expect(count.child).to.equal(2)
-				expect(count.childChild).to.equal(2)
+				expect(count).to.eql parent:2, child:2, childChild:2
 
 
 			test "Data/defaults should be applied even when parent doesn't have computers", ()->
@@ -4904,6 +4900,36 @@ suite "QuickDom", ()->
 				
 				el2.lastChild.applyData({abc:789})
 				expect(receivedData).to.eql parent:456, child:789
+
+
+			test "Data should be invoked for parents after invoked children", ()->
+				history = []
+				computers = 
+					_init: ()-> history.push(@ref)
+					abc: ()-> history.push(@ref)
+				
+				template = DOM.template(
+					['div'
+						{computers, id:'parent'}
+						['div'
+							{computers, id:'child1'}
+							['div'
+								{computers, id:'child2'}
+							]
+						]
+						['div'
+							{computers, id:'child3'}
+						]
+					]
+				)
+				expect(history).to.eql []
+				el = template.spawn()
+				expect(history).to.eql ['child2', 'child1', 'child3', 'parent']
+
+				history.length = 0
+				el.applyData(abc:123)
+				expect(history).to.eql ['child2', 'child1', 'child3', 'parent']
+
 
 
 	suite "Misc", ()->

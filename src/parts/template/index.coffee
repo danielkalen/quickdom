@@ -11,7 +11,7 @@ class QuickTemplate
 	extend: (newValues, globalOpts)->
 		new QuickTemplate extendTemplate(@, newValues, globalOpts)
 
-	spawn: (newValues, globalOpts)->
+	spawn: (newValues, globalOpts, data)->
 		if newValues and newValues.data
 			data = newValues.data
 			newValues = null if Object.keys(newValues).length is 1
@@ -24,13 +24,13 @@ class QuickTemplate
 
 		
 		element = QuickDom.create([type, options])
-		element._postCreation(data)
 		
 		if children
-			data = if options.passDataToChildren then data or options.data
+			childData = if options.passDataToChildren then data or options.data
 			for child in children
-				element.append child.spawn({data})
+				element.append child.spawn(null, null, childData)
 
+		element._postCreation(data)
 		return element
 
 

@@ -28,7 +28,10 @@ QuickElement::updateStateTexts = (texts)->
 
 
 
-QuickElement::applyData = (data)->
+QuickElement::applyData = (data, passThrough)->
+	if @options.passDataToChildren and @_children.length and (passThrough ?= true)
+		child.applyData(data) for child in @_children
+
 	if computers = @options.computers
 		defaults = @options.defaults
 		keys = Object.keys(computers)
@@ -39,10 +42,6 @@ QuickElement::applyData = (data)->
 			
 			else if defaults and defaults.hasOwnProperty(key)
 				@_runComputer(key, defaults[key])
-
-	if @options.passDataToChildren and @_children.length
-		for child in @_children
-			child.applyData(data)
 	
 	return @
 

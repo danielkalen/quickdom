@@ -119,9 +119,9 @@ QuickElement::_applyOptions = ()->
 
 QuickElement::_postCreation = (data)->
 	if @options.computers
-		data = extend.clone(@options.data, data) if @options.data and data
-		data = data or @options.data
-		@applyData(data)
+		data = extend.clone(@options.data, data) if data and @options.data
+		data ||= @options.data
+		@applyData(data, false)
 		
 		if @options.computers._init
 			@_runComputer('_init', data)
