@@ -4815,7 +4815,7 @@ suite "QuickDom", ()->
 				expect(result).to.eql divA:{}, divB:{}
 				
 				template.spawn(data:{href:'abc', name:'123', value:'def', size:'456'})
-				expect(result).to.eql {divA:expected, divB:{href:'abc', name:'123', _init:undefined}}
+				expect(result).to.eql {divA:expected, divB:expected}
 				
 				delete result.divA
 				divB: null
@@ -4834,7 +4834,6 @@ suite "QuickDom", ()->
 
 				template.spawn()
 				expect(receivedData).to.equal(null)
-				
 				templateCopy.spawn()
 				expect(receivedData).to.equal('works')
 				
@@ -4872,6 +4871,39 @@ suite "QuickDom", ()->
 				template.spawn(options:data:{abc:789})
 				expect(receivedData).to.eql(abc:789, def:null)
 
+
+			test "Data won't be passed to children if options.passDataToChildren is false", ()->
+				receivedData = parent:null, child:null
+				template1 = DOM.template(
+					['div'
+						computers: abc: (data)-> receivedData.parent = data
+
+						['span'
+							computers: abc: (data)-> receivedData.child = data
+						]
+					]
+				)
+				template2 = template1.extend(passDataToChildren:false)
+				
+				expect(receivedData).to.eql parent:null, child:null
+				
+				el1 = template1.spawn(data:{abc:123})
+				expect(receivedData).to.eql parent:123, child:123
+
+				receivedData = parent:null, child:null
+				el2 = template2.spawn(data:{abc:123})
+				expect(receivedData).to.eql parent:123, child:null
+				
+				receivedData = parent:null, child:null
+				el1.applyData({abc:456})
+				expect(receivedData).to.eql parent:456, child:456
+				
+				receivedData = parent:null, child:null
+				el2.applyData({abc:456})
+				expect(receivedData).to.eql parent:456, child:null
+				
+				el2.lastChild.applyData({abc:789})
+				expect(receivedData).to.eql parent:456, child:789
 
 
 	suite "Misc", ()->

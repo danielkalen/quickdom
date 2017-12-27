@@ -1,4 +1,3 @@
-svgNamespace = 'http://www.w3.org/2000/svg'
 ### istanbul ignore next ###
 import * as CSS from 'quickcss'
 ### istanbul ignore next ###
@@ -10,7 +9,15 @@ import './parts/element'
 import './parts/window'
 import './parts/mediaQuery'
 
-QuickDom = ()-> args=arguments; switch
+QuickDom = ()->
+	args = new Array(arguments.length)
+	args[i] = arg for arg,i in arguments
+	prevCount = QuickElement.count
+	element = QuickDom.create(args)
+	element._postCreation() if element and element._postCreation and QuickElement.count isnt prevCount
+	return element
+
+QuickDom.create = (args)-> switch
 	when IS.array(args[0])
 		return QuickDom(args[0]...)
 	
@@ -45,9 +52,8 @@ QuickDom = ()-> args=arguments; switch
 
 			for child in children
 				child = QuickDom.text(child) if IS.string(child)
-				child = child.spawn(false) if IS.template(child)
 				child = QuickDom(child...) if IS.array(child)
-				child.appendTo(element) if IS.quickDomEl(child)
+				element.append(child) if IS.quickDomEl(child)
 
 		return element
 
@@ -80,7 +86,6 @@ QuickDom.isQuickEl = (target)->
 
 QuickDom.isEl = (target)->
 	IS.domEl(target)
-
 
 
 

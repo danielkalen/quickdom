@@ -1,5 +1,5 @@
 process.title = 'simplywatch quickdom'
-global.Promise = require 'bluebird'
+global.Promise = require('bluebird').config warnings:false, longStackTraces:false
 promiseBreak = require 'promise-break'
 execa = require('execa')
 extend = require 'smart-extend'

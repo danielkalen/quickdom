@@ -117,6 +117,18 @@ QuickElement::_applyOptions = ()->
 	return
 
 
+QuickElement::_postCreation = (data)->
+	if @options.computers
+		data = extend.clone(@options.data, data) if @options.data and data
+		data = data or @options.data
+		@applyData(data)
+		
+		if @options.computers._init
+			@_runComputer('_init', data)
+	
+	return
+
+
 QuickElement::_attachStateEvents = (force)->
 	states = Object.keys(@options.stateTriggers)
 	states.forEach (state)=>

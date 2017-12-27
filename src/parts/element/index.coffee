@@ -1,5 +1,9 @@
+svgNamespace = 'http://www.w3.org/2000/svg'
+
 class QuickElement
+	@count = 0
 	constructor: (@type, @options)->
+		QuickElement.count++
 		@svg = true if @type[0] is '*'
 		@el = @options.existing or
 			if @type is 'text' then document.createTextNode(if typeof @options.text is 'string' then @options.text else '')

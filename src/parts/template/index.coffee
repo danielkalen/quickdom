@@ -7,12 +7,6 @@ class QuickTemplate
 		return config if IS.template(config)
 		config = if isTree then parseTree(config) else config
 		extend @, config
-		@_hasComputers = !!@options.computers
-
-		if not @_hasComputers and @children.length
-			for child in @children when child._hasComputers or child.options.computers
-				@_hasComputers = true
-				break
 	
 	extend: (newValues, globalOpts)->
 		new QuickTemplate extendTemplate(@, newValues, globalOpts)
@@ -23,20 +17,19 @@ class QuickTemplate
 			newValues = null if Object.keys(newValues).length is 1
 		
 		if newValues or globalOpts
-			opts = extendTemplate(@, newValues, globalOpts)
+			{options, children, type} = extendTemplate(@, newValues, globalOpts)
 		else
-			opts = extend.clone(@)
-			opts.options = extend.clone(opts.options)
-	
+			{options, children, type} = @
+			options = extend.clone(options)
 
-		element = QuickDom(opts.type, opts.options, opts.children...)
-
-		if @_hasComputers
-			data ||= opts.options.data
-			if newValues isnt false
-				element.applyData(data)
-			if element.options.computers?._init
-				element._runComputer('_init', data)
+		
+		element = QuickDom.create([type, options])
+		element._postCreation(data)
+		
+		if children
+			data = if options.passDataToChildren then data or options.data
+			for child in children
+				element.append child.spawn({data})
 
 		return element
 

@@ -30,7 +30,7 @@ QuickElement::updateStateTexts = (texts)->
 
 QuickElement::applyData = (data)->
 	if computers = @options.computers
-		defaults = @options.defaults or @options.data
+		defaults = @options.defaults
 		keys = Object.keys(computers)
 		
 		for key in keys
@@ -40,10 +40,9 @@ QuickElement::applyData = (data)->
 			else if defaults and defaults.hasOwnProperty(key)
 				@_runComputer(key, defaults[key])
 
-	if @options.passDataToChildren
+	if @options.passDataToChildren and @_children.length
 		for child in @_children
-			childData = if child.options.data then extend.clone(child.options.data, data) else data
-			child.applyData(childData)
+			child.applyData(data)
 	
 	return @
 

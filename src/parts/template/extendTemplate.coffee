@@ -1,5 +1,5 @@
 notDeepKeys = ['relatedInstance','data']
-notKeys = ['children','_hasComputers','_childRefs']
+notKeys = ['children','_childRefs']
 
 extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
