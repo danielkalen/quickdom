@@ -205,6 +205,12 @@ QuickElement::toggleClass = (target)->
 	return @
 
 
+QuickElement::setRef = (target)->
+	@ref = @options.ref = target
+	@attr 'data-ref', target
+	return @
+
+
 QuickElement::_refreshParent = ()->
 	@parent
 
