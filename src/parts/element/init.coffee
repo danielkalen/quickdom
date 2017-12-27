@@ -99,6 +99,9 @@ QuickElement::_applyOptions = ()->
 
 	@on('inserted', CACHED_FN_INSERTED, false, true)
 
+	if @options.invokeComputersOnce
+		@_invokedComputers = {}
+	
 	if @options.recalcOnResize
 		window.addEventListener 'resize', ()=> @recalcStyle()
 

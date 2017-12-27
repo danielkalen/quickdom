@@ -44,6 +44,7 @@ replacements = [
 	[/_styles/g, '_st']
 	[/_stylesShared/g, '_stS']
 	# [/_styleEntries/g, '_se']
+	[/_invokedComputers/g, '_ic']
 	[/_children/g, '_c']
 	[/_childRefs/g, '_C']
 	[/_eventCallbacks/g, '_e']

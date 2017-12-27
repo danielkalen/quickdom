@@ -37,6 +37,10 @@ QuickElement::applyData = (data, passThrough)->
 		keys = Object.keys(computers)
 		
 		for key in keys
+			if @options.invokeComputersOnce
+				continue if @_invokedComputers[key]
+				@_invokedComputers[key] = 1
+			
 			if data and data.hasOwnProperty(key)
 				@_runComputer(key, data[key])
 			
