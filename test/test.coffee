@@ -2237,6 +2237,17 @@ suite "QuickDom", ()->
 			expect(getStyles()).to.eql width:'60px', height:'9px', marginTop:'60px'
 
 
+		test "default states to apply to an element upon creation can be specified via options.state mapping", ()->
+			el1 = DOM.div()
+			el2 = DOM.div(state:{happy:on, relaxed:off})
+			el3 = DOM.div(state:{relaxed:on})
+			expect(el1.state 'happy').to.equal off
+			expect(el1.state 'relaxed').to.equal off
+			expect(el2.state 'happy').to.equal on
+			expect(el2.state 'relaxed').to.equal off
+			expect(el3.state 'happy').to.equal off
+			expect(el3.state 'relaxed').to.equal on
+
 
 
 	suite "Media Queries", ()->
