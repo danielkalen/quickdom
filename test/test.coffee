@@ -4931,6 +4931,37 @@ suite "QuickDom", ()->
 				expect(history).to.eql ['child2', 'child1', 'child3', 'parent']
 
 
+			test "Computers will be invoked only one time per element if options.invokeComputersOnce is on", ()->
+				history = []
+				computers =  abc: ()-> history.push(@ref)
+				
+				template = DOM.template(
+					['div'
+						{computers, id:'parent', invokeComputersOnce:true}
+						['div'
+							{computers, id:'child1'}
+							['div'
+								{computers, id:'child2', invokeComputersOnce:true}
+							]
+						]
+						['div'
+							{computers, id:'child3'}
+						]
+					]
+				)
+				expect(history).to.eql []
+				el = template.spawn(data:abc:123)
+				expect(history).to.eql ['child2', 'child1', 'child3', 'parent']
+
+				history.length = 0
+				el.applyData(abc:123)
+				expect(history).to.eql ['child1', 'child3']
+
+				history.length = 0
+				el.applyData(abc:456)
+				expect(history).to.eql ['child1', 'child3']
+
+
 
 	suite "Misc", ()->
 		test "QuickDom.isTemplate", ()->
