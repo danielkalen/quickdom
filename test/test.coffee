@@ -3539,6 +3539,9 @@ suite "QuickDom", ()->
 			div.prop 'promiseIsLast', null
 			expect(Object.keys(div.el)).to.contain('promiseIsLast')
 
+			div.prop {abc:123, def:456}
+			expect(div.el.abc).to.equal 123
+			expect(div.el.def).to.equal 456
 
 
 		test ".attr() - element attribute getter/setter", ()->
