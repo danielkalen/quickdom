@@ -48,7 +48,8 @@ QuickDom.create = (args)-> switch
 		
 		element = new QuickElement(type, options)
 		if args.length > 2
-			children = []; i = 1; argsLength = args.length; children.push(args[i]) while ++i < argsLength
+			children = new Array(argsLength = args.length); i = 1;
+			children[i+1] = args[i] while ++i < argsLength
 
 			for child in children
 				child = QuickDom.text(child) if IS.string(child)
