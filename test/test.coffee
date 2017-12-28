@@ -3540,7 +3540,8 @@ suite "QuickDom", ()->
 			expect(Object.keys(div.el)).to.contain('promiseIsLast')
 
 
-		test ".attr() - element property getter/setter", ()->
+
+		test ".attr() - element attribute getter/setter", ()->
 			div = Dom.div()
 			
 			expect(div.attr 'myAttr').to.equal null
@@ -3562,11 +3563,19 @@ suite "QuickDom", ()->
 			div.attr 'promiseIsLast', 'over9k'
 			expect(div.el.getAttribute 'promiseIsLast').to.equal 'over9k'
 			
-			div.attr 'promiseIsLast', undefined
+			div.attr 'promiseIsLast'
 			expect(div.el.getAttribute 'promiseIsLast').to.equal 'over9k'
 			
 			div.attr 'promiseIsLast', null
 			expect(div.el.getAttribute 'promiseIsLast').to.equal null
+
+			div.attr {abc:123, def:456}
+			expect(div.el.getAttribute 'abc').to.equal '123'
+			expect(div.el.getAttribute 'def').to.equal '456'
+
+			div.attr {abc:123, def:null}
+			expect(div.el.getAttribute 'abc').to.equal '123'
+			expect(div.el.getAttribute 'def').to.equal null
 
 
 		test ".html - innerHTML getter/setter", ()->
