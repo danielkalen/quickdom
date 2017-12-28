@@ -92,7 +92,7 @@ QuickElement::_applyOptions = ()->
 	if @options.value then @el.value = @options.value
 	if @options.selected then @el.selected = @options.selected
 	if @options.checked then @el.checked = @options.checked
-	if @options.props then @prop(key,value) for key,value of @options.props
+	if @options.props then @prop(@options.props)
 	if @options.attrs then @attr(@options.attrs)
 	@_applyRegisteredStyle(@_styles.base, null, null, @options.styleAfterInsert)
 	@text = @_texts.base if @_texts

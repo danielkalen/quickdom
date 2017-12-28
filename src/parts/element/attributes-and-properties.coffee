@@ -17,9 +17,16 @@ QuickElement::attr = (target, newValue)->
 
 
 
-QuickElement::prop = (propName, newValue)->
-	if newValue is undefined
-		return @el[propName]
+QuickElement::prop = (target, newValue)->
+	if arguments.length is 1
+		if typeof target is 'string'
+			return @el[target]
 	
-	@el[propName] = newValue
+		if IS.object(target)
+			keys = Object.keys(target); i = -1
+			@prop(key, target[key]) while key=keys[++i]
+	
+	else
+		@el[target] = newValue
+		
 	return @
