@@ -2,6 +2,9 @@ DUMMY_ARRAY = []
 
 
 QuickElement::state = (targetState, value, bubbles, source)->
+	if arguments.length is 0
+		return @_state.slice()
+	
 	if arguments.length is 1
 		if IS.string(targetState)
 			return helpers.includes(@_state, targetState)
