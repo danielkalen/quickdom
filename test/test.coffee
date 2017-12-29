@@ -1244,6 +1244,21 @@ suite "QuickDom", ()->
 			expect(div.state 'c').to.equal true
 
 
+		test ".state() without arguments should return an array of active states", ()->
+			el = DOM.div()
+			expect(el.state()).to.eql []
+
+			el.state 'happy', on
+			el.state 'relaxed', on
+			expect(el.state()).to.eql ['happy','relaxed']
+
+			el.state 'happy', off
+			expect(el.state()).to.eql ['relaxed']
+
+			el.state 'happy', on
+			expect(el.state()).to.eql ['relaxed','happy']
+
+
 		test "All states can be cleared/toggled off via .resetState", ()->
 			div = Dom.div()
 
@@ -5156,7 +5171,7 @@ suite "QuickDom", ()->
 			div.css(null, '129')
 			expect(div.el.style.null).to.equal(undefined)
 
-			expect(div.state()).to.equal undefined
+			expect(div.state()).to.eql []
 			expect(div.state(null, on)).to.equal undefined
 			expect(div.state(123, on)).to.equal undefined
 			expect(div.state 'base', on).to.equal div
