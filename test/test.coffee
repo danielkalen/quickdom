@@ -4169,6 +4169,7 @@ suite "QuickDom", ()->
 
 		test "A global options object can be passed as the 2nd arg to template.extend/spawn() which will be applied to all templates, spawns, & their children", ()->
 			obj = myHeight:'150px'
+			obj.obj = obj
 			dynamicHeightStyle = 'height': (related)-> expect(related).to.equal(obj); related.myHeight
 			
 			headerTemplate = Dom.template ['header', {style:'width':'23px'},
@@ -4176,7 +4177,7 @@ suite "QuickDom", ()->
 				' while this is not'
 			]
 			sectionTemplate = Dom.template ['section', {style:'width':'23px'}, headerTemplate]
-			section = sectionTemplate.spawn({options:{relatedInstance:window}}, {relatedInstance:obj, style:dynamicHeightStyle}).appendTo(sandbox)
+			section = sectionTemplate.spawn({options:{related:window}}, {related:obj, style:dynamicHeightStyle}).appendTo(sandbox)
 
 			expect(section.raw.style.height).to.equal('150px')
 			expect(section.children[0].raw.style.height).to.equal('150px')

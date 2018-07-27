@@ -1,4 +1,4 @@
-notDeepKeys = ['relatedInstance','data']
+notDeepKeys = ['relatedInstance','related','data']
 notKeys = ['children','_childRefs']
 
 extendTemplate = (currentOpts, newOpts, globalOpts)->
@@ -52,7 +52,6 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 			newChildProcessed = if IS.objectPlain(newChild) and not IS.template(newChild) then newChild else parseTree(newChild)
 			output.children.push new QuickTemplate newChildProcessed
 			delete remainingNewChildren[ref]
-
 
 	return output
 

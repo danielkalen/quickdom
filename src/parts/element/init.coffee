@@ -4,9 +4,13 @@ baseStateTriggers =
 
 
 QuickElement::_normalizeOptions = ()->
+	if @options.relatedInstance
+		@options.related ||= @options.relatedInstance
+		@options.relatedInstance = null
+	
+	@related = @options.related ?= @
 	@options.className = @options.class if @options.class
 	@options.href = @options.url if @options.url
-	@related = @options.relatedInstance ?= @
 	@options.unpassableStates ?= []
 	@options.passStateToChildren ?= true
 	@options.passDataToChildren ?= true
