@@ -96,7 +96,7 @@ suite "QuickDom", ()->
 			expect(H.el.textContent).to.equal('Some text')
 			expect(I.el.src).to.equal('https://google.com/')
 			expect(J.related).to.equal(obj)
-			expect(J.options.relatedInstance).to.equal(obj)
+			expect(J.options.related).to.equal(obj)
 
 
 		test "Creation w/ children", ()->

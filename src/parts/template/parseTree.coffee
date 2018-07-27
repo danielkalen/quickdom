@@ -33,7 +33,7 @@ parseTree = (tree, parseChildren)-> switch
 	when IS.quickDomEl(tree)
 		type: tree.type
 		ref: tree.ref
-		options: extend.clone.deep.notKeys('relatedInstance')(tree.options)
+		options: extend.clone.deep.notKeys(['relatedInstance', 'related'])(tree.options)
 		children: tree.children.map(QuickDom.template)
 
 	when IS.template(tree)
