@@ -1,4 +1,4 @@
-process.title = 'simplywatch quickdom'
+process.title = 'cakefile quickdom'
 global.Promise = require('bluebird').config warnings:false, longStackTraces:false
 promiseBreak = require 'promise-break'
 execa = require('execa')
@@ -7,7 +7,7 @@ fs = require 'fs-jetpack'
 chalk = require 'chalk'
 Path = require 'path'
 process.env.SOURCE_MAPS ?= 1
-buildModules = ['google-closure-compiler-js','uglify-js@3.0.24', 'listr', 'simplywatch@3.0.0-l2', 'simplyimport@4.0.0-s33']
+buildModules = ['google-closure-compiler-js','uglify-js@3.0.24', 'listr', 'simplywatch@3.0.0-l2', 'simplyimport@4.0.3']
 coverageModules = ['istanbul', 'badge-gen', 'coffee-coverage']
 testModules = [
 	'mocha', 'chai', 'github:danielkalen/chai-style'
