@@ -49,7 +49,7 @@ task 'build:test', (options)->
 
 		.map (file)->
 			title: "Compiling test"
-			task: ()-> compileJS(file, debug:true, noPkgConfig:true)
+			task: ()-> compileJS(file, debug:true, noPkgConfig:true, usePaths:true)
 	
 		.then runTaskList
 
@@ -86,7 +86,7 @@ task 'watch:test', (options)->
 		command: (file, params)->
 			Promise.resolve()
 				.then ()-> {src:"test/test.coffee", dest:"test/test.js"}
-				.then (file)-> compileJS(file, noPkgConfig:true, debug:true)
+				.then (file)-> compileJS(file, noPkgConfig:true, debug:true, usePaths:true)
 
 
 
