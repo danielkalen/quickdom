@@ -1,5 +1,4 @@
 @dimensions = import './simulate.coffee'
-console.log @dimensions
 @Dom = @DOM = window.quickdom
 mocha.setup('tdd')
 mocha.slow(400)
