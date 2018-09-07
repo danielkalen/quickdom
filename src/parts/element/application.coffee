@@ -42,16 +42,16 @@ QuickElement::applyData = (data, passThrough)->
 				@_invokedComputers[key] = 1
 			
 			if data and data.hasOwnProperty(key)
-				@_runComputer(key, data[key])
+				@_runComputer(key, data[key], data)
 			
 			else if defaults and defaults.hasOwnProperty(key)
-				@_runComputer(key, defaults[key])
+				@_runComputer(key, defaults[key], data)
 	
 	return @
 
 
-QuickElement::_runComputer = (computer, arg)->
-	@options.computers[computer].call(@, arg)
+QuickElement::_runComputer = (computer, arg, data)->
+	@options.computers[computer].call(@, arg, data)
 
 
 
