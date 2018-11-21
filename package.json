@@ -14,6 +14,14 @@
   },
   "simplyimport": {
     "finalTransform": [
+      [
+        "babelify",
+        {
+          "presets": [
+            ["@babel/preset-env", {"modules":false}]
+          ]
+        }
+      ],
       ".config/transforms/minify-super",
       ".config/transforms/minify-rename",
       ".config/transforms/minify-simple"

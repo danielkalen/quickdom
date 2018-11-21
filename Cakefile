@@ -7,7 +7,7 @@ fs = require 'fs-jetpack'
 chalk = require 'chalk'
 Path = require 'path'
 process.env.SOURCE_MAPS ?= 1
-buildModules = ['google-closure-compiler-js','uglify-js@3.0.24', 'listr', 'simplywatch@3.0.0-l2', 'simplyimport@4.0.3']
+buildModules = ['google-closure-compiler-js','uglify-js@3.0.24', 'listr', 'simplywatch@3.0.0', 'simplyimport@4.0.9', 'babelify', '@babel/core', '@babel/preset-env']
 coverageModules = ['istanbul', 'badge-gen', 'coffee-coverage']
 testModules = [
 	'mocha', 'chai', 'github:danielkalen/chai-style'
@@ -192,7 +192,7 @@ compileJS = (file, options)->
 		.then ()-> require('simplyimport')(extend {file:file.src}, options)
 		.then (result)-> fs.writeAsync(file.dest, result)
 		.catch (err)->
-			console.error(err) if err not instanceof Error
+			console.error(err)# if err not instanceof Error
 			throw err
 
 
