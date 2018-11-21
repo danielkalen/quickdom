@@ -1,6 +1,6 @@
 {
   "name": "quickdom",
-  "version": "1.0.88",
+  "version": "1.0.89",
   "description": "Fast & light DOM element management supporting jquery-like methods, templates, & state-based styling",
   "main": "dist/quickdom.js",
   "browser": {
@@ -18,7 +18,12 @@
         "babelify",
         {
           "presets": [
-            ["@babel/preset-env", {"modules":false}]
+            [
+              "@babel/preset-env",
+              {
+                "modules": false
+              }
+            ]
           ]
         }
       ],
