@@ -1437,6 +1437,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var aspectRatioGetter, orientationGetter;
 
       QuickElement.prototype.style = function (property) {
+        var _this7 = this;
+
         var args, i, key, keys, result, value;
 
         if (this.type === 'text') {
@@ -1452,7 +1454,13 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             value = CSS.UNSET;
           }
 
-          result = CSS(this.el, property, value, this.options.forceStyle);
+          if (value && typeof value.then === 'function') {
+            value.then(function (value) {
+              return CSS(_this7.el, property, value, _this7.options.forceStyle);
+            });
+          } else {
+            result = CSS(this.el, property, value, this.options.forceStyle);
+          }
 
           if (args.length === 1) {
             /* istanbul ignore next */
@@ -2865,7 +2873,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       ;
-      _QuickDom.version = "1.0.89";
+      _QuickDom.version = "1.0.90";
       _QuickDom.CSS = CSS;
       module.exports = _QuickDom;
       return module.exports;
