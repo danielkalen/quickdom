@@ -816,6 +816,26 @@ suite "QuickDom", ()->
 			expect(div.raw).to.have.style 'fontSize', '20px'
 
 
+		test "If the return value of a style function is a promise, it will be awaited", ()->
+			div = DOM.div(
+				style: {width:50, height:50}
+			).appendTo sandbox
+
+			expect(div.width).to.equal 50
+			expect(div.height).to.equal 50
+
+			div.style 'width', ()-> 30
+			div.style 'height', ()-> Promise.resolve(30)
+
+			expect(div.width).to.equal 30
+			expect(div.height).to.equal 50
+			
+			await Promise.delay(0)
+			expect(div.width).to.equal 30
+			expect(div.height).to.equal 30
+
+
+
 		test "A null value can be passed for a property in order to delete that style", ()->
 			div = Dom.div(style:{width:'15px', fontSize: -> 30}).appendTo(sandbox)
 			div.style 'height', 20
@@ -1175,7 +1195,6 @@ suite "QuickDom", ()->
 			div.hide()
 			div.show('inline-block')
 			expect(div.style('display')).to.equal 'inline-block'
-
 
 		test "SVG elements", ()->
 			svg = Dom(

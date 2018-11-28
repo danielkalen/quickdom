@@ -14,7 +14,11 @@ QuickElement::style = (property)->
 	if IS.string(property)
 		value = if typeof args[1] is 'function' then args[1].call(@, @related) else args[1]
 		value = CSS.UNSET if args[1] is null and IS.defined(@currentStateStyle(property)) and not IS.function(@currentStateStyle(property))
-		result = CSS(@el, property, value, @options.forceStyle)
+
+		if value and typeof value.then is 'function'
+			value.then (value)=> CSS(@el, property, value, @options.forceStyle)
+		else
+			result = CSS(@el, property, value, @options.forceStyle)
 		
 		if args.length is 1
 			### istanbul ignore next ###
