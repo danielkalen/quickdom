@@ -36,7 +36,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       var allowedOptions, allowedTemplateOptions;
       allowedTemplateOptions = ['id', 'name', 'type', 'href', 'selected', 'checked', 'className']; // To copy from DOM Elements
 
-      allowedOptions = ['id', 'ref', 'type', 'name', 'text', 'style', 'class', 'className', 'url', 'href', 'selected', 'checked', 'props', 'attrs', 'passStateToChildren', 'stateTriggers']; // Used in QuickElement::toJSON
+      allowedOptions = ['id', 'ref', 'type', 'name', 'text', 'style', 'class', 'className', 'url', 'href', 'selected', 'checked', 'props', 'attrs', 'passStateToChildren', 'stateTriggers', 'unpassableStates']; // Used in QuickElement::toJSON
       // 'relatedInstance'
 
       ;
@@ -955,6 +955,8 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           }
 
           eventNames.split(regexWhitespace).forEach(function (eventName) {
+            var base;
+
             if (!_this4._eventCallbacks[eventName]) {
               _this4._eventCallbacks[eventName] = [];
 
@@ -966,7 +968,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
             }
 
             if (callbackRef) {
-              _this4._eventCallbacks.__refs[callbackRef] = callback;
+              if ((base = _this4._eventCallbacks.__refs)[eventName] == null) {
+                base[eventName] = {};
+              }
+
+              _this4._eventCallbacks.__refs[eventName][callbackRef] = callback;
             }
 
             return _this4._eventCallbacks[eventName].push(callback);
@@ -1012,9 +1018,11 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
           callbackRef = split[1];
           eventNames = split[0];
           eventNames.split(regexWhitespace).forEach(function (eventName) {
+            var ref;
+
             if (_this6._eventCallbacks[eventName]) {
               if (callback == null) {
-                callback = _this6._eventCallbacks.__refs[callbackRef];
+                callback = (ref = _this6._eventCallbacks.__refs[eventName]) != null ? ref[callbackRef] : void 0;
               }
 
               if (IS.function(callback)) {
@@ -2873,7 +2881,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
       }
 
       ;
-      _QuickDom.version = "1.0.90";
+      _QuickDom.version = "1.0.91";
       _QuickDom.CSS = CSS;
       module.exports = _QuickDom;
       return module.exports;
