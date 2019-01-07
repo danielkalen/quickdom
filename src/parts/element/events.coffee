@@ -20,7 +20,9 @@ QuickElement::on = (eventNames, callback, useCapture, isPrivate)->
 					@_invokeHandlers(eventName, event)
 				, useCapture
 
-			@_eventCallbacks.__refs[callbackRef] = callback if callbackRef
+			if callbackRef
+				@_eventCallbacks.__refs[eventName] ?= {}
+				@_eventCallbacks.__refs[eventName][callbackRef] = callback
 			@_eventCallbacks[eventName].push(callback)
 
 	return @
@@ -47,7 +49,7 @@ QuickElement::off = (eventNames, callback)->
 		eventNames = split[0]
 		eventNames.split(regexWhitespace).forEach (eventName)=>
 			if @_eventCallbacks[eventName]
-				callback ?= @_eventCallbacks.__refs[callbackRef]
+				callback ?= @_eventCallbacks.__refs[eventName]?[callbackRef]
 
 				if IS.function(callback)
 					helpers.removeItem(@_eventCallbacks[eventName], callback)

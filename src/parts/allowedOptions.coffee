@@ -25,5 +25,6 @@ allowedOptions = [ # Used in QuickElement::toJSON
 	'attrs'
 	'passStateToChildren'
 	'stateTriggers'
+	'unpassableStates'
 	# 'relatedInstance'
 ]

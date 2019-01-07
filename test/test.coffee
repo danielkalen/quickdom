@@ -471,34 +471,56 @@ suite "QuickDom", ()->
 
 
 		test "Events can be named via a '<event>.<name>' syntax which can be used to remove listeners later on without the original callbacks", ()->
-			emitCountA = emitCountB = 0
+			emitCountA = emitCountB = emitCountC = 0
 			div = Dom.div().appendTo(sandbox)
 
 			attachListeners = ()->
 				div.on 'myEvent.someName', ()-> emitCountA++;
 				div.on 'myEvent', ()-> emitCountB++;
+				div.on 'otherEvent.someName', ()-> emitCountC++;
 
 			attachListeners()
 			expect(emitCountA).to.equal(0)
 			expect(emitCountB).to.equal(0)
+			expect(emitCountC).to.equal(0)
 
 			div.emit('myEvent')
 			expect(emitCountA).to.equal(1)
 			expect(emitCountB).to.equal(1)
+			expect(emitCountC).to.equal(0)
 			
 			div.emit('myEvent.someName')
 			expect(emitCountA).to.equal(1)
 			expect(emitCountB).to.equal(1)
+			expect(emitCountC).to.equal(0)
+			
+			div.emit('otherEvent')
+			expect(emitCountA).to.equal(1)
+			expect(emitCountB).to.equal(1)
+			expect(emitCountC).to.equal(1)
 			
 			div.off('myEvent.someOtherName')
 			div.emit('myEvent')
 			expect(emitCountA).to.equal(2)
 			expect(emitCountB).to.equal(2)
+			expect(emitCountC).to.equal(1)
 			
 			div.off('myEvent.someName')
 			div.emit('myEvent')
 			expect(emitCountA).to.equal(2)
 			expect(emitCountB).to.equal(3)
+			expect(emitCountC).to.equal(1)
+			
+			div.emit('otherEvent')
+			expect(emitCountA).to.equal(2)
+			expect(emitCountB).to.equal(3)
+			expect(emitCountC).to.equal(2)
+			
+			div.off('otherEvent.someName')
+			div.emit('otherEvent')
+			expect(emitCountA).to.equal(2)
+			expect(emitCountB).to.equal(3)
+			expect(emitCountC).to.equal(2)
 			
 			div.off('myEvent')
 			attachListeners()
