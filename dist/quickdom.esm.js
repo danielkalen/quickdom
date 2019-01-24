@@ -1,4 +1,4 @@
-(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?module.exports=f():typeof define==='function'&&define.amd?define(f):(g=g||self,g.quickdom=f());}(this,function(){'use strict';function _typeof(obj) {
+function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function (obj) {
       return typeof obj;
@@ -3686,4 +3686,4 @@ _quickdom.QuickBatch = QuickBatch$1;
 _quickdom.version = version$2;
 _quickdom.CSS = index;
 var quickdom = _quickdom; // export {quickdom as default, QuickElement, QuickTemplate, QuickWindow, QuickBatch}
-return quickdom;}));
+export default quickdom;

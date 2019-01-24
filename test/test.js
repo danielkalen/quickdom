@@ -1,4 +1,4 @@
-(function(f){typeof define==='function'&&define.amd?define(f):f();}(function(){'use strict';var version = "1.0.91";var origDescriptors;
+(function(f){typeof define==='function'&&define.amd?define(f):f();}(function(){'use strict';var version = "1.0.92";var origDescriptors;
 
 origDescriptors = {
   'innerWidth': Object.getOwnPropertyDescriptor(window, 'innerWidth'),
