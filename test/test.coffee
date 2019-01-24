@@ -1,11 +1,13 @@
-@dimensions = import './simulate.coffee'
-@Dom = @DOM = window.quickdom
+import {version as packageVersion} from '../package.json'
+import dimensions from './simulate.coffee'
+import chai from 'chai'
+import chaiStyle from 'chai-style'
+window.Dom = window.DOM = window.quickdom
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
 mocha.bail() unless window.location.hostname
-chai = import 'chai'
-chai.use import 'chai-style'
+chai.use chaiStyle
 chai.config.truncateThreshold = 1e3
 {expect} = chai
 
@@ -30,7 +32,6 @@ suite "QuickDom", ()->
 	setup(restartSandbox)
 
 	test "Version Property", ()->
-		packageVersion = (import '../package $ version')
 		expect(Dom.version).to.equal(packageVersion)
 
 
@@ -289,6 +290,7 @@ suite "QuickDom", ()->
 					get: ()-> @raw.scrollTop
 				weight:
 					get: ()-> @raw.weight
+					set: ()-> ;
 				value:
 					get: ()-> @raw.value
 					set: (value)-> @raw.value = value
@@ -5277,7 +5279,7 @@ suite "QuickDom", ()->
 				.to.throw()
 			
 			expect ()-> Dom.batch([])
-				.to.throw()
+				.not.to.throw()
 			
 			expect ()-> Dom.batch([12]).append(Dom.div())
 				.to.throw()

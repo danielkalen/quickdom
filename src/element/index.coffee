@@ -1,6 +1,8 @@
+import extend from 'smart-extend'
+import {element as ALLOWED_OPTIONS} from '../allowedOptions'
 svgNamespace = 'http://www.w3.org/2000/svg'
 
-class QuickElement
+export default class QuickElement
 	@count = 0
 	constructor: (@type, @options)->
 		QuickElement.count++
@@ -31,7 +33,7 @@ class QuickElement
 
 
 	toJSON: ()->
-		output = [@type, extend.clone.keys(allowedOptions)(@options)]
+		output = [@type, extend.clone.keys(ALLOWED_OPTIONS)(@options)]
 		children = @children
 		output.push(child.toJSON()) for child in children
 		return output
@@ -39,12 +41,21 @@ class QuickElement
 ### istanbul ignore next ###
 QuickElement.name ?= 'QuickElement'
 
-import './aliases'
-import './traversing'
-import './init'
-import './events'
-import './state'
-import './style'
-import './attributes-and-properties'
-import './manipulation'
-import './application'
+import init from './init'
+import aliases from './aliases'
+import traversing from './traversing'
+import events from './events'
+import state from './state'
+import style from './style'
+import manipulation from './manipulation'
+import application from './application'
+import attributesAndProperties from './attributes-and-properties'
+init(QuickElement)
+aliases(QuickElement)
+traversing(QuickElement)
+events(QuickElement)
+state(QuickElement)
+style(QuickElement)
+manipulation(QuickElement)
+application(QuickElement)
+attributesAndProperties(QuickElement)

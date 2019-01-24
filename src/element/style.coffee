@@ -1,3 +1,6 @@
+import IS from '../checks'
+import CSS from 'quickcss'
+
 ###*
  * Sets/gets the value of a style property. In getter mode the computed property of
  * the style will be returned unless the element is not inserted into the DOM. In
@@ -7,7 +10,7 @@
  * is returned
  * @return {[type]} [description]
 ###
-QuickElement::style = (property)->
+export style = (property)->
 	return if @type is 'text'
 	args = arguments
 	
@@ -38,7 +41,7 @@ QuickElement::style = (property)->
  * 3. from provided style options
  * (for non-inserted els; checking only $base since state styles will always be applied to the style object even for non-inserted)
 ###
-QuickElement::styleSafe = (property, skipComputed)->
+export styleSafe = (property, skipComputed)->
 	return if @type is 'text'
 	sample = @el.style[property]
 
@@ -50,11 +53,11 @@ QuickElement::styleSafe = (property, skipComputed)->
 	return @
 
 
-QuickElement::styleParsed = (property, skipComputed)->
+export styleParsed = (property, skipComputed)->
 	parseFloat @styleSafe(property, skipComputed)
 
 
-QuickElement::recalcStyle = (recalcChildren)->
+export recalcStyle = (recalcChildren)->
 	targetStyles = @_resolveFnStyles(@_getActiveStates(), true)
 
 	@style(targetStyles)
@@ -65,7 +68,7 @@ QuickElement::recalcStyle = (recalcChildren)->
 	return @
 
 
-QuickElement::currentStateStyle = (property)-> if property
+export currentStateStyle = (property)-> if property
 	if @_state.length
 		states = @_state.slice()
 		states.push(@_stateShared...) if @_stateShared and @_stateShared.length
@@ -76,11 +79,11 @@ QuickElement::currentStateStyle = (property)-> if property
 	return @_styles.base.rule[property] if @_styles.base
 
 
-QuickElement::hide = ()->
+export hide = ()->
 	@style 'display', 'none'
 
 
-QuickElement::show = (display)->
+export show = (display)->
 	if not display
 		display = @currentStateStyle('display')
 		display = 'block' if display is 'none' or not display
@@ -88,17 +91,31 @@ QuickElement::show = (display)->
 	display ?= @_styles.base?.display or 'block'
 	@style 'display', display
 
+export orientationGetter =
+	get: ()-> if @width > @height then 'landscape' else 'portrait'
+
+export aspectRatioGetter =
+	get: ()-> @width/@height
+
+export default (QuickElement)->
+	Object.defineProperties QuickElement::,
+		'orientation': orientationGetter
+		'aspectRatio': aspectRatioGetter
+		'rect': get: ()-> @el.getBoundingClientRect()
+		'width':
+			get: ()-> parseFloat @style('width')
+			set: (value)-> @style 'width', value
+		'height':
+			get: ()-> parseFloat @style('height')
+			set: (value)-> @style 'height', value
 
 
-Object.defineProperties QuickElement::,
-	'orientation': orientationGetter = get: ()-> if @width > @height then 'landscape' else 'portrait'
-	'aspectRatio': aspectRatioGetter = get: ()-> @width/@height
-	'rect': get: ()-> @el.getBoundingClientRect()
-	'width':
-		get: ()-> parseFloat @style('width')
-		set: (value)-> @style 'width', value
-	'height':
-		get: ()-> parseFloat @style('height')
-		set: (value)-> @style 'height', value
+	QuickElement::style = style
+	QuickElement::styleSafe = styleSafe
+	QuickElement::styleParsed = styleParsed
+	QuickElement::recalcStyle = recalcStyle
+	QuickElement::currentStateStyle = currentStateStyle
+	QuickElement::hide = hide
+	QuickElement::show = show
 
 

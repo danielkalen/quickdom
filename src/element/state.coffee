@@ -1,13 +1,15 @@
+import IS from '../checks'
+import {includes, removeItem, normalizeElementArg as normalizeElement} from '../helpers'
 DUMMY_ARRAY = []
 
 
-QuickElement::state = (targetState, value, bubbles, source)->
+export state = (targetState, value, bubbles, source)->
 	if arguments.length is 0
 		return @_state.slice()
 	
 	if arguments.length is 1
 		if IS.string(targetState)
-			return helpers.includes(@_state, targetState)
+			return includes(@_state, targetState)
 		
 		else if IS.object(targetState)
 			keys = Object.keys(targetState)
@@ -33,7 +35,7 @@ QuickElement::state = (targetState, value, bubbles, source)->
 				@_state.push(targetState)
 				toggle = 'ON'
 			else
-				helpers.removeItem(@_state, targetState)
+				removeItem(@_state, targetState)
 				toggle = 'OFF'
 			
 			@['_turn'+prop+toggle](targetState, activeStates)
@@ -41,7 +43,7 @@ QuickElement::state = (targetState, value, bubbles, source)->
 
 
 		# ==== Pass state to parent/children =================================================================================
-		if not helpers.includes(@options.unpassableStates, targetState)
+		if not includes(@options.unpassableStates, targetState)
 			if bubbles
 				@_parent.state(targetState, value, true, source or @) if @parent
 			else if @options.passStateToChildren
@@ -50,20 +52,20 @@ QuickElement::state = (targetState, value, bubbles, source)->
 		return @
 
 
-QuickElement::toggleState = (targetState)->
+export toggleState = (targetState)->
 	@state(targetState, !@state(targetState))
 
 
-QuickElement::resetState = ()->
+export resetState = ()->
 	for activeState in @_state.slice()
 		@state(activeState, off)
 
 	return @
 
 
-QuickElement::pipeState = (targetEl)->
+export pipeState = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 
 		if IS.quickDomEl(targetEl) and targetEl isnt @
 			@_statePipeTarget = targetEl
@@ -77,7 +79,7 @@ QuickElement::pipeState = (targetEl)->
 
 
 
-QuickElement::_applyRegisteredStyle = (targetStyle, superiorStates, includeBase, skipFns)-> if targetStyle
+export _applyRegisteredStyle = (targetStyle, superiorStates, includeBase, skipFns)-> if targetStyle
 	@addClass(className) for className in targetStyle.className
 	
 	if targetStyle.fns.length and not skipFns
@@ -89,7 +91,7 @@ QuickElement::_applyRegisteredStyle = (targetStyle, superiorStates, includeBase,
 	return
 
 
-QuickElement::_removeRegisteredStyle = (targetStyle, superiorStates, includeBase)->
+export _removeRegisteredStyle = (targetStyle, superiorStates, includeBase)->
 	@removeClass(className) for className in targetStyle.className
 
 	if targetStyle.fns.length
@@ -104,7 +106,7 @@ QuickElement::_removeRegisteredStyle = (targetStyle, superiorStates, includeBase
 
 
 
-QuickElement::_turnStyleON = (targetState, activeStates)->
+export _turnStyleON = (targetState, activeStates)->
 	skipFns = @options.styleAfterInsert and not @_inserted
 	if @_styles[targetState]
 		@_applyRegisteredStyle(@_styles[targetState], @_getSuperiorStates(targetState, activeStates), false, skipFns)
@@ -114,13 +116,13 @@ QuickElement::_turnStyleON = (targetState, activeStates)->
 		sharedStates = @_getSharedStates(targetState)
 		
 		for stateChain in sharedStates
-			@_stateShared.push(stateChain.string) unless helpers.includes(@_stateShared, stateChain.string)
+			@_stateShared.push(stateChain.string) unless includes(@_stateShared, stateChain.string)
 			@_applyRegisteredStyle(@_styles[stateChain.string], null, null, skipFns)
 
 	return
 
 
-QuickElement::_turnStyleOFF = (targetState, activeStates)->
+export _turnStyleOFF = (targetState, activeStates)->
 	if @_styles[targetState]
 		@_removeRegisteredStyle(@_styles[targetState], activeStates, true)
 
@@ -129,11 +131,11 @@ QuickElement::_turnStyleOFF = (targetState, activeStates)->
 		return if sharedStates.length is 0
 
 		for stateChain in sharedStates
-			helpers.removeItem(@_stateShared, stateChain.string)
+			removeItem(@_stateShared, stateChain.string)
 			targetStyle = @_styles[stateChain.string]
 			
 			if targetStyle.fns.length and @_stateShared.length and not activeSharedStates
-				activeSharedStates = @_stateShared.filter (state)-> not helpers.includes(state, targetState)
+				activeSharedStates = @_stateShared.filter (state)-> not includes(state, targetState)
 				activeStates = activeStates.concat(activeSharedStates)
 			
 			@_removeRegisteredStyle(targetStyle, activeStates, true)
@@ -142,7 +144,7 @@ QuickElement::_turnStyleOFF = (targetState, activeStates)->
 
 
 
-QuickElement::_turnTextON = (targetState, activeStates)->
+export _turnTextON = (targetState, activeStates)->
 	if @_texts and IS.string(targetText = @_texts[targetState])
 		superiorStates = @_getSuperiorStates(targetState, activeStates)
 		
@@ -150,7 +152,7 @@ QuickElement::_turnTextON = (targetState, activeStates)->
 	return
 
 
-QuickElement::_turnTextOFF = (targetState, activeStates)->
+export _turnTextOFF = (targetState, activeStates)->
 	if @_texts and IS.string(targetText = @_texts[targetState])
 		activeStates = activeStates.filter (state)-> state isnt targetState
 		targetText = @_texts[activeStates[activeStates.length-1]]
@@ -167,7 +169,7 @@ QuickElement::_turnTextOFF = (targetState, activeStates)->
 
 
 
-QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
+export _getActiveStates = (stateToExclude, includeSharedStates=true)->
 	return DUMMY_ARRAY if not @_providedStates
 	activeStates = plainStates = @_state
 	if stateToExclude
@@ -180,7 +182,7 @@ QuickElement::_getActiveStates = (stateToExclude, includeSharedStates=true)->
 		return plainStates.concat(@_stateShared)
 
 
-QuickElement::_getSuperiorStates = (targetState, activeStates)->
+export _getSuperiorStates = (targetState, activeStates)->
 	targetStateIndex = @_providedStates.indexOf(targetState)
 	return DUMMY_ARRAY if targetStateIndex is @_providedStates.length - 1
 	
@@ -191,7 +193,7 @@ QuickElement::_getSuperiorStates = (targetState, activeStates)->
 	return superior
 
 
-QuickElement::_getSharedStates = (targetState)->
+export _getSharedStates = (targetState)->
 	activeStates = @_state
 	sharedStates = []
 
@@ -201,7 +203,7 @@ QuickElement::_getSharedStates = (targetState)->
 	return sharedStates
 
 
-QuickElement::_resolveFnStyles = (states, includeBase)->
+export _resolveFnStyles = (states, includeBase)->
 	states = ['base'].concat(states) if includeBase
 	output = {}
 	
@@ -211,7 +213,21 @@ QuickElement::_resolveFnStyles = (states, includeBase)->
 	return output
 
 
-
+export default (QuickElement)->
+	QuickElement::state = state
+	QuickElement::toggleState = toggleState
+	QuickElement::resetState = resetState
+	QuickElement::pipeState = pipeState
+	QuickElement::_applyRegisteredStyle = _applyRegisteredStyle
+	QuickElement::_removeRegisteredStyle = _removeRegisteredStyle
+	QuickElement::_turnStyleON = _turnStyleON
+	QuickElement::_turnStyleOFF = _turnStyleOFF
+	QuickElement::_turnTextON = _turnTextON
+	QuickElement::_turnTextOFF = _turnTextOFF
+	QuickElement::_getActiveStates = _getActiveStates
+	QuickElement::_getSuperiorStates = _getSuperiorStates
+	QuickElement::_getSharedStates = _getSharedStates
+	QuickElement::_resolveFnStyles = _resolveFnStyles
 
 
 

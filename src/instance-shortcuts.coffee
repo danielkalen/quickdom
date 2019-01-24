@@ -1,4 +1,7 @@
-shortcuts = [
+import {includes} from './helpers'
+import quickdom from './quickdom'
+
+SHORTCUTS = [
 	'link:a'
 	'anchor:a'
 	'a'
@@ -47,11 +50,11 @@ shortcuts = [
 ]
 
 
-for shortcut in shortcuts then do (shortcut)->
+for shortcut in SHORTCUTS then do (shortcut)->
 	prop = type = shortcut
-	if helpers.includes(shortcut, ':')
+	if includes(shortcut, ':')
 		split = shortcut.split(':')
 		prop = split[0]
 		type = split[1]
 
-	QuickDom[prop] = ()-> QuickDom(type, arguments...)
+	quickdom[prop] = ()-> quickdom(type, arguments...)

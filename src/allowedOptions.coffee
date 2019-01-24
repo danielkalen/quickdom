@@ -1,4 +1,4 @@
-allowedTemplateOptions = [ # To copy from DOM Elements
+export template = [ # To copy from DOM Elements
 	'id'
 	'name'
 	'type'
@@ -8,7 +8,7 @@ allowedTemplateOptions = [ # To copy from DOM Elements
 	'className'
 ]
 
-allowedOptions = [ # Used in QuickElement::toJSON
+export element = [ # Used in QuickElement::toJSON
 	'id'
 	'ref'
 	'type'
