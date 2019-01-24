@@ -1,4 +1,7 @@
-MediaQuery = new ()->
+import QuickWindow from './window'
+RULE_DEILIMITER = /,\s*/
+
+export default MediaQuery = new ()->
 	callbacks = []
 
 	window.addEventListener 'resize', ()->
@@ -16,7 +19,7 @@ MediaQuery = new ()->
 
 		rules = querySplit[1]
 			.slice(0,-1)
-			.split(ruleDelimiter)
+			.split(RULE_DEILIMITER)
 			.map (rule)-> 
 				split = rule.split(':')
 				value = parseFloat(split[1])
@@ -65,9 +68,6 @@ MediaQuery = new ()->
 	return @
 
 
-
-
-ruleDelimiter = /,\s*/
 
 
 

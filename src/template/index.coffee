@@ -1,8 +1,12 @@
-import './extendTemplate'
-import './parseTree'
-import './schema'
+import extend from 'smart-extend'
+import quickdom from '../'
+import IS from '../checks'
+import extendTemplate from './extendTemplate'
+import parseTree from './parseTree'
+import {_getChildRefs} from '../element/traversing'
+import {schema} from './schema'
 
-class QuickTemplate
+export default class QuickTemplate
 	constructor: (config, isTree)->
 		return config if IS.template(config)
 		config = if isTree then parseTree(config) else config
@@ -23,7 +27,7 @@ class QuickTemplate
 			options = extend.clone(options)
 
 		
-		element = QuickDom.create([type, options])
+		element = quickdom.create([type, options])
 		
 		if children
 			childData = if options.passDataToChildren then data or options.data
@@ -39,7 +43,14 @@ QuickTemplate.name ?= 'QuickTemplate'
 
 
 Object.defineProperty QuickTemplate::, 'child', get: ()->
-	@_childRefs or _getChildRefs(@) # source in /src/parts/element/traversing.coffee
+	@_childRefs or _getChildRefs(@)
+
+
+quickdom.template = (tree)->
+	new QuickTemplate(tree, true)
+
+quickdom.isTemplate = (target)->
+	IS.template(target)
 
 
 

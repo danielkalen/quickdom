@@ -1,8 +1,14 @@
-QuickElement::toTemplate = ()->
-	QuickDom.template(@)
+import quickdom from '../'
+import QuickElement from './'
+import IS from '../checks'
+import {includes, normalizeElementArg as normalizeElement} from '../helpers'
+import extend from 'smart-extend'
+
+export toTemplate = ()->
+	quickdom.template(@)
 
 
-QuickElement::clone = ()->
+export clone = ()->
 	elClone = @el.cloneNode(false)
 	options = extend.clone(@options, {existing:elClone})
 	
@@ -15,9 +21,9 @@ QuickElement::clone = ()->
 	return newEl
 
 
-QuickElement::append = (targetEl)->
+export append = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		
 		if IS.quickDomEl(targetEl)
 			prevParent = targetEl.parent
@@ -29,9 +35,9 @@ QuickElement::append = (targetEl)->
 	return @
 
 
-QuickElement::appendTo = (targetEl)->
+export appendTo = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		
 		if IS.quickDomEl(targetEl)
 			targetEl.append(@)
@@ -39,9 +45,9 @@ QuickElement::appendTo = (targetEl)->
 	return @
 
 
-QuickElement::prepend = (targetEl)->
+export prepend = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		
 		if IS.quickDomEl(targetEl)
 			prevParent = targetEl.parent
@@ -53,9 +59,9 @@ QuickElement::prepend = (targetEl)->
 	return @
 
 
-QuickElement::prependTo = (targetEl)->
+export prependTo = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		
 		if IS.quickDomEl(targetEl)
 			targetEl.prepend(@)
@@ -63,9 +69,9 @@ QuickElement::prependTo = (targetEl)->
 	return @
 
 
-QuickElement::after = (targetEl)->
+export after = (targetEl)->
 	if targetEl and @parent
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 
 		if IS.quickDomEl(targetEl)
 			myIndex = @parent._children.indexOf(@)
@@ -76,9 +82,9 @@ QuickElement::after = (targetEl)->
 	return @
 
 
-QuickElement::insertAfter = (targetEl)->
+export insertAfter = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		
 		if IS.quickDomEl(targetEl)
 			targetEl.after(@)
@@ -86,9 +92,9 @@ QuickElement::insertAfter = (targetEl)->
 	return @
 
 
-QuickElement::before = (targetEl)->
+export before = (targetEl)->
 	if targetEl and @parent
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 
 		if IS.quickDomEl(targetEl)
 			myIndex = @parent._children.indexOf(@)
@@ -99,9 +105,9 @@ QuickElement::before = (targetEl)->
 	return @
 
 
-QuickElement::insertBefore = (targetEl)->
+export insertBefore = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		
 		if IS.quickDomEl(targetEl)
 			targetEl.before(@)
@@ -109,12 +115,12 @@ QuickElement::insertBefore = (targetEl)->
 	return @
 
 
-QuickElement::detach = ()->
+export detach = ()->
 	@parent?._removeChild(@)
 	return @
 
 
-QuickElement::remove = ()->
+export remove = ()->
 	@detach()
 	@resetState()
 	if @_eventCallbacks
@@ -122,14 +128,14 @@ QuickElement::remove = ()->
 	return @
 
 
-QuickElement::empty = ()->
+export empty = ()->
 	@_removeChild(child) for child in @children.slice()
 	return @
 
 
-QuickElement::wrap = (targetEl)->
+export wrap = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 		currentParent = @parent
 
 		if IS.quickDomEl(targetEl) and targetEl isnt @ and targetEl isnt @parent
@@ -141,10 +147,10 @@ QuickElement::wrap = (targetEl)->
 	return @
 
 
-QuickElement::unwrap = ()->
+export unwrap = ()->
 	parent = @parent
 	if parent
-		parentChildren = QuickDom.batch(parent.children)
+		parentChildren = quickdom.batch(parent.children)
 		parentSibling = parent.next
 		grandParent = parent.parent
 		if grandParent
@@ -158,9 +164,9 @@ QuickElement::unwrap = ()->
 	return @
 
 
-QuickElement::replace = (targetEl)->
+export replace = (targetEl)->
 	if targetEl
-		targetEl = helpers.normalizeGivenEl(targetEl)
+		targetEl = normalizeElement(targetEl)
 	
 		if IS.quickDomEl(targetEl) and targetEl isnt @
 			targetEl.detach()
@@ -170,11 +176,11 @@ QuickElement::replace = (targetEl)->
 	return @
 
 
-QuickElement::hasClass = (target)->
-	helpers.includes(@classList, target)
+export hasClass = (target)->
+	includes(@classList, target)
 
 
-QuickElement::addClass = (target)->
+export addClass = (target)->
 	classList = @classList
 	targetIndex = classList.indexOf(target)
 
@@ -185,7 +191,7 @@ QuickElement::addClass = (target)->
 	return @
 
 
-QuickElement::removeClass = (target)->
+export removeClass = (target)->
 	classList = @classList
 	targetIndex = classList.indexOf(target)
 	
@@ -196,7 +202,7 @@ QuickElement::removeClass = (target)->
 	return @
 
 
-QuickElement::toggleClass = (target)->
+export toggleClass = (target)->
 	if @hasClass(target)
 		@removeClass(target)
 	else
@@ -205,17 +211,17 @@ QuickElement::toggleClass = (target)->
 	return @
 
 
-QuickElement::setRef = (target)->
+export setRef = (target)->
 	@ref = @options.ref = target
 	@attr 'data-ref', target
 	return @
 
 
-QuickElement::_refreshParent = ()->
+export _refreshParent = ()->
 	@parent
 
 
-QuickElement::_removeChild = (targetChild, replacementChild)->
+export _removeChild = (targetChild, replacementChild)->
 	indexOfChild = @children.indexOf(targetChild)
 	if indexOfChild isnt -1
 		if replacementChild
@@ -229,29 +235,52 @@ QuickElement::_removeChild = (targetChild, replacementChild)->
 	return @
 
 
-Object.defineProperties QuickElement::,
-	'html':
-		get: ()-> @el.innerHTML
-		set: (newValue)-> @el.innerHTML = newValue
-	
-	'text':
-		get: ()-> @el.textContent
-		set: (newValue)-> @el.textContent = newValue
+export default (QuickElement)->
+	Object.defineProperties QuickElement::,
+		'html':
+			get: ()-> @el.innerHTML
+			set: (newValue)-> @el.innerHTML = newValue
+		
+		'text':
+			get: ()-> @el.textContent
+			set: (newValue)-> @el.textContent = newValue
 
-	'className':
-		get: ()-> if @svg then (@attr('class') or '') else @raw.className
-		set: (newValue)-> if @svg then @attr('class', newValue) else @raw.className = newValue
+		'className':
+			get: ()-> if @svg then (@attr('class') or '') else @raw.className
+			set: (newValue)-> if @svg then @attr('class', newValue) else @raw.className = newValue
 
-	'classList':
-		get: ()->
-			list = @className.split(/\s+/)
-			list.pop() if list[list.length-1] is ''
-			list.shift() if list[0] is ''
-			return list
-
-
+		'classList':
+			get: ()->
+				list = @className.split(/\s+/)
+				list.pop() if list[list.length-1] is ''
+				list.shift() if list[0] is ''
+				return list
 
 
+
+	QuickElement::toTemplate = toTemplate
+	QuickElement::clone = clone
+	QuickElement::append = append
+	QuickElement::appendTo = appendTo
+	QuickElement::prepend = prepend
+	QuickElement::prependTo = prependTo
+	QuickElement::after = after
+	QuickElement::insertAfter = insertAfter
+	QuickElement::before = before
+	QuickElement::insertBefore = insertBefore
+	QuickElement::detach = detach
+	QuickElement::remove = remove
+	QuickElement::empty = empty
+	QuickElement::wrap = wrap
+	QuickElement::unwrap = unwrap
+	QuickElement::replace = replace
+	QuickElement::hasClass = hasClass
+	QuickElement::addClass = addClass
+	QuickElement::removeClass = removeClass
+	QuickElement::toggleClass = toggleClass
+	QuickElement::setRef = setRef
+	QuickElement::_refreshParent = _refreshParent
+	QuickElement::_removeChild = _removeChild
 
 
 

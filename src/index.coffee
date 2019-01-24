@@ -1,25 +1,23 @@
-### istanbul ignore next ###
-import * as CSS from 'quickcss'
-### istanbul ignore next ###
-import * as extend from 'smart-extend'
-import './parts/allowedOptions'
-import './parts/helpers'
-import './parts/checks'
-import './parts/element'
-import './parts/window'
-import './parts/mediaQuery'
+import IS from './checks'
+import CSS from 'quickcss'
+import QuickElement from './element'
+import QuickTemplate from './template'
+import QuickWindow from './window'
+import QuickBatch from './batch'
+import {version} from '../package.json'
+import './instance-shortcuts'
 
-QuickDom = ()->
+export default quickdom = ()->
 	args = new Array(arguments.length)
 	args[i] = arg for arg,i in arguments
 	prevCount = QuickElement.count
-	element = QuickDom.create(args)
+	element = quickdom.create(args)
 	element._postCreation() if element and element._postCreation and QuickElement.count isnt prevCount
 	return element
 
-QuickDom.create = (args)-> switch
+quickdom.create = (args)-> switch
 	when IS.array(args[0])
-		return QuickDom(args[0]...)
+		return quickdom(args[0]...)
 	
 	when IS.template(args[0])
 		return args[0].spawn()
@@ -52,51 +50,34 @@ QuickDom.create = (args)-> switch
 			children[i+1] = args[i] while ++i < argsLength
 
 			for child in children
-				child = QuickDom.text(child) if IS.string(child)
-				child = QuickDom(child...) if IS.array(child)
+				child = quickdom.text(child) if IS.string(child)
+				child = quickdom(child...) if IS.array(child)
 				element.append(child) if IS.quickDomEl(child)
 
 		return element
 
 	when args[0] and (IS.domNode(args[0][0]) or IS.domDoc(args[0][0]))
-		return QuickDom(args[0][0])
+		return quickdom(args[0][0])
 
 
-QuickDom.template = (tree)->
-	new QuickTemplate(tree, true)
 
-
-QuickDom.html = (innerHTML)->
+quickdom.html = (innerHTML)->
 	container = document.createElement('div')
 	container.innerHTML = innerHTML
 	children = Array::slice.call container.childNodes
 
-	return QuickDom.batch(children)
+	return quickdom.batch(children)
 
-QuickDom.query = (target)->
-	QuickDom(document).query(target)
 
-QuickDom.queryAll = (target)->
-	QuickDom(document).queryAll(target)
-
-QuickDom.isTemplate = (target)->
-	IS.template(target)
-
-QuickDom.isQuickEl = (target)->
+quickdom.isQuickEl = (target)->
 	IS.quickDomEl(target)
 
-QuickDom.isEl = (target)->
+quickdom.isEl = (target)->
 	IS.domEl(target)
 
 
-
-
-import './parts/batch'
-import './parts/template'
-import './parts/shortcuts'
-QuickDom.version = import '../package.json $ version'
-QuickDom.CSS = CSS
-module.exports = QuickDom
+quickdom.version = varsion
+quickdom.CSS = CSS
 
 
 

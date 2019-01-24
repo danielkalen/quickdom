@@ -1,9 +1,16 @@
-baseStateTriggers =
+import quickdom from '../'
+import MediaQuery from '../mediaQuery'
+import StateChain from './stateChain'
+import IS from '../checks'
+import * as helpers from '../helpers'
+import extend from 'smart-extend'
+
+BASE_STATE_TRIGGERS =
 	'hover': {on:'mouseenter', off:'mouseleave', bubbles:true}
 	'focus': {on:'focus', off:'blur', bubbles:true}
 
 
-QuickElement::_normalizeOptions = ()->
+export _normalizeOptions = ()->
 	if @options.relatedInstance
 		@options.related ||= @options.relatedInstance
 		@options.relatedInstance = null
@@ -16,9 +23,9 @@ QuickElement::_normalizeOptions = ()->
 	@options.passDataToChildren ?= true
 	@options.stateTriggers =
 		if @options.stateTriggers
-			extend.clone.deep(baseStateTriggers, @options.stateTriggers)
+			extend.clone.deep(BASE_STATE_TRIGGERS, @options.stateTriggers)
 		else
-			baseStateTriggers
+			BASE_STATE_TRIGGERS
 	
 	if @type is 'text'
 		extend @, @_parseTexts(@options.text, @_texts)
@@ -28,7 +35,7 @@ QuickElement::_normalizeOptions = ()->
 	return
 
 
-QuickElement::_parseStyles = (styles, store)->
+export _parseStyles = (styles, store)->
 	return if not IS.objectPlain(styles)
 	keys = Object.keys(styles)
 	states = keys.filter (key)-> helpers.isStateStyle(key)
@@ -54,7 +61,7 @@ QuickElement::_parseStyles = (styles, store)->
 					output[state] = styleObject[state]
 				else
 					chain.push(state_ = state.slice(1))
-					stateChain = new (import './stateChain')(chain)
+					stateChain = new StateChain(chain)
 					_stateShared ?= []
 					_providedStatesShared ?= []
 					_providedStatesShared.push(stateChain)
@@ -74,7 +81,7 @@ QuickElement::_parseStyles = (styles, store)->
 
 
 
-QuickElement::_parseTexts = (texts, store)->
+export _parseTexts = (texts, store)->
 	return if not IS.objectPlain(texts)
 	states = Object.keys(texts).map (state)-> state.slice(1)
 	_providedStates = states.filter (state)-> state isnt 'base'
@@ -85,7 +92,7 @@ QuickElement::_parseTexts = (texts, store)->
 	return {_texts, _providedStates}
 
 
-QuickElement::_applyOptions = ()->
+export _applyOptions = ()->
 	if ref=(@options.id or @options.ref) then @attr('data-ref', @ref=ref)
 	if @options.id then @el.id = @options.id
 	if @options.className then @el.className = @options.className
@@ -120,11 +127,11 @@ QuickElement::_applyOptions = ()->
 				Object.defineProperty @, method, {configurable:true, get:value.get, set:value.set}
 
 	if @type isnt 'text' and IS.object(@options.text)
-		@append QuickDom('text', text:@options.text)
+		@append quickdom('text', text:@options.text)
 	return
 
 
-QuickElement::_postCreation = (data)->
+export _postCreation = (data)->
 	if @options.computers
 		data = extend.clone(@options.data, data) if data and @options.data
 		data ||= @options.data
@@ -139,7 +146,7 @@ QuickElement::_postCreation = (data)->
 	return
 
 
-QuickElement::_attachStateEvents = (force)->
+export _attachStateEvents = (force)->
 	states = Object.keys(@options.stateTriggers)
 	states.forEach (state)=>
 		trigger = @options.stateTriggers[state]	
@@ -154,7 +161,7 @@ QuickElement::_attachStateEvents = (force)->
 
 
 
-QuickElement::_proxyParent = ()->
+export _proxyParent = ()->
 	parent = undefined
 	Object.defineProperty @, '_parent',
 		get: ()-> parent
@@ -168,7 +175,7 @@ QuickElement::_proxyParent = ()->
 			return
 
 
-QuickElement::_unproxyParent = (newParent)->
+export _unproxyParent = (newParent)->
 	delete @_parent
 	@_parent = newParent
 	@emitPrivate('inserted', newParent)
@@ -187,8 +194,15 @@ CACHED_FN_INSERTED = ()->
 			@_mediaStates[queryString] = MediaQuery.register(@, queryString)
 
 
-
-
+export default (QuickElement)->
+	QuickElement::_normalizeOptions = _normalizeOptions
+	QuickElement::_parseStyles = _parseStyles
+	QuickElement::_parseTexts = _parseTexts
+	QuickElement::_applyOptions = _applyOptions
+	QuickElement::_postCreation = _postCreation
+	QuickElement::_attachStateEvents = _attachStateEvents
+	QuickElement::_proxyParent = _proxyParent
+	QuickElement::_unproxyParent = _unproxyParent
 
 
 

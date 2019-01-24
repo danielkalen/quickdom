@@ -1,6 +1,11 @@
-class QuickBatch
+import IS from './checks'
+import QuickElement from './element'
+import quickdom from './'
+
+
+export default class QuickBatch
 	constructor: (elements, @returnResults)->
-		@elements = elements.map (el)-> QuickDom(el)
+		@elements = elements.map (el)-> quickdom(el)
 
 	reverse: ()->
 		@elements = @elements.reverse()
@@ -29,7 +34,7 @@ Object.keys(QuickElement::).concat('css', 'replaceWith', 'html', 'text').forEach
 		return if @returnResults then results else @
 
 
-QuickDom.batch = (elements, returnResults)->
+quickdom.batch = (elements, returnResults)->
 	if not IS.iterable(elements)
 		throw new Error("Batch: expected an iterable, got #{String(elements)}")
 	else if not elements.length

@@ -1,7 +1,12 @@
-notDeepKeys = ['relatedInstance','related','data']
-notKeys = ['children','_childRefs']
+import QuickTemplate from './'
+import parseTree from './parseTree'
+import {schema, matchesSchema} from './schema'
+import extend from 'smart-extend'
+import IS from '../checks'
+NOT_DEEP_KEYS = ['relatedInstance','related','data']
+NOT_KEYS = ['children','_childRefs']
 
-extendTemplate = (currentOpts, newOpts, globalOpts)->
+export default extendTemplate = (currentOpts, newOpts, globalOpts)->
 	if globalOpts then globalOptsTransform = options: (opts)-> extend(opts, globalOpts)
 	if IS.array(newOpts)
 		newOpts = parseTree(newOpts, false)
@@ -9,7 +14,7 @@ extendTemplate = (currentOpts, newOpts, globalOpts)->
 		newOpts = options:newOpts
 
 
-	output = extend.deep.nullDeletes.notKeys(notKeys).notDeep(notDeepKeys).transform(globalOptsTransform).clone(currentOpts, newOpts)
+	output = extend.deep.nullDeletes.notKeys(NOT_KEYS).notDeep(NOT_DEEP_KEYS).transform(globalOptsTransform).clone(currentOpts, newOpts)
 	currentChildren = currentOpts.children
 	newChildren = newOpts?.children or []
 	output.children = []

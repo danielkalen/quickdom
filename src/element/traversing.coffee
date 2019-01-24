@@ -1,7 +1,11 @@
-QuickElement::parentsUntil = (filter)->
+import quickdom from '../'
+import QuickBatch from '../batch'
+import IS from '../checks'
+
+export parentsUntil = (filter)->
 	_getParents(@, filter)
 
-QuickElement::parentMatching = (filter)->
+export parentMatching = (filter)->
 	if IS.function(filter) or isRef=IS.string(filter)
 		nextParent = @parent
 		while nextParent
@@ -14,10 +18,10 @@ QuickElement::parentMatching = (filter)->
 		
 	return
 
-QuickElement::query = (selector)->
-	QuickDom @raw.querySelector(selector)
+export query = (selector)->
+	quickdom @raw.querySelector(selector)
 
-QuickElement::queryAll = (selector)->
+export queryAll = (selector)->
 	result = @raw.querySelectorAll(selector)
 	output = []; output.push(item) for item in result
 	return new QuickBatch(output)
@@ -28,7 +32,7 @@ Object.defineProperties QuickElement::,
 	'children': get: ()->
 		if @el.childNodes.length isnt @_children.length # Re-collect children	
 			@_children.length = 0 # Empty out children array
-			@_children.push(QuickDom(child)) for child in @el.childNodes when child.nodeType < 4
+			@_children.push(quickdom(child)) for child in @el.childNodes when child.nodeType < 4
 
 		return @_children
 
@@ -37,7 +41,7 @@ Object.defineProperties QuickElement::,
 
 	'parent': get: ()->
 		if (not @_parent or @_parent.el isnt @el.parentNode) and not IS.domDoc(@el.parentNode)
-			@_parent = QuickDom(@el.parentNode)
+			@_parent = quickdom(@el.parentNode)
 
 		return @_parent
 
@@ -46,17 +50,17 @@ Object.defineProperties QuickElement::,
 		_getParents(@)
 
 	'next': get: ()->
-		QuickDom(@el.nextSibling)
+		quickdom(@el.nextSibling)
 	
 	'nextEl': get: ()->
-		QuickDom(@el.nextElementSibling)
+		quickdom(@el.nextElementSibling)
 	
 	'nextElAll': get: ()->
 		_filterElements(@nextAll)
 
 	'nextAll': get: ()->
 		siblings = []
-		nextSibling = QuickDom(@el.nextSibling)
+		nextSibling = quickdom(@el.nextSibling)
 		while nextSibling
 			siblings.push(nextSibling)
 			nextSibling = nextSibling.next
@@ -64,17 +68,17 @@ Object.defineProperties QuickElement::,
 		return siblings
 
 	'prev': get: ()->
-		QuickDom(@el.previousSibling)
+		quickdom(@el.previousSibling)
 	
 	'prevEl': get: ()->
-		QuickDom(@el.previousElementSibling)
+		quickdom(@el.previousElementSibling)
 	
 	'prevElAll': get: ()->
 		_filterElements(@prevAll)
 
 	'prevAll': get: ()->
 		siblings = []
-		prevSibling = QuickDom(@el.previousSibling)
+		prevSibling = quickdom(@el.previousSibling)
 		while prevSibling
 			siblings.push(prevSibling)
 			prevSibling = prevSibling.prev
@@ -114,7 +118,7 @@ Object.defineProperties QuickElement::,
 
 
 
-_getParents = (targetEl, filter)->
+export _getParents = (targetEl, filter)->
 	filter = undefined if not IS.function(filter) and not isRef=IS.string(filter)
 	parents = []
 	nextParent = targetEl.parent
@@ -129,7 +133,7 @@ _getParents = (targetEl, filter)->
 	return parents
 
 
-_getChildRefs = (target, freshCopy)->
+export _getChildRefs = (target, freshCopy)->
 	target._childRefs = {} if freshCopy or not target._childRefs
 	refs = target._childRefs
 	refs[target.ref] = target if target.ref
@@ -143,7 +147,7 @@ _getChildRefs = (target, freshCopy)->
 	return refs
 
 
-_getIndexByProp = (main, prop)->
+export _getIndexByProp = (main, prop)->
 	if not parent=main.parent
 		return null
 	else
@@ -152,7 +156,7 @@ _getIndexByProp = (main, prop)->
 			.indexOf(main)
 
 
-_filterElements = (array)->
+export _filterElements = (array)->
 	if not array.length
 		return array
 	else
@@ -160,5 +164,14 @@ _filterElements = (array)->
 		output.push(item) for item in array when item.type isnt 'text'
 		return output
 
+export default (QuickElement)->
+	QuickElement::parentsUntil = parentsUntil
+	QuickElement::parentMatching = parentMatching
+	QuickElement::query = query
+	QuickElement::queryAll = queryAll
 
+quickdom.query = (target)->
+	quickdom(document).query(target)
 
+quickdom.queryAll = (target)->
+	quickdom(document).queryAll(target)

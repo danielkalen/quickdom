@@ -1,4 +1,6 @@
-QuickElement::attr = (target, newValue)->
+import IS from '../checks'
+
+export attr = (target, newValue)->
 	if arguments.length is 1
 		if typeof target is 'string'
 			return @el.getAttribute(target)
@@ -17,7 +19,7 @@ QuickElement::attr = (target, newValue)->
 
 
 
-QuickElement::prop = (target, newValue)->
+export prop = (target, newValue)->
 	if arguments.length is 1
 		if typeof target is 'string'
 			return @el[target]
@@ -30,3 +32,7 @@ QuickElement::prop = (target, newValue)->
 		@el[target] = newValue
 		
 	return @
+
+export default (QuickElement)->
+	QuickElement::attr = attr
+	QuickElement::prop = prop

@@ -1,4 +1,7 @@
-QuickElement::updateOptions = (options)->
+import IS from '../checks'
+import extend from 'smart-extend'
+
+export updateOptions = (options)->
 	if IS.object(options) 
 		@options = options
 		@_normalizeOptions()
@@ -7,7 +10,7 @@ QuickElement::updateOptions = (options)->
 	return @
 
 
-QuickElement::updateStateStyles = (styles)->
+export updateStateStyles = (styles)->
 	if IS.objectPlain(styles)
 		extend.deep.concat @, parsed = @_parseStyles(styles)
 
@@ -20,7 +23,7 @@ QuickElement::updateStateStyles = (styles)->
 	return @
 
 
-QuickElement::updateStateTexts = (texts)->
+export updateStateTexts = (texts)->
 	if IS.objectPlain(texts)
 		extend.deep.concat @, parsed = @_parseTexts(texts)
 	
@@ -28,7 +31,7 @@ QuickElement::updateStateTexts = (texts)->
 
 
 
-QuickElement::applyData = (data, passThrough)->
+export applyData = (data, passThrough)->
 	if @options.passDataToChildren and @_children.length and (passThrough ?= true)
 		child.applyData(data) for child in @_children
 
@@ -50,11 +53,15 @@ QuickElement::applyData = (data, passThrough)->
 	return @
 
 
-QuickElement::_runComputer = (computer, arg, data)->
+export _runComputer = (computer, arg, data)->
 	@options.computers[computer].call(@, arg, data)
 
-
-
+export default (QuickElement)->
+	QuickElement::updateOptions = updateOptions
+	QuickElement::updateStateStyles = updateStateStyles
+	QuickElement::updateStateTexts = updateStateTexts
+	QuickElement::applyData = applyData
+	QuickElement::_runComputer = _runComputer
 
 
 

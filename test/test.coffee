@@ -1,11 +1,12 @@
-@dimensions = import './simulate.coffee'
-@Dom = @DOM = window.quickdom
+import {version as packageVersion} from '../package'
+window.dimensions = require './simulate.coffee'
+window.Dom = window.DOM = window.quickdom
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
 mocha.bail() unless window.location.hostname
-chai = import 'chai'
-chai.use import 'chai-style'
+chai = require 'chai'
+chai.use require 'chai-style'
 chai.config.truncateThreshold = 1e3
 {expect} = chai
 
@@ -30,7 +31,6 @@ suite "QuickDom", ()->
 	setup(restartSandbox)
 
 	test "Version Property", ()->
-		packageVersion = (import '../package $ version')
 		expect(Dom.version).to.equal(packageVersion)
 
 

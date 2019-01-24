@@ -1,11 +1,11 @@
-schema = 
+export schema = 
 	type: 'div'
 	ref: undefined
 	options: {}
 	children: []
 
 
-matchesSchema = (object)->
+export matchesSchema = (object)->
 	typeof object.type isnt 'undefined' or
 	typeof object.ref isnt 'undefined' or
 	typeof object.options isnt 'undefined' or

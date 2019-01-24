@@ -1,25 +1,27 @@
-helpers = {}
+import quickdom from './'
+import CSS from 'quickcss'
+import IS from './checks'
 
-helpers.includes = (target, item)->
+export includes = (target, item)->
 	target and target.indexOf(item) isnt -1
 
-helpers.removeItem = (target, item)->
+export removeItem = (target, item)->
 	itemIndex = target.indexOf(item)
 	target.splice(itemIndex, 1)  if itemIndex isnt -1
 	return target
 
-helpers.normalizeGivenEl = (targetEl)-> switch
-	when IS.string(targetEl) then QuickDom.text(targetEl)
-	when IS.domNode(targetEl) then QuickDom(targetEl)
+export normalizeElementArg = (targetEl)-> switch
+	when IS.string(targetEl) then quickdom.text(targetEl)
+	when IS.domNode(targetEl) then quickdom(targetEl)
 	when IS.template(targetEl) then targetEl.spawn()
 	else targetEl
 
 
-helpers.isStateStyle = (string)->
+export isStateStyle = (string)->
 	string[0] is '$' or string[0] is '@'
 
 
-helpers.registerStyle = (rule, level, important)->
+export registerStyle = (rule, level, important)->
 	level ||= 0
 	cached = styleCache.get(rule, level)
 	return cached if cached
@@ -32,7 +34,7 @@ helpers.registerStyle = (rule, level, important)->
 	return styleCache.set(rule, output, level)
 
 
-styleCache = new class
+export styleCache = new class
 	constructor: ()->
 		@keys = Object.create(null)
 		@values = Object.create(null)

@@ -1,4 +1,4 @@
-module.exports = class StateChain
+export default class StateChain
 	constructor: (states)->
 		@string = states.join('+')
 		@array = states.slice()
