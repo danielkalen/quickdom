@@ -16,7 +16,7 @@ config = ({input, output, minify})->
 		)
 		require('rollup-plugin-commonjs')(extensions: ['.js', '.coffee'])
 		require('rollup-plugin-json')()
-		# require('rollup-plugin-babel')(extensions: ['.js', '.coffee'])
+		require('rollup-plugin-babel')(extensions: ['.js', '.coffee'])
 		if minify
 			require('rollup-plugin-terser').terser()
 	]

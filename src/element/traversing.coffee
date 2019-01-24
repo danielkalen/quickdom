@@ -1,5 +1,4 @@
-import quickdom from '../'
-import QuickBatch from '../batch'
+import quickdom from '../quickdom'
 import IS from '../checks'
 
 export parentsUntil = (filter)->
@@ -24,97 +23,8 @@ export query = (selector)->
 export queryAll = (selector)->
 	result = @raw.querySelectorAll(selector)
 	output = []; output.push(item) for item in result
-	return new QuickBatch(output)
+	return quickdom.batch(output)
 
-
-
-Object.defineProperties QuickElement::,
-	'children': get: ()->
-		if @el.childNodes.length isnt @_children.length # Re-collect children	
-			@_children.length = 0 # Empty out children array
-			@_children.push(quickdom(child)) for child in @el.childNodes when child.nodeType < 4
-
-		return @_children
-
-	'elementChildren': get: ()->
-		_filterElements(@children)
-
-	'parent': get: ()->
-		if (not @_parent or @_parent.el isnt @el.parentNode) and not IS.domDoc(@el.parentNode)
-			@_parent = quickdom(@el.parentNode)
-
-		return @_parent
-
-
-	'parents': get: ()->
-		_getParents(@)
-
-	'next': get: ()->
-		quickdom(@el.nextSibling)
-	
-	'nextEl': get: ()->
-		quickdom(@el.nextElementSibling)
-	
-	'nextElAll': get: ()->
-		_filterElements(@nextAll)
-
-	'nextAll': get: ()->
-		siblings = []
-		nextSibling = quickdom(@el.nextSibling)
-		while nextSibling
-			siblings.push(nextSibling)
-			nextSibling = nextSibling.next
-
-		return siblings
-
-	'prev': get: ()->
-		quickdom(@el.previousSibling)
-	
-	'prevEl': get: ()->
-		quickdom(@el.previousElementSibling)
-	
-	'prevElAll': get: ()->
-		_filterElements(@prevAll)
-
-	'prevAll': get: ()->
-		siblings = []
-		prevSibling = quickdom(@el.previousSibling)
-		while prevSibling
-			siblings.push(prevSibling)
-			prevSibling = prevSibling.prev
-
-		return siblings
-
-	'siblings': get: ()->
-		@prevAll.reverse().concat(@nextAll)
-
-	'elementSiblings': get: ()->
-		_filterElements(@siblings)
-	
-	'child': get: ()->
-		@_childRefs or _getChildRefs(@)
-
-	'childf': get: ()->
-		_getChildRefs(@, true)
-
-	'firstChild': get: ()->
-		@children[0]
-
-	'lastChild': get: ()->
-		children = @children
-		children[children.length-1]
-
-	'index': get: ()->
-		if not parent=@parent
-			return null
-		else
-			parent.children.indexOf(@)
-
-	'indexType': get: ()->
-		_getIndexByProp(@, 'type')
-
-	'indexRef': get: ()->
-		_getIndexByProp(@, 'ref')
 
 
 
@@ -169,6 +79,96 @@ export default (QuickElement)->
 	QuickElement::parentMatching = parentMatching
 	QuickElement::query = query
 	QuickElement::queryAll = queryAll
+	
+	Object.defineProperties QuickElement::,
+		'children': get: ()->
+			if @el.childNodes.length isnt @_children.length # Re-collect children	
+				@_children.length = 0 # Empty out children array
+				@_children.push(quickdom(child)) for child in @el.childNodes when child.nodeType < 4
+
+			return @_children
+
+		'elementChildren': get: ()->
+			_filterElements(@children)
+
+		'parent': get: ()->
+			if (not @_parent or @_parent.el isnt @el.parentNode) and not IS.domDoc(@el.parentNode)
+				@_parent = quickdom(@el.parentNode)
+
+			return @_parent
+
+
+		'parents': get: ()->
+			_getParents(@)
+
+		'next': get: ()->
+			quickdom(@el.nextSibling)
+		
+		'nextEl': get: ()->
+			quickdom(@el.nextElementSibling)
+		
+		'nextElAll': get: ()->
+			_filterElements(@nextAll)
+
+		'nextAll': get: ()->
+			siblings = []
+			nextSibling = quickdom(@el.nextSibling)
+			while nextSibling
+				siblings.push(nextSibling)
+				nextSibling = nextSibling.next
+
+			return siblings
+
+		'prev': get: ()->
+			quickdom(@el.previousSibling)
+		
+		'prevEl': get: ()->
+			quickdom(@el.previousElementSibling)
+		
+		'prevElAll': get: ()->
+			_filterElements(@prevAll)
+
+		'prevAll': get: ()->
+			siblings = []
+			prevSibling = quickdom(@el.previousSibling)
+			while prevSibling
+				siblings.push(prevSibling)
+				prevSibling = prevSibling.prev
+
+			return siblings
+
+		'siblings': get: ()->
+			@prevAll.reverse().concat(@nextAll)
+
+		'elementSiblings': get: ()->
+			_filterElements(@siblings)
+		
+		'child': get: ()->
+			@_childRefs or _getChildRefs(@)
+
+		'childf': get: ()->
+			_getChildRefs(@, true)
+
+		'firstChild': get: ()->
+			@children[0]
+
+		'lastChild': get: ()->
+			children = @children
+			children[children.length-1]
+
+		'index': get: ()->
+			if not parent=@parent
+				return null
+			else
+				parent.children.indexOf(@)
+
+		'indexType': get: ()->
+			_getIndexByProp(@, 'type')
+
+		'indexRef': get: ()->
+			_getIndexByProp(@, 'ref')
+
+
 
 quickdom.query = (target)->
 	quickdom(document).query(target)

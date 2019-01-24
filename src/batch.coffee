@@ -1,6 +1,6 @@
 import IS from './checks'
 import QuickElement from './element'
-import quickdom from './'
+import quickdom from './quickdom'
 
 
 export default class QuickBatch
@@ -37,8 +37,6 @@ Object.keys(QuickElement::).concat('css', 'replaceWith', 'html', 'text').forEach
 quickdom.batch = (elements, returnResults)->
 	if not IS.iterable(elements)
 		throw new Error("Batch: expected an iterable, got #{String(elements)}")
-	else if not elements.length
-		throw new Error("Batch: expected a non-empty element collection")
 
 	return new QuickBatch(elements, returnResults)
 

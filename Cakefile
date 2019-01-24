@@ -49,26 +49,10 @@ task 'watch', ()->
 
 
 task 'watch:js', (options)->
-	debug = if options.debug then '.debug' else ''
-	require('simplywatch')
-		globs: "src/*.coffee"
-		bufferTimeout: 1
-		haltSerial: true
-		command: (file, params)->
-			Promise.resolve()
-				.then ()-> {src:"src/index.coffee", dest:"build/quickdom#{debug}.js"}
-				.then (file)-> compileJS(file, debug:options.debug, sourceMap:false, umd:'quickdom', target:'browser')
-
+	require('rollup').watch(require './.config/rollup.lib')
 
 task 'watch:test', (options)->
-	require('simplywatch')
-		globs: "test/*.coffee"
-		bufferTimeout: 1
-		haltSerial: true
-		command: (file, params)->
-			Promise.resolve()
-				.then ()-> {src:"test/test.coffee", dest:"test/test.js"}
-				.then (file)-> compileJS(file, noPkgConfig:true, debug:true, usePaths:true)
+	require('rollup').watch(require './.config/rollup.test')
 
 
 

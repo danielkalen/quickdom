@@ -1,5 +1,5 @@
 import IS from '../checks'
-import {includes, normalizeElementArg as normalizeElement} from '../helpers'
+import {includes, removeItem, normalizeElementArg as normalizeElement} from '../helpers'
 DUMMY_ARRAY = []
 
 

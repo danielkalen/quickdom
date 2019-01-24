@@ -1,5 +1,5 @@
 import extend from 'smart-extend'
-import quickdom from '../'
+import quickdom from '../quickdom'
 import IS from '../checks'
 import extendTemplate from './extendTemplate'
 import parseTree from './parseTree'

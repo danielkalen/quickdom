@@ -1,5 +1,5 @@
 import {includes} from './helpers'
-import quickdom from './'
+import quickdom from './quickdom'
 
 SHORTCUTS = [
 	'link:a'

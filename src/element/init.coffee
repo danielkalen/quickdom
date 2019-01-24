@@ -1,4 +1,4 @@
-import quickdom from '../'
+import quickdom from '../quickdom'
 import MediaQuery from '../mediaQuery'
 import StateChain from './stateChain'
 import IS from '../checks'

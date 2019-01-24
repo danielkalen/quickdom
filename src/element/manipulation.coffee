@@ -1,5 +1,4 @@
-import quickdom from '../'
-import QuickElement from './'
+import quickdom from '../quickdom'
 import IS from '../checks'
 import {includes, normalizeElementArg as normalizeElement} from '../helpers'
 import extend from 'smart-extend'
@@ -12,7 +11,7 @@ export clone = ()->
 	elClone = @el.cloneNode(false)
 	options = extend.clone(@options, {existing:elClone})
 	
-	newEl = new QuickElement(@type, options)
+	newEl = new @constructor(@type, options)
 	newEl.state(activeState, on) for activeState in @_state
 	newEl.append(child.clone()) for child in @children
 	for eventName, callbacks of @_eventCallbacks
