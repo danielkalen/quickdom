@@ -1,4 +1,4 @@
-(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?module.exports=f():typeof define==='function'&&define.amd?define(f):(g=g||self,g.quickdom=f());}(this,function(){'use strict';function _typeof(obj) {
+(function(g,f){typeof exports==='object'&&typeof module!=='undefined'?module.exports=f(require('quickcss'),require('smart-extend'),require('@danielkalen/is')):typeof define==='function'&&define.amd?define(['quickcss','smart-extend','@danielkalen/is'],f):(g=g||self,g.quickdom=f(g.CSS,g.extend,g.IS_));}(this,function(CSS, extend, IS_){'use strict';CSS=CSS&&CSS.hasOwnProperty('default')?CSS['default']:CSS;extend=extend&&extend.hasOwnProperty('default')?extend['default']:extend;IS_=IS_&&IS_.hasOwnProperty('default')?IS_['default']:IS_;function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function (obj) {
       return typeof obj;
@@ -10,305 +10,6 @@
   }
 
   return _typeof(obj);
-}
-
-var REGEX_LEN_VAL = /^\d+(?:[a-z]|\%)+$/i;
-var REGEX_DIGITS = /\d+$/;
-var REGEX_SPACE = /\s/;
-var REGEX_KEBAB = /([A-Z])+/g;
-var IMPORTANT = 'important';
-var POSSIBLE_PREFIXES = ['webkit', 'moz', 'ms', 'o'];
-var REQUIRES_UNIT_VALUE = ['background-position-x', 'background-position-y', 'block-size', 'border-width', 'columnRule-width', 'cx', 'cy', 'font-size', 'grid-column-gap', 'grid-row-gap', 'height', 'inline-size', 'line-height', 'minBlock-size', 'min-height', 'min-inline-size', 'min-width', 'max-height', 'max-width', 'outline-offset', 'outline-width', 'perspective', 'shape-margin', 'stroke-dashoffset', 'stroke-width', 'text-indent', 'width', 'word-spacing', 'top', 'bottom', 'left', 'right', 'x', 'y'];
-var QUAD_SHORTHANDS = ['margin', 'padding', 'border', 'border-radius'];
-var DIRECTIONS = ['top', 'bottom', 'left', 'right'];
-QUAD_SHORTHANDS.forEach(function (property) {
-  var direction, i, len;
-  REQUIRES_UNIT_VALUE.push(property);
-
-  for (i = 0, len = DIRECTIONS.length; i < len; i++) {
-    direction = DIRECTIONS[i];
-    REQUIRES_UNIT_VALUE.push(property + '-' + direction);
-  }
-});
-var SAMPLE_STYLE, styleConfig;
-SAMPLE_STYLE = document.createElement('div').style;
-
-var includes = function includes(target, item) {
-  return target && target.indexOf(item) !== -1;
-};
-
-var isIterable = function isIterable(target) {
-  return target && _typeof(target) === 'object' && typeof target.length === 'number' && !target.nodeType;
-};
-
-var toKebabCase = function toKebabCase(string) {
-  return string.replace(REGEX_KEBAB, function (e, letter) {
-    return "-".concat(letter.toLowerCase());
-  });
-};
-
-var isPropSupported = function isPropSupported(property) {
-  return typeof SAMPLE_STYLE[property] !== 'undefined';
-};
-
-var isValueSupported = function isValueSupported(property, value) {
-  if (window.CSS && window.CSS.supports) {
-    return window.CSS.supports(property, value);
-  } else {
-    SAMPLE_STYLE[property] = value;
-    return SAMPLE_STYLE[property] === '' + value;
-  }
-};
-
-var getPrefix = function getPrefix(property, skipInitialCheck) {
-  var j, len1, prefix;
-
-  if (skipInitialCheck || !isPropSupported(property)) {
-    for (j = 0, len1 = POSSIBLE_PREFIXES.length; j < len1; j++) {
-      prefix = POSSIBLE_PREFIXES[j];
-
-      if (isPropSupported("-".concat(prefix, "-").concat(property))) {
-        /* istanbul ignore next */
-        return "-".concat(prefix, "-");
-      }
-    }
-  }
-
-  return '';
-};
-
-var normalizeProperty = function normalizeProperty(property) {
-  property = toKebabCase(property);
-
-  if (isPropSupported(property)) {
-    return property;
-  } else {
-    return "".concat(getPrefix(property, true)).concat(property);
-  }
-};
-
-var normalizeValue = function normalizeValue(property, value) {
-  if (includes(REQUIRES_UNIT_VALUE, property) && value !== null) {
-    value = '' + value;
-
-    if (REGEX_DIGITS.test(value) && !REGEX_LEN_VAL.test(value) && !REGEX_SPACE.test(value)) {
-      value += property === 'line-height' ? 'em' : 'px';
-    }
-  }
-
-  return value;
-};
-
-var sort = function sort(array) {
-  var great, i, len, less, pivot;
-
-  if (array.length < 2) {
-    return array;
-  } else {
-    pivot = array[0];
-    less = [];
-    great = [];
-    len = array.length;
-    i = 0;
-
-    while (++i !== len) {
-      if (array[i] <= pivot) {
-        less.push(array[i]);
-      } else {
-        great.push(array[i]);
-      }
-    }
-
-    return sort(less).concat(pivot, sort(great));
-  }
-};
-
-var hash = function hash(string) {
-  var hsh, i, length;
-  hsh = 5381;
-  i = -1;
-  length = string.length;
-
-  while (++i !== string.length) {
-    hsh = (hsh << 5) - hsh + string.charCodeAt(i);
-    hsh |= 0;
-  }
-
-  return '_' + (hsh < 0 ? hsh * -2 : hsh);
-};
-
-var ruleToString = function ruleToString(rule, important) {
-  var j, len1, output, prop, property, props, value;
-  output = '';
-  props = sort(Object.keys(rule));
-
-  for (j = 0, len1 = props.length; j < len1; j++) {
-    prop = props[j];
-
-    if (typeof rule[prop] === 'string' || typeof rule[prop] === 'number') {
-      property = normalizeProperty(prop);
-      value = normalizeValue(property, rule[prop]);
-
-      if (important) {
-        value += " !important";
-      }
-
-      output += "".concat(property, ":").concat(value, ";");
-    }
-  }
-
-  return output;
-};
-
-var inlineStyleConfig = styleConfig = Object.create(null);
-
-var inlineStyle = function inlineStyle(rule, valueToStore, level) {
-  var config, styleEl;
-
-  if (!(config = styleConfig[level])) {
-    styleEl = document.createElement('style');
-    styleEl.id = "quickcss".concat(level || '');
-    document.head.appendChild(styleEl);
-    styleConfig[level] = config = {
-      el: styleEl,
-      content: '',
-      cache: Object.create(null)
-    };
-  }
-
-  if (!config.cache[rule]) {
-    config.cache[rule] = valueToStore || true;
-    config.el.textContent = config.content += rule;
-  }
-};
-
-var clearInlineStyle = function clearInlineStyle(level) {
-  var config, j, key, keys, len1;
-
-  if (config = styleConfig[level]) {
-    if (!config.content) {
-      return;
-    }
-
-    config.el.textContent = config.content = '';
-    keys = Object.keys(config.cache);
-
-    for (j = 0, len1 = keys.length; j < len1; j++) {
-      key = keys[j];
-      config.cache[key] = null;
-    }
-  }
-};
-
-var version = "1.4.2";
-
-var _quickcss;
-
-var index = _quickcss = function quickcss(targetEl, property, value, important) {
-  var computedStyle, i, len, subEl, subProperty, subValue;
-
-  switch (false) {
-    case !isIterable(targetEl):
-      for (i = 0, len = targetEl.length; i < len; i++) {
-        subEl = targetEl[i];
-
-        _quickcss(subEl, property, value);
-      }
-
-      break;
-
-    case _typeof(property) !== 'object':
-      // Passed a style map
-      for (subProperty in property) {
-        subValue = property[subProperty];
-
-        _quickcss(targetEl, subProperty, subValue);
-      }
-
-      break;
-
-    default:
-      property = normalizeProperty(property);
-
-      if (typeof value === 'undefined') {
-        computedStyle = targetEl._computedStyle || (targetEl._computedStyle = getComputedStyle(targetEl));
-        return computedStyle[property];
-      } else if (property) {
-        targetEl.style.setProperty(property, normalizeValue(property, value), important ? IMPORTANT : void 0);
-      }
-
-  }
-};
-
-_quickcss.animation = function (name$$1, frames) {
-  var frame, generated, prefix, rules;
-
-  if (name$$1 && typeof name$$1 === 'string' && frames && _typeof(frames) === 'object') {
-    prefix = getPrefix('animation');
-    generated = '';
-
-    for (frame in frames) {
-      rules = frames[frame];
-      generated += "".concat(frame, " {").concat(ruleToString(rules), "}");
-    }
-
-    generated = "@".concat(prefix, "keyframes ").concat(name$$1, " {").concat(generated, "}");
-    return inlineStyle(generated, true, 0);
-  }
-};
-
-_quickcss.register = function (rule, level, important) {
-  var className, ref, style;
-
-  if (rule && _typeof(rule) === 'object') {
-    level || (level = 0);
-    rule = ruleToString(rule, important);
-
-    if (!(className = (ref = inlineStyleConfig[level]) != null ? ref[rule] : void 0)) {
-      className = hash(rule);
-      style = ".".concat(className, " {").concat(rule, "}");
-      inlineStyle(style, className, level);
-    }
-
-    return className;
-  }
-};
-
-_quickcss.clearRegistered = function (level) {
-  return clearInlineStyle(level || 0);
-};
-/* istanbul ignore next */
-
-
-_quickcss.UNSET = function () {
-  switch (false) {
-    case !isValueSupported('display', 'unset'):
-      return 'unset';
-
-    case !isValueSupported('display', 'initial'):
-      return 'initial';
-
-    case !isValueSupported('display', 'inherit'):
-      return 'inherit';
-  }
-}();
-
-_quickcss.supports = isValueSupported;
-_quickcss.supportsProperty = isPropSupported;
-_quickcss.normalizeProperty = normalizeProperty;
-_quickcss.normalizeValue = normalizeValue;
-_quickcss.version = version;function _typeof$1(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof$1 = function (obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof$1 = function (obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof$1(obj);
 }
 
 function _classCallCheck(instance, Constructor) {
@@ -351,489 +52,12 @@ function _iterableToArray(iter) {
 
 function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
-}function _typeof$2(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof$2 = function (obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof$2 = function (obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof$2(obj);
-}
-
-var _extend, isArray, isObject, _shouldDeepExtend;
-
-isArray = function isArray(target) {
-  return Array.isArray(target);
-};
-
-isObject = function isObject(target) {
-  return target && Object.prototype.toString.call(target) === '[object Object]' || isArray(target);
-};
-
-_shouldDeepExtend = function shouldDeepExtend(options, target, parentKey) {
-  if (options.deep) {
-    if (options.notDeep) {
-      return !options.notDeep[target];
-    } else {
-      return true;
-    }
-  } else if (options.deepOnly) {
-    return options.deepOnly[target] || parentKey && _shouldDeepExtend(options, parentKey);
-  }
-}; // else false
-
-
-var extend = _extend = function extend(options, target, sources, parentKey) {
-  var i, key, len, source, sourceValue, subTarget, targetValue;
-
-  if (!target || _typeof$2(target) !== 'object' && typeof target !== 'function') {
-    target = {};
-  }
-
-  for (i = 0, len = sources.length; i < len; i++) {
-    source = sources[i];
-
-    if (source != null) {
-      for (key in source) {
-        sourceValue = source[key];
-        targetValue = target[key];
-
-        if (sourceValue === target || sourceValue === void 0 || sourceValue === null && !options.allowNull && !options.nullDeletes || options.keys && !options.keys[key] || options.notKeys && options.notKeys[key] || options.own && !source.hasOwnProperty(key) || options.globalFilter && !options.globalFilter(sourceValue, key, source) || options.filters && options.filters[key] && !options.filters[key](sourceValue, key, source)) {
-          continue;
-        }
-
-        if (sourceValue === null && options.nullDeletes) {
-          delete target[key];
-          continue;
-        }
-
-        if (options.globalTransform) {
-          sourceValue = options.globalTransform(sourceValue, key, source);
-        }
-
-        if (options.transforms && options.transforms[key]) {
-          sourceValue = options.transforms[key](sourceValue, key, source);
-        }
-
-        switch (false) {
-          case !(options.concat && isArray(sourceValue) && isArray(targetValue)):
-            target[key] = targetValue.concat(sourceValue);
-            break;
-
-          case !(_shouldDeepExtend(options, key, parentKey) && isObject(sourceValue)):
-            subTarget = isObject(targetValue) ? targetValue : isArray(sourceValue) ? [] : {};
-            target[key] = _extend(options, subTarget, [sourceValue], key);
-            break;
-
-          default:
-            target[key] = sourceValue;
-        }
-      }
-    }
-  }
-
-  return target;
-};
-
-var version$1 = "1.7.4";
-var modifiers, newBuilder, normalizeKeys, primaryBuilder;
-
-normalizeKeys = function normalizeKeys(keys) {
-  var i, key, len, output;
-
-  if (keys) {
-    output = {};
-
-    if (_typeof$2(keys) !== 'object') {
-      output[keys] = true;
-    } else {
-      if (!Array.isArray(keys)) {
-        keys = Object.keys(keys);
-      }
-
-      for (i = 0, len = keys.length; i < len; i++) {
-        key = keys[i];
-        output[key] = true;
-      }
-    }
-
-    return output;
-  }
-};
-
-newBuilder = function newBuilder(isBase) {
-  var _builder;
-
-  _builder = function builder(target) {
-    var theTarget;
-    var $_len = arguments.length,
-        $_i = -1,
-        sources = new Array($_len);
-
-    while (++$_i < $_len) sources[$_i] = arguments[$_i];
-
-    if (_builder.options.target) {
-      theTarget = _builder.options.target;
-    } else {
-      theTarget = target;
-      sources.shift();
-    }
-
-    return extend(_builder.options, theTarget, sources);
-  };
-
-  if (isBase) {
-    _builder.isBase = true;
-  }
-
-  _builder.options = {};
-  Object.defineProperties(_builder, modifiers);
-  return _builder;
-};
-
-modifiers = {
-  'deep': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      _.options.deep = true;
-      return _;
-    }
-  },
-  'own': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      _.options.own = true;
-      return _;
-    }
-  },
-  'allowNull': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      _.options.allowNull = true;
-      return _;
-    }
-  },
-  'nullDeletes': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      _.options.nullDeletes = true;
-      return _;
-    }
-  },
-  'concat': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      _.options.concat = true;
-      return _;
-    }
-  },
-  'clone': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      _.options.target = {};
-      return _;
-    }
-  },
-  'notDeep': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      return function (keys) {
-        _.options.notDeep = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'deepOnly': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      return function (keys) {
-        _.options.deepOnly = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'keys': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      return function (keys) {
-        _.options.keys = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'notKeys': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      return function (keys) {
-        _.options.notKeys = normalizeKeys(keys);
-        return _;
-      };
-    }
-  },
-  'transform': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      return function (transform) {
-        if (typeof transform === 'function') {
-          _.options.globalTransform = transform;
-        } else if (transform && _typeof$2(transform) === 'object') {
-          _.options.transforms = transform;
-        }
-
-        return _;
-      };
-    }
-  },
-  'filter': {
-    get: function get() {
-      var _;
-
-      _ = this.isBase ? newBuilder() : this;
-      return function (filter) {
-        if (typeof filter === 'function') {
-          _.options.globalFilter = filter;
-        } else if (filter && _typeof$2(filter) === 'object') {
-          _.options.filters = filter;
-        }
-
-        return _;
-      };
-    }
-  }
-};
-primaryBuilder = newBuilder(true);
-primaryBuilder.version = version$1;
-var primaryBuilder$1 = primaryBuilder;var template = ['id', 'name', 'type', 'href', 'selected', 'checked', 'className']; // To copy from DOM Elements
+}var template = ['id', 'name', 'type', 'href', 'selected', 'checked', 'className']; // To copy from DOM Elements
 
 var element = ['id', 'ref', 'type', 'name', 'text', 'style', 'class', 'className', 'url', 'href', 'selected', 'checked', 'props', 'attrs', 'passStateToChildren', 'stateTriggers', 'unpassableStates']; // Used in QuickElement::toJSON
 // 'relatedInstance'
-function _typeof$3(obj) {
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof$3 = function (obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof$3 = function (obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof$3(obj);
-}
-
-function _classCallCheck$1(instance, Constructor) {
-  if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
-  }
-}
-
-function _defineProperties$1(target, props) {
-  for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
-  }
-}
-
-function _createClass$1(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties$1(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties$1(Constructor, staticProps);
-  return Constructor;
-}
-
-var defined = function defined(subject) {
-  return subject !== void 0;
-};
-
-var array = function array(subject) {
-  return subject instanceof Array;
-};
-
-var object = function object(subject) {
-  return _typeof$3(subject) === 'object' && subject; // 2nd check is to test against 'null' values
-};
-
-var objectPlain = function objectPlain(subject) {
-  return object(subject) && Object.prototype.toString.call(subject) === '[object Object]' && subject.constructor === Object;
-};
-
-var string = function string(subject) {
-  return typeof subject === 'string';
-};
-
-var number = function number(subject) {
-  return typeof subject === 'number' && !isNaN(subject);
-};
-
-var numberLoose = function numberLoose(subject) {
-  return number(subject) || string(subject) && number(Number(subject));
-};
-
-var iterable = function iterable(subject) {
-  return object(subject) && number(subject.length);
-};
-
-var function_ = function function_(subject) {
-  return typeof subject === 'function';
-};
-
-var natives =
-/*#__PURE__*/
-Object.freeze({
-  defined: defined,
-  array: array,
-  object: object,
-  objectPlain: objectPlain,
-  string: string,
-  number: number,
-  numberLoose: numberLoose,
-  iterable: iterable,
-  function_: function_
-});
-
-var domDoc = function domDoc(subject) {
-  return subject && subject.nodeType === 9;
-};
-
-var domEl = function domEl(subject) {
-  return subject && subject.nodeType === 1;
-};
-
-var domText = function domText(subject) {
-  return subject && subject.nodeType === 3;
-};
-
-var domNode = function domNode(subject) {
-  return domEl(subject) || domText(subject);
-};
-
-var domTextarea = function domTextarea(subject) {
-  return subject && subject.nodeName === 'TEXTAREA';
-};
-
-var domInput = function domInput(subject) {
-  return subject && subject.nodeName === 'INPUT';
-};
-
-var domSelect = function domSelect(subject) {
-  return subject && subject.nodeName === 'SELECT';
-};
-
-var domField = function domField(subject) {
-  return domInput(subject) || domTextarea(subject) || domSelect(subject);
-};
-
-var dom =
-/*#__PURE__*/
-Object.freeze({
-  domDoc: domDoc,
-  domEl: domEl,
-  domText: domText,
-  domNode: domNode,
-  domTextarea: domTextarea,
-  domInput: domInput,
-  domSelect: domSelect,
-  domField: domField
-});
-var AVAIL_SETS, Checks;
-AVAIL_SETS = {
-  natives: natives,
-  dom: dom
-};
-
-Checks =
-/*#__PURE__*/
-function () {
-  _createClass$1(Checks, [{
-    key: "create",
-    value: function create() {
-      var args;
-
-      if (arguments.length) {
-        args = Array.prototype.slice.call(arguments);
-      }
-
-      return new Checks(args);
-    }
-  }]);
-
-  function Checks(sets) {
-    _classCallCheck$1(this, Checks);
-
-    var i, len, set;
-
-    if (sets == null) {
-      sets = ['natives'];
-    }
-
-    for (i = 0, len = sets.length; i < len; i++) {
-      set = sets[i];
-
-      if (AVAIL_SETS[set]) {
-        this.load(AVAIL_SETS[set]);
-      }
-    }
-  }
-
-  _createClass$1(Checks, [{
-    key: "load",
-    value: function load(set) {
-      var key, value;
-
-      if (AVAIL_SETS.natives.string(set)) {
-        set = AVAIL_SETS[set];
-      }
-
-      if (!AVAIL_SETS.natives.objectPlain(set)) {
-        return;
-      }
-
-      for (key in set) {
-        value = set[key];
-
-        if (key === 'function_') {
-          key = 'function';
-        }
-
-        this[key] = value;
-      }
-    }
-  }]);
-
-  return Checks;
-}();
-
-var index$1 = Checks.prototype.create();var IS;
-IS = index$1.create('natives', 'dom');
+var IS;
+IS = IS_.create('natives', 'dom');
 IS.load({
   quickDomEl: function quickDomEl(subject) {
     return subject && subject.constructor.name === 'QuickElement';
@@ -960,7 +184,7 @@ var init = function init(QuickElement_, QuickWindow_) {
   QuickElement = QuickElement_;
   QuickWindow = QuickWindow_;
   return _quickdom;
-};var includes$1 = function includes(target, item) {
+};var includes = function includes(target, item) {
   return target && target.indexOf(item) !== -1;
 };
 var removeItem = function removeItem(target, item) {
@@ -1001,7 +225,7 @@ var registerStyle = function registerStyle(rule, level, important) {
   }
 
   output = {
-    className: [index.register(rule, level, important)],
+    className: [CSS.register(rule, level, important)],
     fns: [],
     rule: rule
   };
@@ -1030,13 +254,13 @@ function () {
   _createClass(_class, [{
     key: "get",
     value: function get(key, level) {
-      var index$$1;
+      var index;
 
       if (this.keys[level]) {
-        index$$1 = this.keys[level].indexOf(key);
+        index = this.keys[level].indexOf(key);
 
-        if (index$$1 !== -1) {
-          return this.values[level][index$$1];
+        if (index !== -1) {
+          return this.values[level][index];
         }
       }
     }
@@ -1168,8 +392,8 @@ var emit = function emit(eventName) {
     event = document.createEvent('Event');
     event.initEvent(eventName, bubbles, cancelable);
 
-    if (data && _typeof$1(data) === 'object') {
-      primaryBuilder$1(event, data);
+    if (data && _typeof(data) === 'object') {
+      extend(event, data);
     }
 
     this.el.dispatchEvent(event);
@@ -1237,15 +461,15 @@ var style = function style(property) {
     value = typeof args[1] === 'function' ? args[1].call(this, this.related) : args[1];
 
     if (args[1] === null && IS$1.defined(this.currentStateStyle(property)) && !IS$1.function(this.currentStateStyle(property))) {
-      value = index.UNSET;
+      value = CSS.UNSET;
     }
 
     if (value && typeof value.then === 'function') {
       value.then(function (value) {
-        return index(_this.el, property, value, _this.options.forceStyle);
+        return CSS(_this.el, property, value, _this.options.forceStyle);
       });
     } else {
-      result = index(this.el, property, value, this.options.forceStyle);
+      result = CSS(this.el, property, value, this.options.forceStyle);
     }
 
     if (args.length === 1) {
@@ -1677,12 +901,12 @@ var _normalizeOptions = function _normalizeOptions() {
     base5.passDataToChildren = true;
   }
 
-  this.options.stateTriggers = this.options.stateTriggers ? primaryBuilder$1.clone.deep(BASE_STATE_TRIGGERS, this.options.stateTriggers) : BASE_STATE_TRIGGERS;
+  this.options.stateTriggers = this.options.stateTriggers ? extend.clone.deep(BASE_STATE_TRIGGERS, this.options.stateTriggers) : BASE_STATE_TRIGGERS;
 
   if (this.type === 'text') {
-    primaryBuilder$1(this, this._parseTexts(this.options.text, this._texts));
+    extend(this, this._parseTexts(this.options.text, this._texts));
   } else {
-    primaryBuilder$1(this, this._parseStyles(this.options.style, this._styles));
+    extend(this, this._parseStyles(this.options.style, this._styles));
   }
 };
 var _parseStyles = function _parseStyles(styles, store) {
@@ -1707,7 +931,7 @@ var _parseStyles = function _parseStyles(styles, store) {
   });
   _styles = store || {};
   _stateShared = _providedStatesShared = void 0;
-  base = !includes$1(states, '$base') ? styles : styles.$base;
+  base = !includes(states, '$base') ? styles : styles.$base;
   _styles.base = registerStyle(base, 0, forceStyle = this.options.forceStyle);
 
   if (specialStates.length) {
@@ -1906,7 +1130,7 @@ var _applyOptions = function _applyOptions() {
 var _postCreation = function _postCreation(data) {
   if (this.options.computers) {
     if (data && this.options.data) {
-      data = primaryBuilder$1.clone(this.options.data, data);
+      data = extend.clone(this.options.data, data);
     }
 
     data || (data = this.options.data);
@@ -1930,7 +1154,7 @@ var _attachStateEvents = function _attachStateEvents(force) {
     var disabler, enabler, trigger;
     trigger = _this2.options.stateTriggers[state];
 
-    if (!includes$1(_this2._providedStates, state) && !force && !trigger.force) {
+    if (!includes(_this2._providedStates, state) && !force && !trigger.force) {
       return;
     }
 
@@ -2346,7 +1570,7 @@ var state = function state(targetState, value, bubbles, source) {
 
   if (arguments.length === 1) {
     if (IS$1.string(targetState)) {
-      return includes$1(this._state, targetState);
+      return includes(this._state, targetState);
     } else if (IS$1.object(targetState)) {
       keys = Object.keys(targetState);
       i = -1;
@@ -2392,7 +1616,7 @@ var state = function state(targetState, value, bubbles, source) {
     } // ==== Pass state to parent/children =================================================================================
 
 
-    if (!includes$1(this.options.unpassableStates, targetState)) {
+    if (!includes(this.options.unpassableStates, targetState)) {
       if (bubbles) {
         if (this.parent) {
           this._parent.state(targetState, value, true, source || this);
@@ -2510,7 +1734,7 @@ var _turnStyleON = function _turnStyleON(targetState, activeStates) {
     for (j = 0, len = sharedStates.length; j < len; j++) {
       stateChain = sharedStates[j];
 
-      if (!includes$1(this._stateShared, stateChain.string)) {
+      if (!includes(this._stateShared, stateChain.string)) {
         this._stateShared.push(stateChain.string);
       }
 
@@ -2539,7 +1763,7 @@ var _turnStyleOFF = function _turnStyleOFF(targetState, activeStates) {
 
       if (targetStyle.fns.length && this._stateShared.length && !activeSharedStates) {
         activeSharedStates = this._stateShared.filter(function (state) {
-          return !includes$1(state, targetState);
+          return !includes(state, targetState);
         });
         activeStates = activeStates.concat(activeSharedStates);
       }
@@ -2684,7 +1908,7 @@ function state$1 (QuickElement) {
 var clone = function clone() {
   var activeState, callback, callbacks, child, elClone, eventName, i, j, k, len, len1, len2, newEl, options, ref, ref1, ref2;
   elClone = this.el.cloneNode(false);
-  options = primaryBuilder$1.clone(this.options, {
+  options = extend.clone(this.options, {
     existing: elClone
   });
   newEl = new this.constructor(this.type, options);
@@ -2942,7 +2166,7 @@ var replace = function replace(targetEl) {
   return this;
 };
 var hasClass = function hasClass(target) {
-  return includes$1(this.classList, target);
+  return includes(this.classList, target);
 };
 var addClass = function addClass(target) {
   var classList, targetIndex;
@@ -3092,7 +2316,7 @@ var updateStateStyles = function updateStateStyles(styles) {
   var i, len, parsed, state, updatedStates;
 
   if (IS$1.objectPlain(styles)) {
-    primaryBuilder$1.deep.concat(this, parsed = this._parseStyles(styles));
+    extend.deep.concat(this, parsed = this._parseStyles(styles));
 
     if (parsed._styles) {
       updatedStates = Object.keys(parsed._styles);
@@ -3113,7 +2337,7 @@ var updateStateTexts = function updateStateTexts(texts) {
   var parsed;
 
   if (IS$1.objectPlain(texts)) {
-    primaryBuilder$1.deep.concat(this, parsed = this._parseTexts(texts));
+    extend.deep.concat(this, parsed = this._parseTexts(texts));
   }
 
   return this;
@@ -3263,7 +2487,7 @@ var QuickElement$2 = QuickElement$1 = function () {
       key: "toJSON",
       value: function toJSON() {
         var child, children, i, len, output;
-        output = [this.type, primaryBuilder$1.clone.keys(element)(this.options)];
+        output = [this.type, extend.clone.keys(element)(this.options)];
         children = this.children;
 
         for (i = 0, len = children.length; i < len; i++) {
@@ -3319,7 +2543,7 @@ var parseTree$1 = parseTree = function parseTree(tree, parseChildren) {
       if (tree.length > 1 && !IS$1.object(tree[1]) && tree[1] !== null) {
         throw new Error("".concat(PARSE_ERROR_PREFIX, " object for 'options', got '").concat(String(tree[1]), "'"));
       } else {
-        output.options = tree[1] ? primaryBuilder$1.deep.clone(tree[1]) : schema.options;
+        output.options = tree[1] ? extend.deep.clone(tree[1]) : schema.options;
 
         if (tree[1]) {
           output.ref = tree[1].id || tree[1].ref;
@@ -3351,7 +2575,7 @@ var parseTree$1 = parseTree = function parseTree(tree, parseChildren) {
       return {
         type: tree.nodeName.toLowerCase(),
         ref: tree.id,
-        options: primaryBuilder$1.clone.keys(template)(tree),
+        options: extend.clone.keys(template)(tree),
         children: schema.children.map.call(tree.childNodes, quickdom.template)
       };
 
@@ -3359,7 +2583,7 @@ var parseTree$1 = parseTree = function parseTree(tree, parseChildren) {
       return {
         type: tree.type,
         ref: tree.ref,
-        options: primaryBuilder$1.clone.deep.notKeys(['relatedInstance', 'related'])(tree.options),
+        options: extend.clone.deep.notKeys(['relatedInstance', 'related'])(tree.options),
         children: tree.children.map(quickdom.template)
       };
 
@@ -3378,7 +2602,7 @@ var extendTemplate$1 = extendTemplate = function extendTemplate(currentOpts, new
   if (globalOpts) {
     globalOptsTransform = {
       options: function options(opts) {
-        return primaryBuilder$1(opts, globalOpts);
+        return extend(opts, globalOpts);
       }
     };
   }
@@ -3391,7 +2615,7 @@ var extendTemplate$1 = extendTemplate = function extendTemplate(currentOpts, new
     };
   }
 
-  output = primaryBuilder$1.deep.nullDeletes.notKeys(NOT_KEYS).notDeep(NOT_DEEP_KEYS).transform(globalOptsTransform).clone(currentOpts, newOpts);
+  output = extend.deep.nullDeletes.notKeys(NOT_KEYS).notDeep(NOT_DEEP_KEYS).transform(globalOptsTransform).clone(currentOpts, newOpts);
   currentChildren = currentOpts.children;
   newChildren = (newOpts != null ? newOpts.children : void 0) || [];
   output.children = [];
@@ -3433,13 +2657,13 @@ var extendTemplate$1 = extendTemplate = function extendTemplate(currentOpts, new
       if (noChanges) {
         newChildProcessed = currentChild;
       } else if (needsTemplateWrap) {
-        newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate$1(primaryBuilder$1.clone(schema, newChildProcessed));
+        newChildProcessed = currentChild ? currentChild.extend(newChildProcessed, globalOpts) : new QuickTemplate$1(extend.clone(schema, newChildProcessed));
       }
 
       output.children.push(newChildProcessed);
     }
   } else if (IS$1.object(newChildren)) {
-    newChildren = primaryBuilder$1.allowNull.clone(newChildren);
+    newChildren = extend.allowNull.clone(newChildren);
     output.children = _extendByRef(newChildren, currentChildren, globalOpts);
     remainingNewChildren = newChildren;
 
@@ -3505,12 +2729,12 @@ function () {
     }
 
     config = isTree ? parseTree$1(config) : config;
-    primaryBuilder$1(this, config);
+    extend(this, config);
   }
 
   _createClass(QuickTemplate, [{
     key: "extend",
-    value: function extend(newValues, globalOpts) {
+    value: function extend$$1(newValues, globalOpts) {
       return new QuickTemplate(extendTemplate$1(this, newValues, globalOpts));
     }
   }, {
@@ -3536,7 +2760,7 @@ function () {
         options = this.options;
         children = this.children;
         type = this.type;
-        options = primaryBuilder$1.clone(options);
+        options = extend.clone(options);
       }
 
       element = _quickdom.create([type, options]);
@@ -3657,7 +2881,7 @@ _quickdom.batch = function (elements, returnResults) {
   }
 
   return new QuickBatch(elements, returnResults);
-};var version$2 = "1.0.92";var SHORTCUTS, i, len, shortcut;
+};var version = "1.0.93";var SHORTCUTS, i, len, shortcut;
 SHORTCUTS = ['link:a', 'anchor:a', 'a', 'text', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'section', 'button', 'br', 'ul', 'ol', 'li', 'fieldset', 'input', 'textarea', 'select', 'option', 'form', 'frame', 'hr', 'iframe', 'img', 'picture', 'main', 'nav', 'meta', 'object', 'pre', 'style', 'table', 'tbody', 'th', 'tr', 'td', 'tfoot', // 'template'
 'video'];
 
@@ -3668,7 +2892,7 @@ for (i = 0, len = SHORTCUTS.length; i < len; i++) {
     var prop, split, type;
     prop = type = shortcut;
 
-    if (includes$1(shortcut, ':')) {
+    if (includes(shortcut, ':')) {
       split = shortcut.split(':');
       prop = split[0];
       type = split[1];
@@ -3683,7 +2907,7 @@ _quickdom.QuickElement = QuickElement$2;
 _quickdom.QuickTemplate = QuickTemplate$1;
 _quickdom.QuickWindow = QuickWindow$2;
 _quickdom.QuickBatch = QuickBatch$1;
-_quickdom.version = version$2;
-_quickdom.CSS = index;
+_quickdom.version = version;
+_quickdom.CSS = CSS;
 var quickdom = _quickdom; // export {quickdom as default, QuickElement, QuickTemplate, QuickWindow, QuickBatch}
 return quickdom;}));
