@@ -2,7 +2,8 @@ import {version as packageVersion} from '../package.json'
 import dimensions from './simulate.coffee'
 import chai from 'chai'
 import chaiStyle from 'chai-style'
-window.Dom = window.DOM = window.quickdom
+import quickdom from '../build/quickdom.esm.js'
+window.Dom = window.DOM = quickdom
 mocha.setup('tdd')
 mocha.slow(400)
 mocha.timeout(12000)
