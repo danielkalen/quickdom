@@ -1,4 +1,6 @@
 import CSS from'quickcss';import extend from'smart-extend';import IS_ from'@danielkalen/is';function _typeof(obj) {
+  "@babel/helpers - typeof";
+
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
     _typeof = function (obj) {
       return typeof obj;
@@ -292,7 +294,7 @@ var on_ = function on_(eventNames, callback, useCapture, isPrivate) {
     };
   }
 
-  if (IS$1.string(eventNames) && IS$1.function(callback)) {
+  if (IS$1.string(eventNames) && IS$1["function"](callback)) {
     split = eventNames.split('.');
     callbackRef = split[1];
     eventNames = split[0];
@@ -334,7 +336,7 @@ var once = function once(eventNames, callback) {
 
   var _onceCallback;
 
-  if (IS$1.string(eventNames) && IS$1.function(callback)) {
+  if (IS$1.string(eventNames) && IS$1["function"](callback)) {
     this.on(eventNames, _onceCallback = function onceCallback(event) {
       _this2.off(eventNames, _onceCallback);
 
@@ -371,7 +373,7 @@ var off_ = function off_(eventNames, callback) {
           callback = (ref = _this3._eventCallbacks.__refs[eventName]) != null ? ref[callbackRef] : void 0;
         }
 
-        if (IS$1.function(callback)) {
+        if (IS$1["function"](callback)) {
           return removeItem(_this3._eventCallbacks[eventName], callback);
         } else if (!callbackRef) {
           return _this3._eventCallbacks[eventName].length = 0;
@@ -460,7 +462,7 @@ var style = function style(property) {
   if (IS$1.string(property)) {
     value = typeof args[1] === 'function' ? args[1].call(this, this.related) : args[1];
 
-    if (args[1] === null && IS$1.defined(this.currentStateStyle(property)) && !IS$1.function(this.currentStateStyle(property))) {
+    if (args[1] === null && IS$1.defined(this.currentStateStyle(property)) && !IS$1["function"](this.currentStateStyle(property))) {
       value = CSS.UNSET;
     }
 
@@ -494,11 +496,11 @@ var style = function style(property) {
   return this;
 };
 /**
-* Attempts to resolve the value for a given property in the following order if each one isn't a valid value:
-* 1. from computed style (for dom-inserted els)
-* 2. from DOMElement.style object (for non-inserted els; if options.styleAfterInsert, will only have state styles)
-* 3. from provided style options
-* (for non-inserted els; checking only $base since state styles will always be applied to the style object even for non-inserted)
+ * Attempts to resolve the value for a given property in the following order if each one isn't a valid value:
+ * 1. from computed style (for dom-inserted els)
+ * 2. from DOMElement.style object (for non-inserted els; if options.styleAfterInsert, will only have state styles)
+ * 3. from provided style options
+ * (for non-inserted els; checking only $base since state styles will always be applied to the style object even for non-inserted)
  */
 
 var styleSafe = function styleSafe(property, skipComputed) {
@@ -881,8 +883,8 @@ var _normalizeOptions = function _normalizeOptions() {
 
   this.related = (base2 = this.options).related != null ? base2.related : base2.related = this;
 
-  if (this.options.class) {
-    this.options.className = this.options.class;
+  if (this.options["class"]) {
+    this.options.className = this.options["class"];
   }
 
   if (this.options.url) {
@@ -1108,7 +1110,7 @@ var _applyOptions = function _applyOptions() {
       value = ref2[method];
 
       if (!this[method]) {
-        if (IS$1.function(value)) {
+        if (IS$1["function"](value)) {
           this[method] = value;
         } else if (IS$1.object(value)) {
           Object.defineProperty(this, method, {
@@ -1273,7 +1275,7 @@ function init$1 (QuickElement) {
 var parentMatching = function parentMatching(filter) {
   var isRef, nextParent;
 
-  if (IS$1.function(filter) || (isRef = IS$1.string(filter))) {
+  if (IS$1["function"](filter) || (isRef = IS$1.string(filter))) {
     nextParent = this.parent;
 
     while (nextParent) {
@@ -1309,7 +1311,7 @@ var queryAll = function queryAll(selector) {
 var _getParents = function _getParents(targetEl, filter) {
   var isRef, nextParent, parents;
 
-  if (!IS$1.function(filter) && !(isRef = IS$1.string(filter))) {
+  if (!IS$1["function"](filter) && !(isRef = IS$1.string(filter))) {
     filter = void 0;
   }
 
@@ -2734,7 +2736,7 @@ function () {
 
   _createClass(QuickTemplate, [{
     key: "extend",
-    value: function extend$$1(newValues, globalOpts) {
+    value: function extend(newValues, globalOpts) {
       return new QuickTemplate(extendTemplate$1(this, newValues, globalOpts));
     }
   }, {
@@ -2881,7 +2883,7 @@ _quickdom.batch = function (elements, returnResults) {
   }
 
   return new QuickBatch(elements, returnResults);
-};var version = "1.0.93";var SHORTCUTS, i, len, shortcut;
+};var version = "1.0.94";var SHORTCUTS, i, len, shortcut;
 SHORTCUTS = ['link:a', 'anchor:a', 'a', 'text', 'div', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'footer', 'section', 'button', 'br', 'ul', 'ol', 'li', 'fieldset', 'input', 'textarea', 'select', 'option', 'form', 'frame', 'hr', 'iframe', 'img', 'picture', 'main', 'nav', 'meta', 'object', 'pre', 'style', 'table', 'tbody', 'th', 'tr', 'td', 'tfoot', // 'template'
 'video'];
 
